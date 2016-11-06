@@ -1,0 +1,9 @@
+---
+  env:
+    mocha: true
+  rules:
+      # we must use old school anon-function to fake constructors in tests :(
+      func-names: off
+      prefer-arrow-callback: off
+      no-unused-expressions: off
+      global-require: off # tests require files in before* blocks for mockery

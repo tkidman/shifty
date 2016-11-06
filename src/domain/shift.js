@@ -1,12 +1,19 @@
 'use strict';
 
 class Shift {
-
   constructor(params) {
-    this.time = params.time;
-    this.type = params.type; // opening, weekday, dayEnd, evening, weekend
-    this.assignedEmployees = [];
+    this.type = params.type;
     this.availableEmployees = [];
+    this.allocatedEmployees = [];
+  }
+
+  allocateEmployee(employee) {
+    this.allocatedEmployees.push(employee);
+    this.availableEmployees.splice(this.availableEmployees.indexOf(employee), 1);
+  }
+
+  addAvailableEmployee(employee) {
+    this.availableEmployees.push(employee);
   }
 }
 
