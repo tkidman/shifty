@@ -1,0 +1,12 @@
+---
+  extends: airbnb/base
+  rules:
+    strict: off
+#    no-param-reassign: off
+#    max-len: ["error", 132, { "ignoreComments": true }]
+    no-underscore-dangle: off #allow for 'private' methods and lodash
+    max-depth: error
+    complexity: error
+#    max-lines: off
+#    max-statements: ["error", 50]
+#    max-statements-per-line: error
