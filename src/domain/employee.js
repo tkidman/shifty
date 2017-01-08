@@ -5,13 +5,11 @@ class Employee {
   constructor(params) {
     this.name = params.name;
     this.hewLevel = params.hewLevel;
+    this.averageWeeklyHours = params.averageWeeklyHours;
     this.availableForShifts = [];
     this.allocatedShifts = [];
-    this.averageWeeklyHours = params.averageWeeklyHours;
-
-    const idealMinHours = (this.hewLevel.minDeskPercentage / 100) * this.averageWeeklyHours;
-    const idealMaxHours = (this.hewLevel.maxDeskPercentage / 100) * this.averageWeeklyHours;
-    this.idealHoursRange = [idealMinHours, idealMaxHours];
+    this.idealMinHours = (this.hewLevel.minDeskPercentage / 100) * this.averageWeeklyHours;
+    this.idealMaxHours = (this.hewLevel.maxDeskPercentage / 100) * this.averageWeeklyHours;
   }
 
   canWorkShift(shift) {
@@ -27,6 +25,10 @@ class Employee {
     this.allocatedShifts.push(shift);
     this.availableForShifts.splice(this.availableForShifts.indexOf(shift), 1);
     shift.allocateEmployee(this);
+  }
+
+  getCurrentHoursAllocated() {
+    return this.allocatedShifts.reduce((allocatedShift, hours) => hours + allocatedShift.type.length, 0);
   }
 }
 

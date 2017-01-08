@@ -3,7 +3,7 @@
   rules:
     strict: off
 #    no-param-reassign: off
-#    max-len: ["error", 132, { "ignoreComments": true }]
+    max-len: ["error", 132, { "ignoreComments": true }]
     no-underscore-dangle: off #allow for 'private' methods and lodash
     max-depth: error
     complexity: error

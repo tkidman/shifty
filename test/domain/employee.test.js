@@ -3,7 +3,7 @@ const chai = require('chai');
 const expect = chai.expect;
 const Employee = require('../../src/domain/employee');
 const Shift = require('../../src/domain/shift');
-const shiftTypes = require('../../src/domain/shiftType');
+const shiftTypes = require('../../src/domain/shift-type');
 
 describe('Employee', () => {
   let employee;

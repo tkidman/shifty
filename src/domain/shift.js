@@ -1,6 +1,7 @@
 'use strict';
 
-const shiftTypes = require('./shiftType');
+const employeeMinHours = 4;
+const minHoursScoreChange = -40;
 
 class Shift {
   constructor(params) {
@@ -33,9 +34,22 @@ class Shift {
     return this.availableEmployees.first();
   }
 
+  // lower the better
   scoreEmployee(employee) {
-    // if (this.type != nig)
-    return 5;
+    const employeeHours = employee.getCurrentHoursAllocated();
+    const hoursWithShift = employeeHours + this.type.length;
+    let score = 0;
+
+    if (employeeHours < employeeMinHours) {
+      score += minHoursScoreChange;
+    }
+    if (hoursWithShift < employee.idealMinHours) {
+      score += hoursWithShift - employee.idealMinHours;
+    } else if (hoursWithShift > employee.idealMaxHours) {
+      score += hoursWithShift - employee.idealMaxHours;
+    }
+
+    return score;
   }
 }
 
