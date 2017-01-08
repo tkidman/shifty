@@ -27,15 +27,15 @@ class Shift {
 
   findBestEmployee() {
     // give each available employee a score to sort on
-    const score = 0; // lowest is best
-    this.availableEmployees.sort((first, second) => {
-
-    });
+    this.availableEmployees.sort((first, second) =>
+      this.scoreEmployee(first) - this.scoreEmployee(second)
+    );
     return this.availableEmployees.first();
   }
 
-  calculateEmployeeShiftSuitablityScore(employee) {
-    if (this.type != nig)
+  scoreEmployee(employee) {
+    // if (this.type != nig)
+    return 5;
   }
 }
 

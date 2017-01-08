@@ -7,6 +7,11 @@ class Employee {
     this.hewLevel = params.hewLevel;
     this.availableForShifts = [];
     this.allocatedShifts = [];
+    this.averageWeeklyHours = params.averageWeeklyHours;
+
+    const idealMinHours = (this.hewLevel.minDeskPercentage / 100) * this.averageWeeklyHours;
+    const idealMaxHours = (this.hewLevel.maxDeskPercentage / 100) * this.averageWeeklyHours;
+    this.idealHoursRange = [idealMinHours, idealMaxHours];
   }
 
   canWorkShift(shift) {
