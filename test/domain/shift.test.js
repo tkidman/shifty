@@ -49,7 +49,7 @@ describe('Shift', () => {
     });
   });
 
-  context('with low, mid and high employees', () => {
+  context('with low, mid and high scoring employees', () => {
     let lowEmployee;
 
     beforeEach(() => {
