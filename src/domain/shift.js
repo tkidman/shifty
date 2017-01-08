@@ -31,7 +31,7 @@ class Shift {
     this.availableEmployees.sort((first, second) =>
       this.scoreEmployee(first) - this.scoreEmployee(second)
     );
-    return this.availableEmployees.first();
+    return this.availableEmployees[0];
   }
 
   // lower the better

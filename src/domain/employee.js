@@ -28,7 +28,7 @@ class Employee {
   }
 
   getCurrentHoursAllocated() {
-    return this.allocatedShifts.reduce((allocatedShift, hours) => hours + allocatedShift.type.length, 0);
+    return this.allocatedShifts.reduce((hours, allocatedShift) => hours + allocatedShift.type.length, 0);
   }
 }
 

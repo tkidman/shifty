@@ -4,6 +4,7 @@ const expect = chai.expect;
 const Employee = require('../../src/domain/employee');
 const Shift = require('../../src/domain/shift');
 const shiftTypes = require('../../src/domain/shift-type');
+const hewLevels = require('../../src/domain/hew-level');
 
 describe('Employee', () => {
   let employee;
@@ -11,7 +12,7 @@ describe('Employee', () => {
 
   beforeEach(() => {
     shift = new Shift({ type: shiftTypes.standard });
-    employee = new Employee({ name: 'empy', hewLevel: 2 });
+    employee = new Employee({ name: 'empy', hewLevel: hewLevels.hewLevel4, averageWeeklyHours: 10 });
     employee.markAsAvailableForShift(shift);
   });
 
@@ -45,6 +46,28 @@ describe('Employee', () => {
 
     it('removes the employee from the shifts\'s available employees', () => {
       expect(shift.availableEmployees.includes(employee)).to.be.false;
+    });
+  });
+
+  context('constructor', () => {
+    it('sets ideal min hours', () => {
+      expect(employee.idealMinHours).to.eql(5);
+    });
+
+    it('sets ideal max hours', () => {
+      expect(employee.idealMaxHours).to.eql(10);
+    });
+  });
+
+  context('currentHoursAllocated', () => {
+    it('reports correct hours when no shifts allocated', () => {
+      expect(employee.getCurrentHoursAllocated()).to.eql(0);
+    });
+
+    it('reports correct hours when shifts allocated', () => {
+      employee.allocateToShift(new Shift({ type: shiftTypes.night }));
+      employee.allocateToShift(new Shift({ type: shiftTypes.standard }));
+      expect(employee.getCurrentHoursAllocated()).to.eql(5);
     });
   });
 });
