@@ -8,6 +8,8 @@ class Shift {
     this.type = params.type;
     this.availableEmployees = [];
     this.allocatedEmployees = [];
+    this.start = params.start;
+    this.end = params.end;
   }
 
   allocateEmployee(employee) {
