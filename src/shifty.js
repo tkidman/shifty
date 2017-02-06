@@ -14,19 +14,31 @@ const run = () => {
   const workbook = new Excel.Workbook();
   return workbook.xlsx.readFile('./data/shifty.xlsx')
     .then(() => {
-      const shiftsSheet = workbook.getWorksheet(1);
-      shiftsSheet.eachRow((row, rowNumber) => {
+      const staffSheet = workbook.getWorksheet(2);
+      const allStaff = {};
+      staffSheet.eachRow((row, rowNumber) => {
+        const staffParams = {};
         if (rowNumber > 1) {
-          const day = convertToGMT(row.getCell(1).value);
+          staffParams.name = row.getCell(1).value;
+          staffParams.hewLevel = row.getCell(2).value;
+          staffParams.aal = row.getCell(3).value;
+        }
+      });
+
+      const shiftsSheet = workbook.getWorksheet(1);
+      const shifts = [];
+      shiftsSheet.eachRow((row, rowNumber) => {
+        let day;
+        if (rowNumber > 1) {
+          if (row.getCell(1).value) {
+            day = convertToGMT(row.getCell(1).value);
+          }
           const startTime = convertToGMT(row.getCell(2).value);
           const endTime = row.getCell(3).value;
-
           const start = addTime(day, startTime);
           const end = addTime(day, endTime);
           const type = row.getCell(4).value;
-          const shiftType = row.getCell(5).value;
-          const numberOfStaff = row.getCell(6).value;
-          const shift = new Shift({ type, start, end });
+          shifts.push(new Shift({ type, start, end }));
         }
       });
       console.log(workbook);
