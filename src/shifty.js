@@ -125,7 +125,7 @@ const printStaffSummary = (roster, sheet) => {
 const run = () => {
   const workbook = new Excel.Workbook();
   let roster;
-  return workbook.xlsx.readFile('./data/shifty.xlsx')
+  return workbook.xlsx.readFile('./data/shifty shifts.xlsx')
     .then(() => {
       const allStaff = loadStaff(workbook);
       loadNegs(workbook, allStaff);

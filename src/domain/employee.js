@@ -32,7 +32,7 @@ class Employee {
   _overlap(neg, shift) {
     return (neg.start.getTime() > shift.start.getTime() && neg.start.getTime() < shift.end.getTime()) ||
       (neg.end.getTime() > shift.start.getTime() && neg.end.getTime() < shift.end.getTime()) ||
-      (neg.start.getTime() < shift.start.getTime() && neg.end.getTime() > shift.end.getTime());
+      (neg.start.getTime() <= shift.start.getTime() && neg.end.getTime() >= shift.end.getTime());
   }
 
   _worksDuringShift(shift) {
