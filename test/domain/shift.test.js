@@ -5,6 +5,7 @@ const Employee = require('../../src/domain/employee');
 const Shift = require('../../src/domain/shift');
 const shiftTypes = require('../../src/domain/shift-type');
 const hewLevels = require('../../src/domain/hew-level');
+const adjustTimezoneOffset = require('../../src/common').adjustTimezoneOffset;
 
 describe('Shift', () => {
   let employee;
@@ -14,38 +15,46 @@ describe('Shift', () => {
   let nightShift;
 
   beforeEach(() => {
-    standardShift = new Shift({ type: shiftTypes.standard });
-    nightShift = new Shift({ type: shiftTypes.night });
+    standardShift = new Shift({
+      type: shiftTypes.standard,
+      start: adjustTimezoneOffset(new Date('2017-02-06T09:00:00')),
+      end: adjustTimezoneOffset(new Date('2017-02-06T10:00:00')),
+    });
+    nightShift = new Shift({
+      type: shiftTypes.standard,
+      start: adjustTimezoneOffset(new Date('2017-02-06T17:00:00')),
+      end: adjustTimezoneOffset(new Date('2017-02-06T21:00:00')),
+    });
     employee = new Employee({ name: 'empy', hewLevel: hewLevels.hewLevel5, averageWeeklyHours: 30 });
     employee.markAsAvailableForShift(standardShift);
   });
 
   context('scoreEmployee', () => {
-    it('returns the correct score when under minimum hours', () => {
-      expect(standardShift.scoreEmployee(employee)).to.eql(-40 - employee.idealMinHours + standardShift.type.length);
+    it('returns the correct score when under minimum minutes', () => {
+      expect(standardShift.scoreEmployee(employee)).to.eql(-400 - employee.idealMinMinutes + standardShift.getShiftLengthMinutes());
     });
 
-    it('returns the correct score when over minimum hours and under ideal hours', () => {
+    it('returns the correct score when over minimum minutes and under ideal minutes', () => {
       employee.allocateToShift(nightShift);
       const score = standardShift.scoreEmployee(employee);
-      expect(score).to.eql(nightShift.type.length + standardShift.type.length - employee.idealMinHours);
+      expect(score).to.eql(nightShift.getShiftLengthMinutes() + standardShift.getShiftLengthMinutes() - employee.idealMinMinutes);
     });
 
-    it('returns the correct score when over ideal min hours and under ideal max hours', () => {
+    it('returns the correct score when over ideal min minutes and under ideal max minutes', () => {
       // between 12 and 15
       for (let i = 0; i < 13; i++) {
-        employee.allocateToShift(new Shift({ type: shiftTypes.standard }));
+        employee.allocateToShift(standardShift);
       }
       const score = standardShift.scoreEmployee(employee);
       expect(score).to.eql(0);
     });
 
-    it('returns the correct score when over ideal max hours', () => {
+    it('returns the correct score when over ideal max minutes', () => {
       for (let i = 0; i <= 14; i++) {
-        employee.allocateToShift(new Shift({ type: shiftTypes.standard }));
+        employee.allocateToShift(standardShift);
       }
       const score = standardShift.scoreEmployee(employee);
-      expect(score).to.eql(1);
+      expect(score).to.eql(60);
     });
   });
 
@@ -55,9 +64,13 @@ describe('Shift', () => {
     beforeEach(() => {
       lowEmployee = new Employee({ name: 'empy', hewLevel: hewLevels.hewLevel5, averageWeeklyHours: 30 });
       const midEmployee = new Employee({ name: 'empo', hewLevel: hewLevels.hewLevel5, averageWeeklyHours: 30 });
-      midEmployee.allocateToShift(new Shift({ type: shiftTypes.standard }));
+      midEmployee.allocateToShift(standardShift);
       const highEmployee = new Employee({ name: 'empi', hewLevel: hewLevels.hewLevel5, averageWeeklyHours: 30 });
-      highEmployee.allocateToShift(new Shift({ type: shiftTypes.night }));
+      highEmployee.allocateToShift(new Shift({
+        type: shiftTypes.standard,
+        start: adjustTimezoneOffset(new Date('2017-02-06T17:00:00')),
+        end: adjustTimezoneOffset(new Date('2017-02-06T21:00:00')),
+      }));
       highEmployee.markAsAvailableForShift(nightShift);
       lowEmployee.markAsAvailableForShift(nightShift);
       midEmployee.markAsAvailableForShift(nightShift);
@@ -73,8 +86,15 @@ describe('Shift', () => {
       it('fills the shift with the right amount of workers', () => {
         expect(nightShift.allocatedEmployees.length).to.equal(0);
         nightShift.fill();
-        expect(nightShift.allocatedEmployees.length).to.equal(nightShift.type.numEmployees);
+        expect(nightShift.allocatedEmployees.length).to.equal(1);
       });
+    });
+  });
+
+  context('shift length in minutes', () => {
+    it('calculates minutes correctly', () => {
+      expect(standardShift.getShiftLengthMinutes()).to.equal(60);
+      expect(nightShift.getShiftLengthMinutes()).to.equal(240);
     });
   });
 });

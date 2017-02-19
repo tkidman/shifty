@@ -5,13 +5,24 @@ const Employee = require('../../src/domain/employee');
 const Shift = require('../../src/domain/shift');
 const shiftTypes = require('../../src/domain/shift-type');
 const hewLevels = require('../../src/domain/hew-level');
+const adjustTimezoneOffset = require('../../src/common').adjustTimezoneOffset;
 
 describe('Employee', () => {
   let employee;
   let shift;
+  let nightShift;
 
   beforeEach(() => {
-    shift = new Shift({ type: shiftTypes.standard });
+    shift = new Shift({
+      type: shiftTypes.standard,
+      start: adjustTimezoneOffset(new Date('2017-02-06T09:00:00')),
+      end: adjustTimezoneOffset(new Date('2017-02-06T10:00:00')),
+    });
+    nightShift = new Shift({
+      type: shiftTypes.standard,
+      start: adjustTimezoneOffset(new Date('2017-02-06T17:00:00')),
+      end: adjustTimezoneOffset(new Date('2017-02-06T21:00:00')),
+    });
     employee = new Employee({ name: 'empy', hewLevel: hewLevels.hewLevel4, averageWeeklyHours: 10 });
     employee.markAsAvailableForShift(shift);
   });
@@ -50,24 +61,79 @@ describe('Employee', () => {
   });
 
   context('constructor', () => {
-    it('sets ideal min hours', () => {
-      expect(employee.idealMinHours).to.eql(5);
+    it('sets ideal min minutes', () => {
+      expect(employee.idealMinMinutes).to.eql(300);
     });
 
-    it('sets ideal max hours', () => {
-      expect(employee.idealMaxHours).to.eql(10);
+    it('sets ideal max minutes', () => {
+      expect(employee.idealMaxMinutes).to.eql(600);
     });
   });
 
   context('currentHoursAllocated', () => {
-    it('reports correct hours when no shifts allocated', () => {
-      expect(employee.getCurrentHoursAllocated()).to.eql(0);
+    it('reports correct minutes when no shifts allocated', () => {
+      expect(employee.getCurrentMinutesAllocated()).to.eql(0);
     });
 
-    it('reports correct hours when shifts allocated', () => {
-      employee.allocateToShift(new Shift({ type: shiftTypes.night }));
-      employee.allocateToShift(new Shift({ type: shiftTypes.standard }));
-      expect(employee.getCurrentHoursAllocated()).to.eql(5);
+    it('reports correct minutes when shifts allocated', () => {
+      employee.allocateToShift(shift);
+      employee.allocateToShift(nightShift);
+      expect(employee.getCurrentMinutesAllocated()).to.eql(300);
+    });
+  });
+
+  context('setAvailableForShifts', () => {
+    let shift2;
+
+    beforeEach(() => {
+      shift = new Shift({
+        type: shiftTypes.standard,
+        start: adjustTimezoneOffset(new Date('2017-02-06T09:00:00')),
+        end: adjustTimezoneOffset(new Date('2017-02-06T10:00:00')),
+      });
+      shift2 = new Shift({
+        type: shiftTypes.standard,
+        start: adjustTimezoneOffset(new Date('2017-02-07T09:00:00')),
+        end: adjustTimezoneOffset(new Date('2017-02-07T10:00:00')),
+      });
+
+      employee = new Employee({ name: 'empy', hewLevel: hewLevels.hewLevel4, averageWeeklyHours: 10 });
+      // date doesn't matter here, only time
+      employee.hoursByDayOfWeek = { Mon: { start: new Date(new Date().setHours(8)), end: new Date(new Date().setHours(17)) } };
+    });
+
+    it('does not set shift when employee does not work during shift', () => {
+      employee.setAvailableForShifts([shift2]);
+      expect(employee.availableForShifts.length).to.equal(0);
+    });
+
+    it('does not set shift when employee has an overlapping neg', () => {
+      employee.negs = [{
+        start: adjustTimezoneOffset(new Date('2017-02-06T09:30:00')),
+        end: adjustTimezoneOffset(new Date('2017-02-06T10:30:00')),
+      }];
+      employee.setAvailableForShifts([shift]);
+      expect(employee.availableForShifts.length).to.equal(0);
+
+      employee.negs = [{
+        start: adjustTimezoneOffset(new Date('2017-02-06T08:30:00')),
+        end: adjustTimezoneOffset(new Date('2017-02-06T09:30:00')),
+      }];
+      employee.setAvailableForShifts([shift]);
+      expect(employee.availableForShifts.length).to.equal(0);
+
+      employee.negs = [{
+        start: adjustTimezoneOffset(new Date('2017-02-06T08:30:00')),
+        end: adjustTimezoneOffset(new Date('2017-02-06T10:30:00')),
+      }];
+      employee.setAvailableForShifts([shift]);
+      expect(employee.availableForShifts.length).to.equal(0);
+    });
+
+    it('does not set shift when employee has an overlapping rdo', () => {
+      employee.rdos = [new Date('2017-02-06T09:30:00')];
+      employee.setAvailableForShifts([shift]);
+      expect(employee.availableForShifts.length).to.equal(0);
     });
   });
 });

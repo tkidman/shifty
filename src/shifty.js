@@ -3,6 +3,7 @@ const Shift = require('./domain/shift');
 const Employee = require('./domain/employee');
 const Roster = require('./domain/roster');
 const hewLevels = require('./domain/hew-level');
+const adjustTimezoneOffset = require('./common').adjustTimezoneOffset;
 
 const hewLevelsByNumber = {
   3: hewLevels.hewLevel3,
@@ -15,7 +16,6 @@ const hewLevelsByNumber = {
 };
 
 const daysByColumn = { 4: 'Mon', 6: 'Tue', 8: 'Wed', 10: 'Thu', 12: 'Fri' };
-const adjustTimezoneOffset = (date) => new Date(date.valueOf() + date.getTimezoneOffset() * 60000);
 
 const addTime = (day, time) => {
   const dateTime = new Date(day);
@@ -36,9 +36,9 @@ const loadStaff = (workbook) => {
       staffParams.aal = row.getCell(3).value === 'y';
       for (let i = 4; i <= 12; i += 2) {
         if (row.getCell(i).value) {
-          const startTime = adjustTimezoneOffset(row.getCell(i).value);
-          const endTime = adjustTimezoneOffset(row.getCell(i + 1).value);
-          hoursByDayOfWeek[daysByColumn[i]] = { startTime, endTime };
+          const start = adjustTimezoneOffset(row.getCell(i).value);
+          const end = adjustTimezoneOffset(row.getCell(i + 1).value);
+          hoursByDayOfWeek[daysByColumn[i]] = { start, end };
         }
       }
       staffParams.hoursByDayOfWeek = hoursByDayOfWeek;

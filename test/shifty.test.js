@@ -3,8 +3,7 @@ const chai = require('chai');
 const expect = chai.expect;
 const shifty = require('../src/shifty');
 const hewLevels = require('../src/domain/hew-level');
-
-const adjustTimezoneOffset = (date) => new Date(date.valueOf() + date.getTimezoneOffset() * 60000);
+const adjustTimezoneOffset = require('../src/common').adjustTimezoneOffset;
 
 describe('Shifty', () => {
   let roster;
@@ -26,15 +25,15 @@ describe('Shifty', () => {
       expect(roster.shifts[0].start).to.eql(firstShiftStart);
       expect(roster.shifts[0].end).to.eql(firstShiftEnd);
 
-      expect(roster.employees.Melanie.hoursByDayOfWeek.Mon.startTime.getHours()).to.eql(8);
-      expect(roster.employees.Melanie.hoursByDayOfWeek.Mon.startTime.getMinutes()).to.eql(30);
-      expect(roster.employees.Melanie.hoursByDayOfWeek.Mon.endTime.getHours()).to.eql(17);
-      expect(roster.employees.Melanie.hoursByDayOfWeek.Mon.endTime.getMinutes()).to.eql(0);
+      expect(roster.employees.Melanie.hoursByDayOfWeek.Mon.start.getHours()).to.eql(8);
+      expect(roster.employees.Melanie.hoursByDayOfWeek.Mon.start.getMinutes()).to.eql(30);
+      expect(roster.employees.Melanie.hoursByDayOfWeek.Mon.end.getHours()).to.eql(17);
+      expect(roster.employees.Melanie.hoursByDayOfWeek.Mon.end.getMinutes()).to.eql(0);
 
-      expect(roster.employees.Vivian.hoursByDayOfWeek.Fri.startTime.getHours()).to.eql(8);
-      expect(roster.employees.Vivian.hoursByDayOfWeek.Fri.startTime.getMinutes()).to.eql(30);
-      expect(roster.employees.Vivian.hoursByDayOfWeek.Fri.endTime.getHours()).to.eql(17);
-      expect(roster.employees.Vivian.hoursByDayOfWeek.Fri.endTime.getMinutes()).to.eql(0);
+      expect(roster.employees.Vivian.hoursByDayOfWeek.Fri.start.getHours()).to.eql(8);
+      expect(roster.employees.Vivian.hoursByDayOfWeek.Fri.start.getMinutes()).to.eql(30);
+      expect(roster.employees.Vivian.hoursByDayOfWeek.Fri.end.getHours()).to.eql(17);
+      expect(roster.employees.Vivian.hoursByDayOfWeek.Fri.end.getMinutes()).to.eql(0);
 
       const firstNegStart = adjustTimezoneOffset(new Date('2017-02-07T08:00:00'));
       const firstNegEnd = adjustTimezoneOffset(new Date('2017-02-07T09:00:00'));

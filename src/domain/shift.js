@@ -1,7 +1,7 @@
 'use strict';
 
-const employeeMinHours = 4;
-const minHoursScoreChange = -40;
+const employeeMinMinutes = 4 * 60;
+const minMinutesScoreChange = -400;
 
 class Shift {
   constructor(params) {
@@ -10,6 +10,10 @@ class Shift {
     this.allocatedEmployees = [];
     this.start = params.start;
     this.end = params.end;
+  }
+
+  getShiftLengthMinutes() {
+    return (this.end.getHours() * 60 + this.end.getMinutes()) - (this.start.getHours() * 60 + this.start.getMinutes());
   }
 
   allocateEmployee(employee) {
@@ -22,10 +26,8 @@ class Shift {
   }
 
   fill() {
-    while (this.allocatedEmployees.length < this.type.numEmployees) {
-      const employee = this.findBestEmployee();
-      employee.allocateToShift(this);
-    }
+    const employee = this.findBestEmployee();
+    employee.allocateToShift(this);
   }
 
   findBestEmployee() {
@@ -38,17 +40,17 @@ class Shift {
 
   // lower the better
   scoreEmployee(employee) {
-    const employeeHours = employee.getCurrentHoursAllocated();
-    const hoursWithShift = employeeHours + this.type.length;
+    const employeeMinutes = employee.getCurrentMinutesAllocated();
+    const minutesWithShift = employeeMinutes + this.getShiftLengthMinutes();
     let score = 0;
 
-    if (employeeHours < employeeMinHours) {
-      score += minHoursScoreChange;
+    if (employeeMinutes < employeeMinMinutes) {
+      score += minMinutesScoreChange;
     }
-    if (hoursWithShift < employee.idealMinHours) {
-      score += hoursWithShift - employee.idealMinHours;
-    } else if (hoursWithShift > employee.idealMaxHours) {
-      score += hoursWithShift - employee.idealMaxHours;
+    if (minutesWithShift < employee.idealMinMinutes) {
+      score += minutesWithShift - employee.idealMinMinutes;
+    } else if (minutesWithShift > employee.idealMaxMinutes) {
+      score += minutesWithShift - employee.idealMaxMinutes;
     }
 
     return score;
