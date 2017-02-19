@@ -101,43 +101,46 @@ const loadRdos = (workbook, allStaff) => {
   });
 };
 
-const printRoster = (roster, workbook) => {
-  const rosterSheet = workbook.getWorksheet(5);
-  rosterSheet.addRow('Start', 'End', 'Type', 'Name');
+const printRoster = (roster, sheet) => {
+  sheet.addRow(['Start', 'End', 'Type', 'Name']);
   roster.shifts.forEach(shift => {
     const name = shift.allocatedEmployees[0] ? shift.allocatedEmployees[0].name : 'No one found :(';
-    rosterSheet.addRow(shift.start, shift.end, shift.type, name);
+    sheet.addRow([shift.start, shift.end, shift.type, name]);
   });
 };
 
-const printStaffSummary = (roster, workbook) => {
-  const staffSummarySheet = workbook.getWorksheet(6);
-  staffSummarySheet.addRow('Name', 'Desk Hours', 'Ideal min hours', 'Ideal max hours');
+const printStaffSummary = (roster, sheet) => {
+  sheet.addRow(['Name', 'Desk Hours', 'Ideal min hours', 'Ideal max hours']);
   Object.keys(roster.employees).forEach(key => {
     const employee = roster.employees[key];
-    staffSummarySheet.addRow(
+    sheet.addRow([
       employee.name,
       employee.getCurrentMinutesAllocated() / 60,
       employee.idealMinMinutes / 60,
-      employee.idealMaxMinutes / 60
-    );
+      employee.idealMaxMinutes / 60,
+    ]);
   });
 };
 
 const run = () => {
   const workbook = new Excel.Workbook();
+  let roster;
   return workbook.xlsx.readFile('./data/shifty.xlsx')
     .then(() => {
       const allStaff = loadStaff(workbook);
       loadNegs(workbook, allStaff);
       loadRdos(workbook, allStaff);
       const shifts = loadShifts(workbook, allStaff);
-      const roster = new Roster({ shifts, employees: allStaff });
+      roster = new Roster({ shifts, employees: allStaff });
       roster.fillShifts();
-      printRoster(roster, workbook);
-      printStaffSummary(roster, workbook);
-      return roster;
-    });
+      const output = new Excel.Workbook();
+      const sheet = output.addWorksheet('roster');
+      printRoster(roster, sheet);
+      printStaffSummary(roster, sheet);
+      return output.csv.writeFile('./data/output.csv');
+      // return output.xlsx.writeFile('./data/output.xlsx');
+    })
+    .then(() => roster);
 };
 
 module.exports = { run };
