@@ -15,7 +15,7 @@ const hewLevelsByNumber = {
   9: hewLevels.hewLevel9,
 };
 
-const daysByColumn = { 4: 'Mon', 6: 'Tue', 8: 'Wed', 10: 'Thu', 12: 'Fri' };
+const daysByColumn = { 5: 'Mon', 7: 'Tue', 9: 'Wed', 11: 'Thu', 13: 'Fri' };
 
 const addTime = (day, time) => {
   const dateTime = new Date(day);
@@ -34,7 +34,8 @@ const loadStaff = (workbook) => {
       staffParams.name = row.getCell(1).value;
       staffParams.hewLevel = hewLevelsByNumber[row.getCell(2).value];
       staffParams.aal = row.getCell(3).value === 'y';
-      for (let i = 4; i <= 12; i += 2) {
+      staffParams.averageWeeklyHours = row.getCell(4).value;
+      for (let i = 5; i <= 13; i += 2) {
         if (row.getCell(i).value) {
           const start = adjustTimezoneOffset(row.getCell(i).value);
           const end = adjustTimezoneOffset(row.getCell(i + 1).value);
@@ -51,8 +52,8 @@ const loadStaff = (workbook) => {
 const loadShifts = (workbook, allStaff) => {
   const shiftsSheet = workbook.getWorksheet(1);
   const shifts = [];
+  let day;
   shiftsSheet.eachRow((row, rowNumber) => {
-    let day;
     if (rowNumber > 1) {
       if (row.getCell(1).value) {
         day = adjustTimezoneOffset(row.getCell(1).value);
@@ -100,6 +101,29 @@ const loadRdos = (workbook, allStaff) => {
   });
 };
 
+const printRoster = (roster, workbook) => {
+  const rosterSheet = workbook.getWorksheet(5);
+  rosterSheet.addRow('Start', 'End', 'Type', 'Name');
+  roster.shifts.forEach(shift => {
+    const name = shift.allocatedEmployees[0] ? shift.allocatedEmployees[0].name : 'No one found :(';
+    rosterSheet.addRow(shift.start, shift.end, shift.type, name);
+  });
+};
+
+const printStaffSummary = (roster, workbook) => {
+  const staffSummarySheet = workbook.getWorksheet(6);
+  staffSummarySheet.addRow('Name', 'Desk Hours', 'Ideal min hours', 'Ideal max hours');
+  Object.keys(roster.employees).forEach(key => {
+    const employee = roster.employees[key];
+    staffSummarySheet.addRow(
+      employee.name,
+      employee.getCurrentMinutesAllocated() / 60,
+      employee.idealMinMinutes / 60,
+      employee.idealMaxMinutes / 60
+    );
+  });
+};
+
 const run = () => {
   const workbook = new Excel.Workbook();
   return workbook.xlsx.readFile('./data/shifty.xlsx')
@@ -108,7 +132,11 @@ const run = () => {
       loadNegs(workbook, allStaff);
       loadRdos(workbook, allStaff);
       const shifts = loadShifts(workbook, allStaff);
-      return new Roster({ shifts, employees: allStaff });
+      const roster = new Roster({ shifts, employees: allStaff });
+      roster.fillShifts();
+      printRoster(roster, workbook);
+      printStaffSummary(roster, workbook);
+      return roster;
     });
 };
 

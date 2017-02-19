@@ -1,7 +1,10 @@
 'use strict';
 
 const employeeMinMinutes = 4 * 60;
-const minMinutesScoreChange = -400;
+const minMinutesScoreChange = -1000;
+const nonAALScoreChange = 1000;
+const nonResponsibleOfficerScoreChange = 1000;
+const shiftTypes = require('./shift-type');
 
 class Shift {
   constructor(params) {
@@ -27,7 +30,11 @@ class Shift {
 
   fill() {
     const employee = this.findBestEmployee();
-    employee.allocateToShift(this);
+    if (employee) {
+      employee.allocateToShift(this);
+    } else {
+      console.log(`unable to find employee for shift: ${this.start} ${this.end}`);
+    }
   }
 
   findBestEmployee() {
@@ -53,6 +60,13 @@ class Shift {
       score += minutesWithShift - employee.idealMaxMinutes;
     }
 
+    if (this.type === shiftTypes.aal && !employee.aal) {
+      score += nonAALScoreChange;
+    }
+
+    if (this.type === shiftTypes.responsibleOfficer && !employee.isResponsibleOfficer()) {
+      score += nonResponsibleOfficerScoreChange;
+    }
     return score;
   }
 }

@@ -1,3 +1,3 @@
-const shiftTypes = { standard: 'standard', responsibleOfficer: 'responsibleOfficer', aal: 'aal' };
+const shiftTypes = { standard: 'Standard', responsibleOfficer: 'ResponsibleOfficer', aal: 'AAL' };
 
 module.exports = shiftTypes;

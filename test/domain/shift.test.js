@@ -31,7 +31,8 @@ describe('Shift', () => {
 
   context('scoreEmployee', () => {
     it('returns the correct score when under minimum minutes', () => {
-      expect(standardShift.scoreEmployee(employee)).to.eql(-400 - employee.idealMinMinutes + standardShift.getShiftLengthMinutes());
+      const empScore = standardShift.scoreEmployee(employee);
+      expect(empScore).to.eql(-1000 - employee.idealMinMinutes + standardShift.getShiftLengthMinutes());
     });
 
     it('returns the correct score when over minimum minutes and under ideal minutes', () => {

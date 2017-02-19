@@ -10,6 +10,7 @@ const adjustTimezoneOffset = require('../../src/common').adjustTimezoneOffset;
 describe('Employee', () => {
   let employee;
   let shift;
+  let sameTimeShift;
   let nightShift;
 
   beforeEach(() => {
@@ -18,6 +19,11 @@ describe('Employee', () => {
       start: adjustTimezoneOffset(new Date('2017-02-06T09:00:00')),
       end: adjustTimezoneOffset(new Date('2017-02-06T10:00:00')),
     });
+    sameTimeShift = new Shift({
+      type: shiftTypes.standard,
+      start: adjustTimezoneOffset(new Date('2017-02-06T09:00:00')),
+      end: adjustTimezoneOffset(new Date('2017-02-06T11:00:00')),
+    });
     nightShift = new Shift({
       type: shiftTypes.standard,
       start: adjustTimezoneOffset(new Date('2017-02-06T17:00:00')),
@@ -25,11 +31,13 @@ describe('Employee', () => {
     });
     employee = new Employee({ name: 'empy', hewLevel: hewLevels.hewLevel4, averageWeeklyHours: 10 });
     employee.markAsAvailableForShift(shift);
+    employee.markAsAvailableForShift(sameTimeShift);
   });
 
   context('can work shift', () => {
     it('returns true when employee is available for the shift', () => {
       expect(employee.canWorkShift(shift)).to.be.true;
+      expect(employee.canWorkShift(sameTimeShift)).to.be.true;
     });
 
     it('returns false after the employee gets allocated to the shift', () => {
@@ -57,6 +65,14 @@ describe('Employee', () => {
 
     it('removes the employee from the shifts\'s available employees', () => {
       expect(shift.availableEmployees.includes(employee)).to.be.false;
+    });
+
+    it('removes the same time shift from the employee\'s available shifts', () => {
+      expect(employee.availableForShifts.includes(sameTimeShift)).to.be.false;
+    });
+
+    it('removes the employee from the same time shifts\'s available employees', () => {
+      expect(sameTimeShift.availableEmployees.includes(employee)).to.be.false;
     });
   });
 

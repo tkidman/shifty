@@ -26,7 +26,7 @@ describe('Shifty', () => {
       expect(roster.shifts[0].end).to.eql(firstShiftEnd);
 
       expect(roster.employees.Melanie.hoursByDayOfWeek.Mon.start.getHours()).to.eql(8);
-      expect(roster.employees.Melanie.hoursByDayOfWeek.Mon.start.getMinutes()).to.eql(30);
+      expect(roster.employees.Melanie.hoursByDayOfWeek.Mon.start.getMinutes()).to.eql(0);
       expect(roster.employees.Melanie.hoursByDayOfWeek.Mon.end.getHours()).to.eql(17);
       expect(roster.employees.Melanie.hoursByDayOfWeek.Mon.end.getMinutes()).to.eql(0);
 

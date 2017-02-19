@@ -17,8 +17,12 @@ class Employee {
   }
 
   setAvailableForShifts(allShifts) {
-    this.availableForShifts = allShifts.filter(shift =>
-    this._worksDuringShift(shift) && !this._negDuringShift(shift) && !this._rdoDuringShift(shift));
+    allShifts.filter(shift =>
+      this._worksDuringShift(shift) &&
+      !this._negDuringShift(shift) &&
+      !this._rdoDuringShift(shift) &&
+      !this._workingShiftAtSameTime(shift)
+    ).forEach(availableShift => this.markAsAvailableForShift(availableShift));
   }
 
   _minutes(date) {
@@ -26,9 +30,9 @@ class Employee {
   }
 
   _overlap(neg, shift) {
-    return (neg.start.getTime() >= shift.start.getTime() && neg.start.getTime() <= shift.end.getTime()) ||
-      (neg.end.getTime() >= shift.start.getTime() && neg.end.getTime() <= shift.end.getTime()) ||
-      (neg.start.getTime() <= shift.start.getTime() && neg.end.getTime() >= shift.end.getTime());
+    return (neg.start.getTime() > shift.start.getTime() && neg.start.getTime() < shift.end.getTime()) ||
+      (neg.end.getTime() > shift.start.getTime() && neg.end.getTime() < shift.end.getTime()) ||
+      (neg.start.getTime() < shift.start.getTime() && neg.end.getTime() > shift.end.getTime());
   }
 
   _worksDuringShift(shift) {
@@ -51,6 +55,10 @@ class Employee {
     );
   }
 
+  _workingShiftAtSameTime(shift) {
+    return this.allocatedShifts.some(neg => this._overlap(neg, shift));
+  }
+
   canWorkShift(shift) {
     return this.availableForShifts.includes(shift);
   }
@@ -64,10 +72,20 @@ class Employee {
     this.allocatedShifts.push(shift);
     this.availableForShifts.splice(this.availableForShifts.indexOf(shift), 1);
     shift.allocateEmployee(this);
+    // remove other available shifts at the same time
+    this.availableForShifts.filter(availableShift => this._overlap(shift, availableShift))
+      .forEach(sameTimeShift => {
+        sameTimeShift.availableEmployees.splice(sameTimeShift.availableEmployees.indexOf(this), 1);
+        this.availableForShifts.splice(this.availableForShifts.indexOf(sameTimeShift), 1);
+      });
   }
 
   getCurrentMinutesAllocated() {
     return this.allocatedShifts.reduce((minutes, allocatedShift) => minutes + allocatedShift.getShiftLengthMinutes(), 0);
+  }
+
+  isResponsibleOfficer() {
+    return true;
   }
 }
 
