@@ -102,11 +102,6 @@ describe('Employee', () => {
     let shift2;
 
     beforeEach(() => {
-      shift = new Shift({
-        type: shiftTypes.standard,
-        start: adjustTimezoneOffset(new Date('2017-02-06T09:00:00')),
-        end: adjustTimezoneOffset(new Date('2017-02-06T10:00:00')),
-      });
       shift2 = new Shift({
         type: shiftTypes.standard,
         start: adjustTimezoneOffset(new Date('2017-02-07T09:00:00')),
@@ -150,6 +145,33 @@ describe('Employee', () => {
       employee.rdos = [new Date('2017-02-06T09:30:00')];
       employee.setAvailableForShifts([shift]);
       expect(employee.availableForShifts.length).to.equal(0);
+    });
+  });
+
+  context('workingAdjacentShift', () => {
+    let after;
+    let before;
+
+    beforeEach(() => {
+      after = new Shift({
+        type: shiftTypes.standard,
+        start: adjustTimezoneOffset(new Date('2017-02-06T10:00:00')),
+        end: adjustTimezoneOffset(new Date('2017-02-06T11:00:00')),
+      });
+      before = new Shift({
+        type: shiftTypes.standard,
+        start: adjustTimezoneOffset(new Date('2017-02-06T08:00:00')),
+        end: adjustTimezoneOffset(new Date('2017-02-06T09:00:00')),
+      });
+
+      employee = new Employee({ name: 'empy', hewLevel: hewLevels.hewLevel4, averageWeeklyHours: 10 });
+      employee.allocateToShift(shift);
+    });
+
+    it('returns correct value when employee working adjacent shift', () => {
+      expect(employee.workingAdjacentShift(after)).to.be.true;
+      expect(employee.workingAdjacentShift(before)).to.be.true;
+      expect(employee.workingAdjacentShift(nightShift)).to.be.false;
     });
   });
 });

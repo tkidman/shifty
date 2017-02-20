@@ -18,10 +18,7 @@ class Employee {
 
   setAvailableForShifts(allShifts) {
     allShifts.filter(shift =>
-      this._worksDuringShift(shift) &&
-      !this._negDuringShift(shift) &&
-      !this._rdoDuringShift(shift) &&
-      !this._workingShiftAtSameTime(shift)
+      this._worksDuringShift(shift) && !this._negDuringShift(shift) && !this._rdoDuringShift(shift) && !this._workingShiftAtSameTime(shift)
     ).forEach(availableShift => this.markAsAvailableForShift(availableShift));
   }
 
@@ -85,7 +82,13 @@ class Employee {
   }
 
   isResponsibleOfficer() {
-    return true;
+    return this.hewLevel.responsibleOfficer;
+  }
+
+  workingAdjacentShift(shift) {
+    return this.allocatedShifts.some(allocatedShift =>
+      allocatedShift.start.getTime() === shift.end.getTime() || allocatedShift.end.getTime() === shift.start.getTime()
+    );
   }
 }
 

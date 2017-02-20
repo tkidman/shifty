@@ -1,5 +1,7 @@
 'use strict';
 
+const shiftTypes = require('./shift-type');
+
 class Roster {
   constructor(params) {
     this.shifts = params.shifts;
@@ -8,7 +10,19 @@ class Roster {
   }
 
   fillShifts() {
-    this.shifts.forEach(shift => shift.fill());
+    Array.from(this.shifts).sort((firstShift, secondShift) => this.shiftScore(firstShift) - this.shiftScore(secondShift))
+      .forEach(shift => shift.fill());
+  }
+
+  shiftScore(shift) {
+    let value = 0;
+    if (shift.type === shiftTypes.responsibleOfficer) {
+      value -= 1000;
+    } else if (shift.type === shiftTypes.aal) {
+      value -= 100;
+    }
+    value += shift.availableEmployees.length;
+    return value;
   }
 }
 

@@ -32,13 +32,13 @@ describe('Shift', () => {
   context('scoreEmployee', () => {
     it('returns the correct score when under minimum minutes', () => {
       const empScore = standardShift.scoreEmployee(employee);
-      expect(empScore).to.eql(-1000 - employee.idealMinMinutes + standardShift.getShiftLengthMinutes());
+      expect(empScore.score).to.eql(-1000 - employee.idealMinMinutes + standardShift.getShiftLengthMinutes());
     });
 
     it('returns the correct score when over minimum minutes and under ideal minutes', () => {
       employee.allocateToShift(nightShift);
       const score = standardShift.scoreEmployee(employee);
-      expect(score).to.eql(nightShift.getShiftLengthMinutes() + standardShift.getShiftLengthMinutes() - employee.idealMinMinutes);
+      expect(score.score).to.eql(nightShift.getShiftLengthMinutes() + standardShift.getShiftLengthMinutes() - employee.idealMinMinutes);
     });
 
     it('returns the correct score when over ideal min minutes and under ideal max minutes', () => {
@@ -47,7 +47,7 @@ describe('Shift', () => {
         employee.allocateToShift(standardShift);
       }
       const score = standardShift.scoreEmployee(employee);
-      expect(score).to.eql(0);
+      expect(score.score).to.eql(0);
     });
 
     it('returns the correct score when over ideal max minutes', () => {
@@ -55,7 +55,7 @@ describe('Shift', () => {
         employee.allocateToShift(standardShift);
       }
       const score = standardShift.scoreEmployee(employee);
-      expect(score).to.eql(60);
+      expect(score.score).to.eql(60);
     });
   });
 
@@ -96,6 +96,12 @@ describe('Shift', () => {
     it('calculates minutes correctly', () => {
       expect(standardShift.getShiftLengthMinutes()).to.equal(60);
       expect(nightShift.getShiftLengthMinutes()).to.equal(240);
+    });
+  });
+
+  context('toString', () => {
+    it('converts to a string', () => {
+      expect(`${standardShift}`).to.eql('6/2/2017 09:00-10:00 Standard');
     });
   });
 });

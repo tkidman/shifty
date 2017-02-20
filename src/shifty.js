@@ -102,10 +102,10 @@ const loadRdos = (workbook, allStaff) => {
 };
 
 const printRoster = (roster, sheet) => {
-  sheet.addRow(['Start', 'End', 'Type', 'Name']);
+  sheet.addRow(['Shift', 'Name']);
   roster.shifts.forEach(shift => {
     const name = shift.allocatedEmployees[0] ? shift.allocatedEmployees[0].name : 'No one found :(';
-    sheet.addRow([shift.start, shift.end, shift.type, name]);
+    sheet.addRow([shift.toString(), name]);
   });
 };
 
@@ -125,7 +125,7 @@ const printStaffSummary = (roster, sheet) => {
 const run = () => {
   const workbook = new Excel.Workbook();
   let roster;
-  return workbook.xlsx.readFile('./data/shifty shifts.xlsx')
+  return workbook.xlsx.readFile('./data/shifty.xlsx')
     .then(() => {
       const allStaff = loadStaff(workbook);
       loadNegs(workbook, allStaff);

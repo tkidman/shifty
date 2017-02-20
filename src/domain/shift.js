@@ -1,9 +1,15 @@
 'use strict';
 
+const dateString = require('../common').dateString;
+const timeString = require('../common').timeString;
+const logger = require('../common').logger;
+const _ = require('lodash');
+
 const employeeMinMinutes = 4 * 60;
 const minMinutesScoreChange = -1000;
-const nonAALScoreChange = 1000;
-const nonResponsibleOfficerScoreChange = 1000;
+const nonAALScoreChange = 5000;
+const nonResponsibleOfficerScoreChange = 5000;
+const workingAdjacentShiftScoreChange = 10000;
 const shiftTypes = require('./shift-type');
 
 class Shift {
@@ -33,20 +39,35 @@ class Shift {
     if (employee) {
       employee.allocateToShift(this);
     } else {
-      console.log(`unable to find employee for shift: ${this.start} ${this.end}`);
+      logger.info(`unable to find employee for shift: ${this.start} ${this.end}`);
     }
   }
 
   findBestEmployee() {
     // give each available employee a score to sort on
-    this.availableEmployees.sort((first, second) =>
-      this.scoreEmployee(first) - this.scoreEmployee(second)
-    );
-    return this.availableEmployees[0];
+    const sortedScores = this.availableEmployees.map(employee => this.scoreEmployee(employee))
+      .sort((firstScore, secondScore) => firstScore.score - secondScore.score);
+    let scoreDebugMessage = `scores for shift: ${this}`;
+    sortedScores.forEach(score => {
+      scoreDebugMessage += `\n\t ${JSON.stringify(_.omit(score, 'employee'))}`;
+    });
+    logger.debug(scoreDebugMessage);
+    if (sortedScores[0]) {
+      if (sortedScores[0].score > 1000) {
+        logger.warn(
+          `high score for best employee. shift: ${this}` +
+          `, score: ${JSON.stringify(_.omit(sortedScores[0], 'employee'))}`
+        );
+      }
+      return sortedScores[0].employee;
+    }
+    return null;
   }
 
   // lower the better
   scoreEmployee(employee) {
+    const scoreResult = { employee };
+    scoreResult.name = employee.name;
     const employeeMinutes = employee.getCurrentMinutesAllocated();
     const minutesWithShift = employeeMinutes + this.getShiftLengthMinutes();
     let score = 0;
@@ -54,6 +75,7 @@ class Shift {
     if (employeeMinutes < employeeMinMinutes) {
       score += minMinutesScoreChange;
     }
+
     if (minutesWithShift < employee.idealMinMinutes) {
       score += minutesWithShift - employee.idealMinMinutes;
     } else if (minutesWithShift > employee.idealMaxMinutes) {
@@ -62,12 +84,25 @@ class Shift {
 
     if (this.type === shiftTypes.aal && !employee.aal) {
       score += nonAALScoreChange;
+      scoreResult.nonAAL = true;
     }
 
     if (this.type === shiftTypes.responsibleOfficer && !employee.isResponsibleOfficer()) {
       score += nonResponsibleOfficerScoreChange;
+      scoreResult.nonResponsibleOfficer = true;
     }
-    return score;
+
+    if (employee.workingAdjacentShift(this)) {
+      score += workingAdjacentShiftScoreChange;
+      scoreResult.workingAdjacentShift = true;
+    }
+
+    scoreResult.score = score;
+    return scoreResult;
+  }
+
+  toString() {
+    return `${dateString(this.start)}-${timeString(this.end)} ${this.type}`;
   }
 }
 
