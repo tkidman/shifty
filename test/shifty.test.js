@@ -4,16 +4,15 @@ const expect = chai.expect;
 const shifty = require('../src/shifty');
 const hewLevels = require('../src/domain/hew-level');
 const adjustTimezoneOffset = require('../src/common').adjustTimezoneOffset;
-const fs = require('fs');
 
 describe('Shifty', () => {
   let roster;
 
-  // beforeEach(() =>
-  //   shifty.run().then((aRoster) => {
-  //     roster = aRoster;
-  //     return roster;
-  //   }));
+  beforeEach(() =>
+    shifty.run('./data/shifty.xlsx').then((runResult) => {
+      roster = runResult.roster;
+      return roster;
+    }));
 
   context('runs', () => {
     it('parses data from a spreadsheet', () => {
@@ -43,12 +42,6 @@ describe('Shifty', () => {
 
       const rdo = adjustTimezoneOffset(new Date('2017-02-07T00:00:00'));
       expect(roster.employees.Melanie.rdos[0]).to.eql(rdo);
-    });
-  });
-
-  context('runsFromStream', () => {
-    it('works with a filestream input', () => {
-      shifty.runFromStream(fs.createReadStream('./data/shifty.xlsx', 'utf8'));
     });
   });
 });

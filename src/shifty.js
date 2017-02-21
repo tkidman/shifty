@@ -138,15 +138,16 @@ const doRun = (workbook) => {
   const sheet = output.addWorksheet('roster');
   printRoster(roster, sheet);
   printStaffSummary(roster, sheet);
-  return output;
+  return { output, roster };
 };
 
 const run = (fullFilename) => {
   const workbook = new Excel.Workbook();
   return workbook.xlsx.readFile(fullFilename)
     .then(() => {
-      const output = doRun(workbook);
-      return output.csv.writeFile('./data/output.csv');
+      const runResult = doRun(workbook);
+      runResult.output.csv.writeFile('./data/output.csv');
+      return runResult;
       // return output.xlsx.writeFile('./data/output.xlsx');
     });
 };

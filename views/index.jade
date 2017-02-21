@@ -4,6 +4,5 @@ block content
   h1= title
   p Welcome to #{title}
   form(action="/run", method="post", enctype="multipart/form-data")
-    input(type="text", id="name", name="name")
     input(type="file", name="input")
     input(type="submit", name="submit")

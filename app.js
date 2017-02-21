@@ -7,6 +7,7 @@ const busboy = require('connect-busboy');
 const bodyParser = require('body-parser');
 const fs = require('fs');
 const shifty = require('./src/shifty');
+const shiftyLogger = require('./src/common').logger;
 
 const app = express();
 
@@ -35,8 +36,9 @@ app.post('/run', (req, res, next) => {
     fstream = fs.createWriteStream(fullFilename);
     file.pipe(fstream);
     fstream.on('close', () => {
-      shifty.run(fullFilename);
-      res.redirect('back');
+      shifty.run(fullFilename).then((runResult) => {
+        res.render('index', { title: 'Shifty', roster: runResult.roster });
+      });
     });
   });
 });
@@ -57,6 +59,10 @@ app.use((err, req, res, next) => {
   // render the error page
   res.status(err.status || 500);
   res.render('error');
+});
+
+app.listen(3000, () => {
+  shiftyLogger.info('listening on port 3000');
 });
 
 module.exports = app;
