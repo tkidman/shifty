@@ -39,7 +39,7 @@ class Shift {
     if (employee) {
       employee.allocateToShift(this);
     } else {
-      logger.info(`unable to find employee for shift: ${this.start} ${this.end}`);
+      logger.info(`unable to find employee for shift: ${this}`);
     }
   }
 

@@ -103,9 +103,14 @@ const loadRdos = (workbook, allStaff) => {
 
 const printRoster = (roster, sheet) => {
   sheet.addRow(['Shift', 'Name']);
+  let day = roster.shifts[0].start.day;
   roster.shifts.forEach(shift => {
     const name = shift.allocatedEmployees[0] ? shift.allocatedEmployees[0].name : 'No one found :(';
     sheet.addRow([shift.toString(), name]);
+    if (shift.start.date !== day) {
+      sheet.addRow([]);
+      day = shift.start.date;
+    }
   });
 };
 
@@ -122,25 +127,28 @@ const printStaffSummary = (roster, sheet) => {
   });
 };
 
-const run = () => {
+const doRun = (workbook) => {
+  const allStaff = loadStaff(workbook);
+  loadNegs(workbook, allStaff);
+  loadRdos(workbook, allStaff);
+  const shifts = loadShifts(workbook, allStaff);
+  const roster = new Roster({ shifts, employees: allStaff });
+  roster.fillShifts();
+  const output = new Excel.Workbook();
+  const sheet = output.addWorksheet('roster');
+  printRoster(roster, sheet);
+  printStaffSummary(roster, sheet);
+  return output;
+};
+
+const run = (fullFilename) => {
   const workbook = new Excel.Workbook();
-  let roster;
-  return workbook.xlsx.readFile('./data/shifty.xlsx')
+  return workbook.xlsx.readFile(fullFilename)
     .then(() => {
-      const allStaff = loadStaff(workbook);
-      loadNegs(workbook, allStaff);
-      loadRdos(workbook, allStaff);
-      const shifts = loadShifts(workbook, allStaff);
-      roster = new Roster({ shifts, employees: allStaff });
-      roster.fillShifts();
-      const output = new Excel.Workbook();
-      const sheet = output.addWorksheet('roster');
-      printRoster(roster, sheet);
-      printStaffSummary(roster, sheet);
+      const output = doRun(workbook);
       return output.csv.writeFile('./data/output.csv');
       // return output.xlsx.writeFile('./data/output.xlsx');
-    })
-    .then(() => roster);
+    });
 };
 
 module.exports = { run };
