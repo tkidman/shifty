@@ -6,3 +6,18 @@ block content
   form(action="/run", method="post", enctype="multipart/form-data")
     input(type="file", name="input")
     input(type="submit", name="submit")
+  p The roster
+  div
+    table
+      thead
+        tr
+          th shift
+          th name
+      tbody
+        each shift in roster.shifts
+          tr
+            td= shift
+            if shift.allocatedEmployees[0]
+              td= shift.allocatedEmployees[0].name
+            else
+              td None found :(
