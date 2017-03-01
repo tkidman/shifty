@@ -6,3 +6,16 @@ body {
 a {
   color: #00B7FF;
 }
+
+table {
+  width: 400px;
+  border-spacing: 10px;
+}
+
+th {
+  text-align: left;
+}
+
+th, td {
+  border-bottom: 1px solid #ddd;
+}

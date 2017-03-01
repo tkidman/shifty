@@ -8,17 +8,18 @@ block content
     input(type="submit", name="submit")
   if roster
     p The roster
-    div
-      table
-        thead
-          tr
-            th shift
-            th name
-        tbody
-          each shift in roster.shifts
+    each shiftsByDay in roster.shiftsByDays
+      div
+        table
+          thead
             tr
-              td= shift
-              if shift.allocatedEmployees[0]
-                td= shift.allocatedEmployees[0].name
-              else
-                td None found :(
+              th(colspan="3") #{shiftsByDay.formattedDate}
+          tbody
+            each shift in shiftsByDay.shifts
+              tr
+                td= shift.timeSpanString()
+                if shift.allocatedEmployees[0]
+                  td= shift.allocatedEmployees[0].name
+                else
+                  td None found :(
+                td= shift.type

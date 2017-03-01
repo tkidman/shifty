@@ -104,6 +104,10 @@ class Shift {
   toString() {
     return `${dateString(this.start)}-${timeString(this.end)} ${this.type}`;
   }
+
+  timeSpanString() {
+    return `${timeString(this.start)}-${timeString(this.end)}`;
+  }
 }
 
 module.exports = Shift;
