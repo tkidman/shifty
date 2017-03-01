@@ -1,13 +1,17 @@
 extends layout
 
 block content
-  h1= title
-  p Welcome to #{title}
-  form(action="/run", method="post", enctype="multipart/form-data")
-    input(type="file", name="input")
-    input(type="submit", name="submit")
+  div(class="container")
+    div(class="pic")
+      img(src="images/desk.jpg")
+    div(class="blurb")
+      h1= title
+      p Welcome to #{title}
+      p The ultimate in desk shift allocation software!
+        form(action="/run", method="post", enctype="multipart/form-data")
+          input(type="file", name="input")
+          input(type="submit", name="submit")
   if roster
-    p The roster
     each shiftsByDay in roster.shiftsByDays
       div
         table
