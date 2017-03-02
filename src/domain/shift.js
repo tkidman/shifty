@@ -4,13 +4,14 @@ const dateString = require('../common').dateString;
 const timeString = require('../common').timeString;
 const logger = require('../common').logger;
 const _ = require('lodash');
+const shiftTypes = require('./shift-type');
 
 const employeeMinMinutes = 4 * 60;
 const minMinutesScoreChange = -1000;
-const nonAALScoreChange = 5000;
-const nonResponsibleOfficerScoreChange = 5000;
+const nonAALScoreChange = 10000;
+const nonResponsibleOfficerScoreChange = 10000;
 const workingAdjacentShiftScoreChange = 10000;
-const shiftTypes = require('./shift-type');
+const workingAALShiftScoreChange = 2000;
 
 class Shift {
   constructor(params) {
@@ -22,6 +23,10 @@ class Shift {
   }
 
   getShiftLengthMinutes() {
+    if (this.type === shiftTypes.backup) {
+      // backup shifts don't count as working a desk shift.
+      return 0;
+    }
     return (this.end.getHours() * 60 + this.end.getMinutes()) - (this.start.getHours() * 60 + this.start.getMinutes());
   }
 
@@ -82,10 +87,9 @@ class Shift {
       score += minutesWithShift - employee.idealMaxMinutes;
     }
 
-    if (this.type === shiftTypes.aal && !employee.aal) {
-      score += nonAALScoreChange;
-      scoreResult.nonAAL = true;
-    }
+    const aalResult = this.scoreAAL(employee);
+    score += aalResult.score;
+    scoreResult.nonAAL = aalResult.nonAAL;
 
     if (this.type === shiftTypes.responsibleOfficer && !employee.isResponsibleOfficer()) {
       score += nonResponsibleOfficerScoreChange;
@@ -99,6 +103,18 @@ class Shift {
 
     scoreResult.score = score;
     return scoreResult;
+  }
+
+  scoreAAL(employee) {
+    const aalResult = { score: 0 };
+    if (this.type === shiftTypes.aal) {
+      aalResult.score += workingAALShiftScoreChange * employee.allocatedShifts.filter(shift => shift.type === shiftTypes.aal).length;
+      if (!employee.aal) {
+        aalResult.score += nonAALScoreChange;
+        aalResult.nonAAL = true;
+      }
+    }
+    return aalResult;
   }
 
   toString() {

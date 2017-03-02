@@ -5,6 +5,7 @@ class Employee {
   constructor(params) {
     this.name = params.name;
     this.hewLevel = params.hewLevel;
+    // boolean
     this.aal = params.aal;
     this.averageWeeklyHours = params.averageWeeklyHours;
     this.hoursByDayOfWeek = params.hoursByDayOfWeek;

@@ -23,17 +23,24 @@ class Roster {
   }
 
   fillShifts() {
-    Array.from(this.shifts).sort((firstShift, secondShift) => this.shiftScore(firstShift) - this.shiftScore(secondShift))
-      .forEach(shift => shift.fill());
+    this.sortShifts().forEach(shift => shift.fill());
+  }
+
+  sortShifts() {
+    return (Array.from(this.shifts)).sort((firstShift, secondShift) =>
+      this.shiftScore(firstShift) - this.shiftScore(secondShift));
   }
 
   shiftScore(shift) {
     let value = 0;
     if (shift.type === shiftTypes.responsibleOfficer) {
-      value -= 1000;
+      value -= 10000;
     } else if (shift.type === shiftTypes.aal) {
+      value -= 1000;
+    } else if (shift.type === shiftTypes.standard) {
       value -= 100;
     }
+    // backup gets filled last.
     value += shift.availableEmployees.length;
     return value;
   }

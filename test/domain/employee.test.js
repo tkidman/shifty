@@ -29,7 +29,7 @@ describe('Employee', () => {
       start: adjustTimezoneOffset(new Date('2017-02-06T17:00:00')),
       end: adjustTimezoneOffset(new Date('2017-02-06T21:00:00')),
     });
-    employee = new Employee({ name: 'empy', hewLevel: hewLevels.hewLevel4, averageWeeklyHours: 10 });
+    employee = new Employee({ name: 'empy', hewLevel: hewLevels.hewLevel4, averageWeeklyHours: 10, aal: true });
     employee.markAsAvailableForShift(shift);
     employee.markAsAvailableForShift(sameTimeShift);
   });
