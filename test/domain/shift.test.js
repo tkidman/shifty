@@ -15,7 +15,6 @@ describe('Shift', () => {
   let nightShift;
   let aalShift1;
   let aalShift2;
-  let backupShift;
 
   beforeEach(() => {
     standardShift = new Shift({
@@ -38,11 +37,6 @@ describe('Shift', () => {
       start: adjustTimezoneOffset(new Date('2017-02-06T17:00:00')),
       end: adjustTimezoneOffset(new Date('2017-02-06T21:00:00')),
     });
-    backupShift = new Shift({
-      type: shiftTypes.backup,
-      start: adjustTimezoneOffset(new Date('2017-02-06T17:00:00')),
-      end: adjustTimezoneOffset(new Date('2017-02-06T21:00:00')),
-    });
     employee = new Employee({ name: 'empy', hewLevel: hewLevels.hewLevel5, averageWeeklyHours: 30, aal: true });
     employee.markAsAvailableForShift(standardShift);
   });
@@ -56,7 +50,8 @@ describe('Shift', () => {
     it('returns the correct score when over minimum minutes and under ideal minutes', () => {
       employee.allocateToShift(nightShift);
       const score = standardShift.scoreEmployee(employee);
-      expect(score.score).to.eql(nightShift.getShiftLengthMinutes() + standardShift.getShiftLengthMinutes() - employee.idealMinMinutes);
+      const expectedScore = nightShift.getShiftLengthMinutes() + standardShift.getShiftLengthMinutes() - employee.idealMinMinutes;
+      expect(score.score).to.eql(expectedScore);
     });
 
     it('returns the correct score when over ideal min minutes and under ideal max minutes', () => {
@@ -78,8 +73,9 @@ describe('Shift', () => {
 
     it('returns the correct score when AAL shift and employee has worked 1 AAL shifts', () => {
       employee.allocateToShift(aalShift1);
-      const score = aalShift2.scoreAAL(employee);
-      expect(score.score).to.eql(2000);
+      const scoreResult = { score: 0 };
+      aalShift2.scoreAAL(employee, scoreResult);
+      expect(scoreResult.score).to.eql(2000);
     });
   });
 
@@ -120,10 +116,6 @@ describe('Shift', () => {
     it('calculates minutes correctly', () => {
       expect(standardShift.getShiftLengthMinutes()).to.equal(60);
       expect(nightShift.getShiftLengthMinutes()).to.equal(240);
-    });
-
-    it('calculates shift length as 0 for backup shifts', () => {
-      expect(backupShift.getShiftLengthMinutes()).to.equal(0);
     });
   });
 

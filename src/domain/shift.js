@@ -23,10 +23,6 @@ class Shift {
   }
 
   getShiftLengthMinutes() {
-    if (this.type === shiftTypes.backup) {
-      // backup shifts don't count as working a desk shift.
-      return 0;
-    }
     return (this.end.getHours() * 60 + this.end.getMinutes()) - (this.start.getHours() * 60 + this.start.getMinutes());
   }
 
@@ -71,50 +67,45 @@ class Shift {
 
   // lower the better
   scoreEmployee(employee) {
-    const scoreResult = { employee };
+    const scoreResult = { score: 0, employee };
     scoreResult.name = employee.name;
     const employeeMinutes = employee.getCurrentMinutesAllocated();
     const minutesWithShift = employeeMinutes + this.getShiftLengthMinutes();
-    let score = 0;
 
     if (employeeMinutes < employeeMinMinutes) {
-      score += minMinutesScoreChange;
+      scoreResult.score += minMinutesScoreChange;
     }
 
     if (minutesWithShift < employee.idealMinMinutes) {
-      score += minutesWithShift - employee.idealMinMinutes;
+      scoreResult.score += minutesWithShift - employee.idealMinMinutes;
     } else if (minutesWithShift > employee.idealMaxMinutes) {
-      score += minutesWithShift - employee.idealMaxMinutes;
+      scoreResult.score += minutesWithShift - employee.idealMaxMinutes;
     }
 
-    const aalResult = this.scoreAAL(employee);
-    score += aalResult.score;
-    scoreResult.nonAAL = aalResult.nonAAL;
+    this.scoreAAL(employee, scoreResult);
 
     if (this.type === shiftTypes.responsibleOfficer && !employee.isResponsibleOfficer()) {
-      score += nonResponsibleOfficerScoreChange;
+      scoreResult.score += nonResponsibleOfficerScoreChange;
       scoreResult.nonResponsibleOfficer = true;
     }
 
     if (employee.workingAdjacentShift(this)) {
-      score += workingAdjacentShiftScoreChange;
+      scoreResult.score += workingAdjacentShiftScoreChange;
       scoreResult.workingAdjacentShift = true;
     }
 
-    scoreResult.score = score;
     return scoreResult;
   }
 
-  scoreAAL(employee) {
-    const aalResult = { score: 0 };
+  scoreAAL(employee, scoreResult) {
     if (this.type === shiftTypes.aal) {
-      aalResult.score += workingAALShiftScoreChange * employee.allocatedShifts.filter(shift => shift.type === shiftTypes.aal).length;
+      const aalShifts = employee.allocatedShifts.filter(shift => shift.type === shiftTypes.aal);
+      scoreResult.score += workingAALShiftScoreChange * aalShifts.length;
       if (!employee.aal) {
-        aalResult.score += nonAALScoreChange;
-        aalResult.nonAAL = true;
+        scoreResult.score += nonAALScoreChange;
+        scoreResult.nonAAL = true;
       }
     }
-    return aalResult;
   }
 
   toString() {
