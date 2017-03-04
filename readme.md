@@ -9,7 +9,7 @@ It's running on Heroku at [shifty-desks.herokuapp.com](http://shifty-desks.herok
  
 Shifty takes an Excel file as input and uses this to allocate staff to desk shifts.
 You can download an example Excel file here: 
-[https://github.com/tkidman/shifty/data/shifty.xlsx](https://github.com/tkidman/shifty/data/shifty.xlsx).
+[https://github.com/tkidman/shifty/raw/master/data/shifty.xlsx](https://github.com/tkidman/shifty/raw/master/data/shifty.xlsx).
 Use this as a guide for defining shifts, staff, negs and RDOs.
 
 * Names and Shift Types need to exactly match across the sheets.  They are case sensitive.
