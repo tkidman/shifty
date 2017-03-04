@@ -23,7 +23,7 @@ Shifty first works out which people can work which shifts, taking into account n
 It then goes though the shifts in this order: 
 AAL, ResponsibleOfficer, Standard, Backup. 
 For each shift, shifty calculates a score for the staff that are available to work that shift. The person with 
-the lowest score is allocated to a shift. Shifty calculates the score on this basis:
+the lowest score is allocated to the shift. Shifty calculates the score on this basis:
 * If the person has worked less than four hours of desk shifts, the person's score is reduced
 * If working an adjacent shift, the person's score is increased
 * If the shift is an AAL or ResponsibleOfficer type and the staff member doesn't have the right skills, the person's score is increased.
