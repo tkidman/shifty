@@ -29,3 +29,8 @@ block content
                 else
                   td None found :(
                 td= shift.type
+  if errors
+    p The following problems were found with the spreadsheet:
+    ul
+      each error in errors
+        li= error

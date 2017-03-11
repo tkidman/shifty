@@ -3,7 +3,7 @@ const chai = require('chai');
 const expect = chai.expect;
 const Employee = require('../../src/domain/employee');
 const Shift = require('../../src/domain/shift');
-const shiftTypes = require('../../src/domain/shift-type');
+const shiftTypes = require('../../src/domain/shift-type').shiftTypes;
 const hewLevels = require('../../src/domain/hew-level');
 const adjustTimezoneOffset = require('../../src/common').adjustTimezoneOffset;
 

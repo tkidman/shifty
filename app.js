@@ -15,7 +15,6 @@ const app = express();
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 
-// uncomment after placing your favicon in /public
 app.use(favicon(path.join(__dirname, 'public', 'images/desk-transparent.png')));
 app.use(logger('dev'));
 app.use(bodyParser.json());
@@ -37,7 +36,7 @@ app.post('/run', (req, res) => {
     file.pipe(fstream);
     fstream.on('close', () => {
       shifty.run(fullFilename).then((runResult) => {
-        res.render('index', { title: 'Shifty', roster: runResult.roster });
+        res.render('index', { title: 'Shifty', roster: runResult.roster, errors: runResult.errors });
       });
     });
   });

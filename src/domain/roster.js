@@ -1,6 +1,6 @@
 'use strict';
 
-const shiftTypes = require('./shift-type');
+const shiftTypes = require('./shift-type').shiftTypes;
 const moment = require('moment');
 const sameDay = require('../common').sameDay;
 

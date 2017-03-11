@@ -4,7 +4,7 @@ const dateString = require('../common').dateString;
 const timeString = require('../common').timeString;
 const logger = require('../common').logger;
 const _ = require('lodash');
-const shiftTypes = require('./shift-type');
+const shiftTypes = require('./shift-type').shiftTypes;
 
 const employeeMinMinutes = 4 * 60;
 const minMinutesScoreChange = -1000;

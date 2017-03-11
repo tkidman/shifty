@@ -2,20 +2,17 @@ const Excel = require('exceljs');
 const Shift = require('./domain/shift');
 const Employee = require('./domain/employee');
 const Roster = require('./domain/roster');
-const hewLevels = require('./domain/hew-level');
-const adjustTimezoneOffset = require('./common').adjustTimezoneOffset;
+const parsers = require('./cell-parsers');
+const logger = require('./common').logger;
 
-const hewLevelsByNumber = {
-  3: hewLevels.hewLevel3,
-  4: hewLevels.hewLevel4,
-  5: hewLevels.hewLevel5,
-  6: hewLevels.hewLevel6,
-  7: hewLevels.hewLevel7,
-  8: hewLevels.hewLevel8,
-  9: hewLevels.hewLevel9,
-};
+const staffColumns = { name: 1, hewLevel: 2, aal: 3, averageWeeklyHours: 4, startMonday: 5 };
+const shiftColumns = { day: 1, start: 2, end: 3, type: 4, manualName: 5 };
+const negsColumns = { name: 1, day: 2, start: 3, end: 4 };
+const rdosColumns = { name: 1, day: 2 };
+const worksheets = { shifts: 1, staff: 2, negs: 3, rdos: 4 };
 
 const daysByColumn = { 5: 'Mon', 7: 'Tue', 9: 'Wed', 11: 'Thu', 13: 'Fri' };
+
 
 const addTime = (day, time) => {
   const dateTime = new Date(day);
@@ -24,21 +21,41 @@ const addTime = (day, time) => {
   return dateTime;
 };
 
-const loadStaff = (workbook) => {
-  const staffSheet = workbook.getWorksheet(2);
+const tryLoadParamValue = (params, paramName, cell, errors, allStaff, parseFunction) => {
+  const parseResult = parseFunction(cell, allStaff);
+  if (parseResult.error) {
+    errors.push(`Failed to load '${paramName}' for cell ${cell._address} in ${cell._row._worksheet.name} sheet. Value: ${cell.value}, error: ${parseResult.error}`);
+  } else {
+    params[paramName] = parseResult.value;
+  }
+  return params;
+};
+
+const tryLoadValue = (paramName, cell, errors, allStaff, parseFunction) =>
+  tryLoadParamValue({}, paramName, cell, errors, allStaff, parseFunction)[paramName];
+
+const loadStaff = (workbook, errors) => {
+  const staffSheet = workbook.getWorksheet(worksheets.staff);
   const allStaff = {};
   staffSheet.eachRow((row, rowNumber) => {
     const hoursByDayOfWeek = {};
     const staffParams = {};
     if (rowNumber > 1) {
-      staffParams.name = row.getCell(1).value;
-      staffParams.hewLevel = hewLevelsByNumber[row.getCell(2).value];
-      staffParams.aal = row.getCell(3).value === 'y';
-      staffParams.averageWeeklyHours = row.getCell(4).value;
-      for (let i = 5; i <= 13; i += 2) {
+      staffParams.name = row.getCell(staffColumns.name).value;
+
+      tryLoadParamValue(
+        staffParams, 'hewLevel', row.getCell(staffColumns.hewLevel), errors, allStaff, parsers.hewLevelParser
+      );
+      tryLoadParamValue(
+        staffParams, 'aal', row.getCell(staffColumns.aal), errors, allStaff, parsers.trueFalseParser
+      );
+      tryLoadParamValue(
+        staffParams, 'averageWeeklyHours', row.getCell(staffColumns.averageWeeklyHours), errors, allStaff, parsers.numberParser
+      );
+      for (let i = staffColumns.startMonday; i <= staffColumns.startMonday + 8; i += 2) {
         if (row.getCell(i).value) {
-          const start = adjustTimezoneOffset(row.getCell(i).value);
-          const end = adjustTimezoneOffset(row.getCell(i + 1).value);
+          const start = tryLoadValue('start', row.getCell(i), errors, allStaff, parsers.dateParser);
+          const end = tryLoadValue('end', row.getCell(i + 1), errors, allStaff, parsers.dateParser);
           hoursByDayOfWeek[daysByColumn[i]] = { start, end };
         }
       }
@@ -49,23 +66,24 @@ const loadStaff = (workbook) => {
   return allStaff;
 };
 
-const loadShifts = (workbook, allStaff) => {
-  const shiftsSheet = workbook.getWorksheet(1);
+const loadShifts = (workbook, allStaff, errors) => {
+  const shiftsSheet = workbook.getWorksheet(worksheets.shifts);
   const shifts = [];
   let day;
   shiftsSheet.eachRow((row, rowNumber) => {
     if (rowNumber > 1) {
-      if (row.getCell(1).value) {
-        day = adjustTimezoneOffset(row.getCell(1).value);
+      if (row.getCell(shiftColumns.day).value) {
+        day = tryLoadValue('day', row.getCell(shiftColumns.day), errors, allStaff, parsers.dateParser);
       }
-      const startTime = adjustTimezoneOffset(row.getCell(2).value);
-      const endTime = adjustTimezoneOffset(row.getCell(3).value);
+      const startTime = tryLoadValue('startTime', row.getCell(shiftColumns.start), errors, allStaff, parsers.dateParser);
+      const endTime = tryLoadValue('endTime', row.getCell(shiftColumns.end), errors, allStaff, parsers.dateParser);
       const start = addTime(day, startTime);
       const end = addTime(day, endTime);
-      const type = row.getCell(4).value;
+      const type = tryLoadValue('shiftType', row.getCell(shiftColumns.type), errors, allStaff, parsers.shiftTypeParser);
       const shift = new Shift({ type, start, end });
-      const name = row.getCell(5).value;
-      if (name) {
+      const manualNameCell = row.getCell(shiftColumns.manualName);
+      if (manualNameCell.value) {
+        const name = tryLoadValue('manualName', manualNameCell, errors, allStaff, parsers.nameParser);
         allStaff[name].allocatedShifts.push(shift);
         shift.allocatedEmployees.push(allStaff[name]);
       }
@@ -75,14 +93,14 @@ const loadShifts = (workbook, allStaff) => {
   return shifts;
 };
 
-const loadNegs = (workbook, allStaff) => {
-  const negsSheet = workbook.getWorksheet(3);
+const loadNegs = (workbook, allStaff, errors) => {
+  const negsSheet = workbook.getWorksheet(worksheets.negs);
   negsSheet.eachRow((row, rowNumber) => {
     if (rowNumber > 1) {
-      const name = row.getCell(1).value;
-      const day = adjustTimezoneOffset(row.getCell(2).value);
-      const startTime = adjustTimezoneOffset(row.getCell(3).value);
-      const endTime = adjustTimezoneOffset(row.getCell(4).value);
+      const name = tryLoadValue('name', row.getCell(negsColumns.name), errors, allStaff, parsers.nameParser);
+      const day = tryLoadValue('day', row.getCell(negsColumns.day), errors, allStaff, parsers.dateParser);
+      const startTime = tryLoadValue('startTime', row.getCell(negsColumns.start), errors, allStaff, parsers.dateParser);
+      const endTime = tryLoadValue('endTime', row.getCell(negsColumns.end), errors, allStaff, parsers.dateParser);
       const start = addTime(day, startTime);
       const end = addTime(day, endTime);
       allStaff[name].negs.push({ start, end });
@@ -90,12 +108,12 @@ const loadNegs = (workbook, allStaff) => {
   });
 };
 
-const loadRdos = (workbook, allStaff) => {
-  const rdosSheet = workbook.getWorksheet(4);
+const loadRdos = (workbook, allStaff, errors) => {
+  const rdosSheet = workbook.getWorksheet(worksheets.rdos);
   rdosSheet.eachRow((row, rowNumber) => {
     if (rowNumber > 1) {
-      const name = row.getCell(1).value;
-      const day = adjustTimezoneOffset(row.getCell(2).value);
+      const name = tryLoadValue('name', row.getCell(rdosColumns.name), errors, allStaff, parsers.nameParser);
+      const day = tryLoadValue('day', row.getCell(rdosColumns.day), errors, allStaff, parsers.dateParser);
       allStaff[name].rdos.push(day);
     }
   });
@@ -128,10 +146,15 @@ const printStaffSummary = (roster, sheet) => {
 };
 
 const doRun = (workbook) => {
-  const allStaff = loadStaff(workbook);
-  loadNegs(workbook, allStaff);
-  loadRdos(workbook, allStaff);
-  const shifts = loadShifts(workbook, allStaff);
+  const errors = [];
+  const allStaff = loadStaff(workbook, errors);
+  loadNegs(workbook, allStaff, errors);
+  loadRdos(workbook, allStaff, errors);
+  const shifts = loadShifts(workbook, allStaff, errors);
+  if (errors.length > 0) {
+    logger.info(`Errors found in spreadsheet: ${errors.join('\n')}`);
+    return { errors };
+  }
   const roster = new Roster({ shifts, employees: allStaff });
   roster.fillShifts();
   const output = new Excel.Workbook();
@@ -144,12 +167,7 @@ const doRun = (workbook) => {
 const run = (fullFilename) => {
   const workbook = new Excel.Workbook();
   return workbook.xlsx.readFile(fullFilename)
-    .then(() => {
-      const runResult = doRun(workbook);
-      runResult.output.csv.writeFile('./data/output.csv');
-      return runResult;
-      // return output.xlsx.writeFile('./data/output.xlsx');
-    });
+    .then(() => doRun(workbook));
 };
 
-module.exports = { run };
+module.exports = { run, parsers };

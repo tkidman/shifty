@@ -8,13 +8,13 @@ const adjustTimezoneOffset = require('../src/common').adjustTimezoneOffset;
 describe('Shifty', () => {
   let roster;
 
-  beforeEach(() =>
-    shifty.run('./data/shifty.xlsx').then((runResult) => {
-      roster = runResult.roster;
-      return roster;
-    }));
-
   context('runs', () => {
+    beforeEach(() =>
+      shifty.run('./data/shifty.xlsx').then((runResult) => {
+        roster = runResult.roster;
+        return roster;
+      }));
+
     it('parses data from a spreadsheet', () => {
       expect(roster.employees.Edwina.hewLevel).to.eql(hewLevels.hewLevel5);
       expect(roster.employees.Edwina.aal).to.eql(true);
