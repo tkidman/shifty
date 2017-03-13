@@ -33,7 +33,8 @@ Shifty also uses the 'Average Weekly Hours' value defined on the 'Staff' sheet f
 
 ## TODO:
  * night/morning rule
- * Error handling
  * Support multi week
- * Show employee stats on UI (don't include backup in desk hours)
- * Show high scores on UI
+ * don't include backup in desk hours on UI
+ * Show bad picks on UI
+ * Show debug log?
+ * Export to excel?

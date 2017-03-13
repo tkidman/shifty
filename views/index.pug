@@ -14,21 +14,41 @@ block content
           input(type="file", name="input")
           input(type="submit", name="submit")
   if roster
-    each shiftsByDay in roster.shiftsByDays
-      div
-        table
-          thead
-            tr
-              th(colspan="3") #{shiftsByDay.formattedDate}
-          tbody
-            each shift in shiftsByDay.shifts
+    div(class="tab")
+      button#default(class="tablinks", onclick="openTab(event, 'roster')") Roster
+      button(class="tablinks", onclick="openTab(event, 'staffSummary')") Staff Summary
+    div#roster(class="tabcontent")
+      each shiftsByDay in roster.shiftsByDays
+        div
+          table
+            thead
               tr
-                td= shift.timeSpanString()
-                if shift.allocatedEmployees[0]
-                  td= shift.allocatedEmployees[0].name
-                else
-                  td None found :(
-                td= shift.type
+                th(colspan="3") #{shiftsByDay.formattedDate}
+            tbody
+              each shift in shiftsByDay.shifts
+                tr
+                  td= shift.timeSpanString()
+                  if shift.allocatedEmployees[0]
+                    td= shift.allocatedEmployees[0].name
+                  else
+                    td None found :(
+                  td= shift.type
+    div#staffSummary(class="tabcontent")
+      table
+        thead
+          tr
+            th Name
+            th Desk Hours
+            th Ideal min hours
+            th Ideal max hours
+        each employee in roster.employees
+          tr
+            td= employee.name
+            td= employee.getCurrentMinutesAllocated() / 60
+            td= employee.idealMinMinutes / 60
+            td= employee.idealMaxMinutes / 60
+    script
+      | document.getElementById("default").click();
   if errors
     p The following problems were found with the spreadsheet:
     ul
