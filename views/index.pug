@@ -6,7 +6,6 @@ block content
       img(src="images/desk.jpg")
     div(class="blurb")
       h1= title
-      p Welcome to #{title}
       p The ultimate in desk shift allocation software!
       a(href="https://github.com/tkidman/shifty" target="_blank") See here for more information
       div(class="divform")
@@ -27,12 +26,12 @@ block content
             tbody
               each shift in shiftsByDay.shifts
                 tr
-                  td= shift.timeSpanString()
+                  td(class="time") #{shift.timeSpanString()}
                   if shift.allocatedEmployees[0]
-                    td= shift.allocatedEmployees[0].name
+                    td(class="name") #{shift.allocatedEmployees[0].name}
                   else
-                    td None found :(
-                  td= shift.type
+                    td(class="name") None found :(
+                  td(class="type") #{shift.type}
     div#staffSummary(class="tabcontent")
       table
         thead
@@ -41,12 +40,14 @@ block content
             th Desk Hours
             th Ideal min hours
             th Ideal max hours
+            th AAL shifts
         each employee in roster.employees
           tr
             td= employee.name
-            td= employee.getCurrentMinutesAllocated() / 60
+            td= employee.getCurrentMinutesAllocatedExcludingBackup() / 60
             td= employee.idealMinMinutes / 60
             td= employee.idealMaxMinutes / 60
+            td= employee.getAALShiftCount()
     script
       | document.getElementById("default").click();
   if errors

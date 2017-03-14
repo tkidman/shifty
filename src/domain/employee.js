@@ -1,4 +1,5 @@
 'use strict';
+const shiftTypes = require('./shift-type').shiftTypes;
 const days = { 1: 'Mon', 2: 'Tue', 3: 'Wed', 4: 'Thu', 5: 'Fri' };
 
 class Employee {
@@ -79,7 +80,24 @@ class Employee {
   }
 
   getCurrentMinutesAllocated() {
-    return this.allocatedShifts.reduce((minutes, allocatedShift) => minutes + allocatedShift.getShiftLengthMinutes(), 0);
+    return this.getCurrentMinutesAllocatedExcludingTypes([]);
+  }
+
+  getCurrentMinutesAllocatedExcludingTypes(excludedShiftTypes) {
+    return this.allocatedShifts.reduce((minutes, allocatedShift) => {
+      if (!excludedShiftTypes.includes(allocatedShift.type)) {
+        minutes += allocatedShift.getShiftLengthMinutes();
+      }
+      return minutes;
+    }, 0);
+  }
+
+  getCurrentMinutesAllocatedExcludingBackup() {
+    return this.getCurrentMinutesAllocatedExcludingTypes([shiftTypes.backup]);
+  }
+
+  getAALShiftCount() {
+    return this.allocatedShifts.filter(shift => shift.type === shiftTypes.aal).length;
   }
 
   isResponsibleOfficer() {

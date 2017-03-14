@@ -9,7 +9,7 @@ a {
 }
 
 table {
-  width: 400px;
+  width: 600px;
   border-spacing: 10px;
 }
 
@@ -19,6 +19,18 @@ th {
 
 th, td {
   border-bottom: 1px solid #ddd;
+}
+
+td.time {
+  width: 20%
+}
+
+td.name {
+  width: 40%
+}
+
+td.type {
+  width: 40%
 }
 
 div.pic, div.blurb { float: left; padding-right: 50px; }
