@@ -27,8 +27,8 @@ block content
               each shift in shiftsByDay.shifts
                 tr
                   td(class="time") #{shift.timeSpanString()}
-                  if shift.allocatedEmployees[0]
-                    td(class="name") #{shift.allocatedEmployees[0].name}
+                  if shift.shiftAllocation
+                    td(class="name") #{shift.shiftAllocation.employee.name}
                   else
                     td(class="name") None found :(
                   td(class="type") #{shift.type}

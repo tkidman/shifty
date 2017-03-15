@@ -84,8 +84,9 @@ const loadShifts = (workbook, allStaff, errors) => {
       const manualNameCell = row.getCell(shiftColumns.manualName);
       if (manualNameCell.value) {
         const name = tryLoadValue('manualName', manualNameCell, errors, allStaff, parsers.nameParser);
-        allStaff[name].allocatedShifts.push(shift);
-        shift.allocatedEmployees.push(allStaff[name]);
+        if (name) {
+          shift.allocateShift(allStaff[name]);
+        }
       }
       shifts.push(shift);
     }
@@ -123,7 +124,7 @@ const printRoster = (roster, sheet) => {
   sheet.addRow(['Shift', 'Name']);
   let day = roster.shifts[0].start.day;
   roster.shifts.forEach(shift => {
-    const name = shift.allocatedEmployees[0] ? shift.allocatedEmployees[0].name : 'No one found :(';
+    const name = shift.shiftAllocation ? shift.shiftAllocation.employee.name : 'No one found :(';
     sheet.addRow([shift.toString(), name]);
     if (shift.start.date !== day) {
       sheet.addRow([]);

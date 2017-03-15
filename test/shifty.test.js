@@ -21,7 +21,7 @@ describe('Shifty', () => {
 
       const firstShiftStart = adjustTimezoneOffset(new Date('2017-02-06T08:00:00'));
       const firstShiftEnd = adjustTimezoneOffset(new Date('2017-02-06T09:00:00'));
-      expect(roster.shifts[0].allocatedEmployees[0].name).to.eql('Edwina');
+      expect(roster.shifts[0].shiftAllocation.employee.name).to.eql('Edwina');
       expect(roster.shifts[0].start).to.eql(firstShiftStart);
       expect(roster.shifts[0].end).to.eql(firstShiftEnd);
 

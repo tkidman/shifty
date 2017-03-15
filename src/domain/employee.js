@@ -11,7 +11,7 @@ class Employee {
     this.averageWeeklyHours = params.averageWeeklyHours;
     this.hoursByDayOfWeek = params.hoursByDayOfWeek;
     this.availableForShifts = [];
-    this.allocatedShifts = [];
+    this.shiftAllocations = [];
     this.negs = [];
     this.rdos = [];
     this.idealMinMinutes = (this.hewLevel.minDeskPercentage / 100) * this.averageWeeklyHours * 60;
@@ -55,7 +55,7 @@ class Employee {
   }
 
   _workingShiftAtSameTime(shift) {
-    return this.allocatedShifts.some(neg => this._overlap(neg, shift));
+    return this.shiftAllocations.some(shiftAllocation => this._overlap(shiftAllocation.shift, shift));
   }
 
   canWorkShift(shift) {
@@ -67,12 +67,11 @@ class Employee {
     shift.addAvailableEmployee(this);
   }
 
-  allocateToShift(shift) {
-    this.allocatedShifts.push(shift);
-    this.availableForShifts.splice(this.availableForShifts.indexOf(shift), 1);
-    shift.allocateEmployee(this);
+  allocateToShift(shiftAllocation) {
+    this.shiftAllocations.push(shiftAllocation);
+    this.availableForShifts.splice(this.availableForShifts.indexOf(shiftAllocation.shift), 1);
     // remove other available shifts at the same time
-    this.availableForShifts.filter(availableShift => this._overlap(shift, availableShift))
+    this.availableForShifts.filter(availableShift => this._overlap(shiftAllocation.shift, availableShift))
       .forEach(sameTimeShift => {
         sameTimeShift.availableEmployees.splice(sameTimeShift.availableEmployees.indexOf(this), 1);
         this.availableForShifts.splice(this.availableForShifts.indexOf(sameTimeShift), 1);
@@ -84,9 +83,9 @@ class Employee {
   }
 
   getCurrentMinutesAllocatedExcludingTypes(excludedShiftTypes) {
-    return this.allocatedShifts.reduce((minutes, allocatedShift) => {
-      if (!excludedShiftTypes.includes(allocatedShift.type)) {
-        minutes += allocatedShift.getShiftLengthMinutes();
+    return this.shiftAllocations.reduce((minutes, shiftAllocation) => {
+      if (!excludedShiftTypes.includes(shiftAllocation.shift.type)) {
+        minutes += shiftAllocation.shift.getShiftLengthMinutes();
       }
       return minutes;
     }, 0);
@@ -97,7 +96,7 @@ class Employee {
   }
 
   getAALShiftCount() {
-    return this.allocatedShifts.filter(shift => shift.type === shiftTypes.aal).length;
+    return this.shiftAllocations.filter(shiftAllocation => shiftAllocation.shift.type === shiftTypes.aal).length;
   }
 
   isResponsibleOfficer() {
@@ -105,8 +104,8 @@ class Employee {
   }
 
   workingAdjacentShift(shift) {
-    return this.allocatedShifts.some(allocatedShift =>
-      allocatedShift.start.getTime() === shift.end.getTime() || allocatedShift.end.getTime() === shift.start.getTime()
+    return this.shiftAllocations.some(allocatedShift =>
+      allocatedShift.shift.start.getTime() === shift.end.getTime() || allocatedShift.shift.end.getTime() === shift.start.getTime()
     );
   }
 }

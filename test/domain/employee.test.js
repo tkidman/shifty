@@ -47,38 +47,26 @@ describe('Employee', () => {
     });
 
     it('returns false after the employee gets allocated to the shift', () => {
-      employee.allocateToShift(shift);
+      shift.allocateShift(employee);
       expect(employee.canWorkShift(shift)).to.be.false;
     });
   });
 
   context('allocates to shift', () => {
     beforeEach(() => {
-      employee.allocateToShift(shift);
-    });
-
-    it('adds employee to the shift', () => {
-      expect(shift.allocatedEmployees.includes(employee)).to.be.true;
+      shift.allocateShift(employee);
     });
 
     it('adds the shift to the employee', () => {
-      expect(employee.allocatedShifts.includes(shift)).to.be.true;
+      expect(employee.shiftAllocations.some(shiftAllocation => shiftAllocation.shift === shift)).to.be.true;
     });
 
     it('removes the shift from the employee\'s available shifts', () => {
       expect(employee.availableForShifts.includes(shift)).to.be.false;
     });
 
-    it('removes the employee from the shifts\'s available employees', () => {
-      expect(shift.availableEmployees.includes(employee)).to.be.false;
-    });
-
     it('removes the same time shift from the employee\'s available shifts', () => {
       expect(employee.availableForShifts.includes(sameTimeShift)).to.be.false;
-    });
-
-    it('removes the employee from the same time shifts\'s available employees', () => {
-      expect(sameTimeShift.availableEmployees.includes(employee)).to.be.false;
     });
   });
 
@@ -98,27 +86,28 @@ describe('Employee', () => {
     });
 
     it('reports correct minutes when shifts allocated', () => {
-      employee.allocateToShift(shift);
-      employee.allocateToShift(nightShift);
+      shift.allocateShift(employee);
+      nightShift.allocateShift(employee);
       expect(employee.getCurrentMinutesAllocated()).to.eql(300);
     });
 
     it('reports correct minutes when shifts allocated excluding backup', () => {
-      employee.allocateToShift(shift);
-      employee.allocateToShift(backupShift);
+      shift.allocateShift(employee);
+      backupShift.allocateShift(employee);
       expect(employee.getCurrentMinutesAllocatedExcludingBackup()).to.eql(60);
     });
   });
 
   context('getAALShiftCount', () => {
     it('counts the number of assigned aal shifts', () => {
-      employee.allocateToShift(shift);
+      shift.allocateShift(employee);
       expect(employee.getAALShiftCount()).to.eql(0);
-      employee.allocateToShift(new Shift({
+      shift.allocateShift(employee);
+      new Shift({
         type: shiftTypes.aal,
         start: adjustTimezoneOffset(new Date('2017-02-07T09:00:00')),
         end: adjustTimezoneOffset(new Date('2017-02-07T10:00:00')),
-      }));
+      }).allocateShift(employee);
       expect(employee.getAALShiftCount()).to.eql(1);
     });
   });
@@ -135,7 +124,12 @@ describe('Employee', () => {
 
       employee = new Employee({ name: 'empy', hewLevel: hewLevels.hewLevel4, averageWeeklyHours: 10 });
       // date doesn't matter here, only time
-      employee.hoursByDayOfWeek = { Mon: { start: new Date(new Date().setHours(8)), end: new Date(new Date().setHours(17)) } };
+      employee.hoursByDayOfWeek = {
+        Mon: {
+          start: new Date(new Date().setHours(8)),
+          end: new Date(new Date().setHours(17)),
+        },
+      };
     });
 
     it('does not set shift when employee does not work during shift', () => {
@@ -190,7 +184,7 @@ describe('Employee', () => {
       });
 
       employee = new Employee({ name: 'empy', hewLevel: hewLevels.hewLevel4, averageWeeklyHours: 10 });
-      employee.allocateToShift(shift);
+      shift.allocateShift(employee);
     });
 
     it('returns correct value when employee working adjacent shift', () => {

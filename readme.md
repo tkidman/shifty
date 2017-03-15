@@ -33,8 +33,9 @@ Shifty also uses the 'Average Weekly Hours' value defined on the 'Staff' sheet f
 
 ## TODO:
  * night/morning rule
- * Support multi week
- * don't include backup in desk hours on UI
+ * Specify employee hours over two weeks
+ * Use employee hours to calculate average hours
+ * Support multi week shifts
  * Show bad picks on UI
  * Show debug log?
  * Export to excel?
