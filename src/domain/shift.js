@@ -6,6 +6,7 @@ const logger = require('../common').logger;
 const _ = require('lodash');
 const shiftTypes = require('./shift-type').shiftTypes;
 const ShiftAllocation = require('./shift-allocation');
+const warnings = require('./warnings');
 
 const employeeMinMinutes = 4 * 60;
 const minMinutesScoreChange = -1000;
@@ -34,14 +35,14 @@ class Shift {
   fill() {
     const scoreResult = this.findBestEmployee();
     if (scoreResult) {
-      this.allocateShift(scoreResult.employee, scoreResult.warnings);
+      this.allocateShift(scoreResult.employee, scoreResult.warningsList);
     } else {
       logger.info(`unable to find employee for shift: ${this}`);
     }
   }
 
-  allocateShift(employee, warnings) {
-    this.shiftAllocation = new ShiftAllocation(this, employee, warnings);
+  allocateShift(employee, warningsList) {
+    this.shiftAllocation = new ShiftAllocation(this, employee, warningsList);
     employee.allocateToShift(this.shiftAllocation);
     this.availableEmployees.splice(this.availableEmployees.indexOf(employee), 1);
   }
@@ -57,7 +58,7 @@ class Shift {
     logger.debug(scoreDebugMessage);
     const bestScoreResult = sortedScores[0];
     if (bestScoreResult) {
-      if (Object.keys(bestScoreResult.warnings).length > 0) {
+      if (Object.keys(bestScoreResult.warningsList).length > 0) {
         logger.warn(
           `warnings found for best employee. shift: ${this}` +
           `, result: ${JSON.stringify(_.omit(bestScoreResult, 'employee'))}`
@@ -70,7 +71,7 @@ class Shift {
 
   // lower the better
   scoreEmployee(employee) {
-    const scoreResult = { score: 0, employee, warnings: {} };
+    const scoreResult = { score: 0, employee, warningsList: [] };
     scoreResult.name = employee.name;
     const employeeMinutes = employee.getCurrentMinutesAllocated();
     const minutesWithShift = employeeMinutes + this.getShiftLengthMinutes();
@@ -89,12 +90,12 @@ class Shift {
 
     if (this.type === shiftTypes.responsibleOfficer && !employee.isResponsibleOfficer()) {
       scoreResult.score += nonResponsibleOfficerScoreChange;
-      scoreResult.warnings.nonResponsibleOfficer = true;
+      scoreResult.warningsList.push(warnings.nonResponsibleOfficer(employee.name));
     }
 
     if (employee.workingAdjacentShift(this)) {
       scoreResult.score += workingAdjacentShiftScoreChange;
-      scoreResult.warnings.workingAdjacentShift = true;
+      scoreResult.warningsList.push(warnings.workingAdjacentShift(employee.name));
     }
 
     return scoreResult;
@@ -106,7 +107,7 @@ class Shift {
       scoreResult.score += workingAALShiftScoreChange * aalShifts.length;
       if (!employee.aal) {
         scoreResult.score += nonAALScoreChange;
-        scoreResult.warnings.nonAAL = true;
+        scoreResult.warningsList.push(warnings.nonAAL(employee.name));
       }
     }
   }

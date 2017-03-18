@@ -1,53 +1,23 @@
 extends layout
 
 block content
-  div(class="container")
-    div(class="pic")
+  div.container
+    div.pic
       img(src="images/desk.jpg")
-    div(class="blurb")
+    div.blurb
       h1= title
       p The ultimate in desk shift allocation software!
       a(href="https://github.com/tkidman/shifty" target="_blank") See here for more information
-      div(class="divform")
+      div.divform
         form(action="/run", method="post", enctype="multipart/form-data")
           input(type="file", name="input")
           input(type="submit", name="submit")
   if roster
-    div(class="tab")
-      button#default(class="tablinks", onclick="openTab(event, 'roster')") Roster
-      button(class="tablinks", onclick="openTab(event, 'staffSummary')") Staff Summary
-    div#roster(class="tabcontent")
-      each shiftsByDay in roster.shiftsByDays
-        div
-          table
-            thead
-              tr
-                th(colspan="3") #{shiftsByDay.formattedDate}
-            tbody
-              each shift in shiftsByDay.shifts
-                tr
-                  td(class="time") #{shift.timeSpanString()}
-                  if shift.shiftAllocation
-                    td(class="name") #{shift.shiftAllocation.employee.name}
-                  else
-                    td(class="name") None found :(
-                  td(class="type") #{shift.type}
-    div#staffSummary(class="tabcontent")
-      table
-        thead
-          tr
-            th Name
-            th Desk Hours
-            th Ideal min hours
-            th Ideal max hours
-            th AAL shifts
-        each employee in roster.employees
-          tr
-            td= employee.name
-            td= employee.getCurrentMinutesAllocatedExcludingBackup() / 60
-            td= employee.idealMinMinutes / 60
-            td= employee.idealMaxMinutes / 60
-            td= employee.getAALShiftCount()
+    div.tab
+      button#default.tablinks(onclick="openTab(event, 'roster')") Roster
+      button.tablinks(onclick="openTab(event, 'staffSummary')") Staff Summary
+    include ./roster.pug
+    include ./staff-summary.pug
     script
       | document.getElementById("default").click();
   if errors

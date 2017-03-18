@@ -1,0 +1,13 @@
+if shift.shiftAllocation
+  td.name
+    if (shift.shiftAllocation.warningsList.length > 0)
+      div.tooltip #{shift.shiftAllocation.employee.name}
+        span.tooltiptext
+          p Warning - there are problems with this allocation
+          ul
+            each warning in shift.shiftAllocation.warningsList
+              li= warning
+    else
+      div= shift.shiftAllocation.employee.name
+else
+  td.name None found :(

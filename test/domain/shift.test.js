@@ -83,10 +83,10 @@ describe('Shift', () => {
     let lowEmployee;
 
     beforeEach(() => {
-      lowEmployee = new Employee({ name: 'empy', hewLevel: hewLevels.hewLevel5, averageWeeklyHours: 30 });
-      const midEmployee = new Employee({ name: 'empo', hewLevel: hewLevels.hewLevel5, averageWeeklyHours: 30 });
+      lowEmployee = new Employee({ name: 'lowEmpy', hewLevel: hewLevels.hewLevel5, averageWeeklyHours: 30 });
+      const midEmployee = new Employee({ name: 'midEmpy', hewLevel: hewLevels.hewLevel5, averageWeeklyHours: 30 });
       standardShift.allocateShift(midEmployee);
-      const highEmployee = new Employee({ name: 'empi', hewLevel: hewLevels.hewLevel5, averageWeeklyHours: 30 });
+      const highEmployee = new Employee({ name: 'highEmpy', hewLevel: hewLevels.hewLevel5, averageWeeklyHours: 30 });
       new Shift({
         type: shiftTypes.standard,
         start: adjustTimezoneOffset(new Date('2017-02-06T17:00:00')),
@@ -99,7 +99,7 @@ describe('Shift', () => {
 
     context('findBestEmployee', () => {
       it('returns the employee with the lowest score', () => {
-        expect(nightShift.findBestEmployee()).to.equal(lowEmployee);
+        expect(nightShift.findBestEmployee().employee).to.equal(lowEmployee);
       });
     });
 
@@ -112,11 +112,21 @@ describe('Shift', () => {
     });
   });
 
+  context('fill', () => {
+    it('generates warnings correctly', () => {
+      employee = new Employee({ name: 'umpy', hewLevel: hewLevels.hewLevel5, averageWeeklyHours: 30, aal: false });
+      employee.markAsAvailableForShift(aalShift1);
+      aalShift1.fill();
+      expect(aalShift1.shiftAllocation.warningsList.length).to.eql(1);
+      expect(aalShift1.shiftAllocation.warningsList[0]).to.equal('umpy should not perform AAL shifts');
+    });
+  });
+
   context('allocateShift', () => {
     let sameTimeShift;
     beforeEach(() => {
       sameTimeShift = new Shift({
-        type: shiftTypes.standard,
+        type: shiftTypes.aal,
         start: adjustTimezoneOffset(new Date('2017-02-06T09:00:00')),
         end: adjustTimezoneOffset(new Date('2017-02-06T10:00:00')),
       });
@@ -133,7 +143,7 @@ describe('Shift', () => {
     });
 
     it('removes the employee from the same time shifts\'s available employees', () => {
-      expect(sameTimeShift.availableEmployees.includes(employee)).to.be.false;
+      expect(standardShift.availableEmployees.includes(employee)).to.be.false;
     });
   });
 

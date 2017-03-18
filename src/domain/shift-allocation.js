@@ -1,8 +1,8 @@
 class ShiftAllocation {
-  constructor(shift, employee, warnings) {
+  constructor(shift, employee, warningsList) {
     this.shift = shift;
     this.employee = employee;
-    this.warnings = warnings || [];
+    this.warningsList = warningsList || [];
   }
 }
 
