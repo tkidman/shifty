@@ -1,6 +1,9 @@
 'use strict';
 const shiftTypes = require('./shift-type').shiftTypes;
 const days = { 1: 'Mon', 2: 'Tue', 3: 'Wed', 4: 'Thu', 5: 'Fri' };
+const adjustTimezoneOffset = require('../common').adjustTimezoneOffset;
+const moment = require('moment');
+const initialMondayPayweek = moment(adjustTimezoneOffset(new Date('2017-03-13T00:00:00')));
 
 class Employee {
   constructor(params) {
@@ -8,14 +11,31 @@ class Employee {
     this.hewLevel = params.hewLevel;
     // boolean
     this.aal = params.aal;
-    this.averageWeeklyHours = params.averageWeeklyHours;
     this.hoursByDayOfWeek = params.hoursByDayOfWeek;
     this.availableForShifts = [];
     this.shiftAllocations = [];
     this.negs = [];
     this.rdos = [];
+    this.averageWeeklyHours = this.calculateAverageWeeklyHours(this.hoursByDayOfWeek);
     this.idealMinMinutes = (this.hewLevel.minDeskPercentage / 100) * this.averageWeeklyHours * 60;
     this.idealMaxMinutes = (this.hewLevel.maxDeskPercentage / 100) * this.averageWeeklyHours * 60;
+  }
+
+  calculateAverageWeeklyHours(hoursByDayOfWeek) {
+    const totalMinutes = this.calculateMinutesWorkedPerWeek(hoursByDayOfWeek.payweek) +
+      this.calculateMinutesWorkedPerWeek(hoursByDayOfWeek.nonPayweek);
+    return totalMinutes / 2 / 60;
+  }
+
+  calculateMinutesWorkedPerWeek(hoursByWeek) {
+    return Object.keys(hoursByWeek).reduce(
+      (minutesAggreagtor, dayKey) => minutesAggreagtor + moment(hoursByWeek[dayKey].end).diff(hoursByWeek[dayKey].start, 'minutes'),
+      0
+    );
+  }
+
+  isInPayweek(date) {
+    return initialMondayPayweek.diff(date, 'week') % 2 === 0;
   }
 
   setAvailableForShifts(allShifts) {
@@ -36,7 +56,12 @@ class Employee {
 
   _worksDuringShift(shift) {
     const day = days[shift.start.getDay()];
-    const hoursForDay = this.hoursByDayOfWeek[day];
+    let hoursForDay;
+    if (this.isInPayweek(shift.start)) {
+      hoursForDay = this.hoursByDayOfWeek.payweek[day];
+    } else {
+      hoursForDay = this.hoursByDayOfWeek.nonPayweek[day];
+    }
     return hoursForDay &&
       this._minutes(hoursForDay.start) <= this._minutes(shift.start) &&
       this._minutes(hoursForDay.end) >= this._minutes(shift.end);

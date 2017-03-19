@@ -16,6 +16,10 @@ describe('Shift', () => {
   let aalShift1;
   let aalShift2;
 
+  const tenHourDay = { start: new Date(new Date().setHours(8)), end: new Date(new Date().setHours(18)) };
+  const thirtyHourWeek = { Mon: tenHourDay, Tue: tenHourDay, Wed: tenHourDay };
+  const hoursByDayOfWeek = { payweek: thirtyHourWeek, nonPayweek: thirtyHourWeek };
+
   beforeEach(() => {
     standardShift = new Shift({
       type: shiftTypes.standard,
@@ -37,7 +41,8 @@ describe('Shift', () => {
       start: adjustTimezoneOffset(new Date('2017-02-06T17:00:00')),
       end: adjustTimezoneOffset(new Date('2017-02-06T21:00:00')),
     });
-    employee = new Employee({ name: 'empy', hewLevel: hewLevels.hewLevel5, averageWeeklyHours: 30, aal: true });
+    employee = new Employee({ name: 'empy', hewLevel: hewLevels.hewLevel5, aal: true, hoursByDayOfWeek });
+    employee.averageWeeklyHours = 30;
     employee.markAsAvailableForShift(standardShift);
   });
 
@@ -83,10 +88,13 @@ describe('Shift', () => {
     let lowEmployee;
 
     beforeEach(() => {
-      lowEmployee = new Employee({ name: 'lowEmpy', hewLevel: hewLevels.hewLevel5, averageWeeklyHours: 30 });
-      const midEmployee = new Employee({ name: 'midEmpy', hewLevel: hewLevels.hewLevel5, averageWeeklyHours: 30 });
+      lowEmployee = new Employee({ name: 'lowEmpy', hewLevel: hewLevels.hewLevel5, hoursByDayOfWeek });
+      lowEmployee.averageWeeklyHours = 30;
+      const midEmployee = new Employee({ name: 'midEmpy', hewLevel: hewLevels.hewLevel5, hoursByDayOfWeek });
+      midEmployee.averageWeeklyHours = 30;
       standardShift.allocateShift(midEmployee);
-      const highEmployee = new Employee({ name: 'highEmpy', hewLevel: hewLevels.hewLevel5, averageWeeklyHours: 30 });
+      const highEmployee = new Employee({ name: 'highEmpy', hewLevel: hewLevels.hewLevel5, hoursByDayOfWeek });
+      highEmployee.averageWeeklyHours = 30;
       new Shift({
         type: shiftTypes.standard,
         start: adjustTimezoneOffset(new Date('2017-02-06T17:00:00')),
@@ -114,7 +122,7 @@ describe('Shift', () => {
 
   context('fill', () => {
     it('generates warnings correctly', () => {
-      employee = new Employee({ name: 'umpy', hewLevel: hewLevels.hewLevel5, averageWeeklyHours: 30, aal: false });
+      employee = new Employee({ name: 'umpy', hewLevel: hewLevels.hewLevel5, hoursByDayOfWeek, aal: false });
       employee.markAsAvailableForShift(aalShift1);
       aalShift1.fill();
       expect(aalShift1.shiftAllocation.warningsList.length).to.eql(1);

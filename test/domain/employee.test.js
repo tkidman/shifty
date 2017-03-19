@@ -13,6 +13,9 @@ describe('Employee', () => {
   let sameTimeShift;
   let nightShift;
   let backupShift;
+  const tenHourDay = { start: new Date(new Date().setHours(8)), end: new Date(new Date().setHours(18)) };
+  const tenHourWeek = { Mon: tenHourDay };
+  const hoursByDayOfWeek = { payweek: tenHourWeek, nonPayweek: tenHourWeek };
 
   beforeEach(() => {
     shift = new Shift({
@@ -35,7 +38,7 @@ describe('Employee', () => {
       start: adjustTimezoneOffset(new Date('2017-02-07T17:00:00')),
       end: adjustTimezoneOffset(new Date('2017-02-07T21:00:00')),
     });
-    employee = new Employee({ name: 'empy', hewLevel: hewLevels.hewLevel4, averageWeeklyHours: 10, aal: true });
+    employee = new Employee({ name: 'empy', hewLevel: hewLevels.hewLevel4, aal: true, hoursByDayOfWeek });
     employee.markAsAvailableForShift(shift);
     employee.markAsAvailableForShift(sameTimeShift);
   });
@@ -121,15 +124,7 @@ describe('Employee', () => {
         start: adjustTimezoneOffset(new Date('2017-02-07T09:00:00')),
         end: adjustTimezoneOffset(new Date('2017-02-07T10:00:00')),
       });
-
-      employee = new Employee({ name: 'empy', hewLevel: hewLevels.hewLevel4, averageWeeklyHours: 10 });
-      // date doesn't matter here, only time
-      employee.hoursByDayOfWeek = {
-        Mon: {
-          start: new Date(new Date().setHours(8)),
-          end: new Date(new Date().setHours(17)),
-        },
-      };
+      employee = new Employee({ name: 'empy', hewLevel: hewLevels.hewLevel4, hoursByDayOfWeek });
     });
 
     it('does not set shift when employee does not work during shift', () => {
@@ -183,7 +178,7 @@ describe('Employee', () => {
         end: adjustTimezoneOffset(new Date('2017-02-06T09:00:00')),
       });
 
-      employee = new Employee({ name: 'empy', hewLevel: hewLevels.hewLevel4, averageWeeklyHours: 10 });
+      employee = new Employee({ name: 'empy', hewLevel: hewLevels.hewLevel4, hoursByDayOfWeek });
       shift.allocateShift(employee);
     });
 
@@ -191,6 +186,41 @@ describe('Employee', () => {
       expect(employee.workingAdjacentShift(after)).to.be.true;
       expect(employee.workingAdjacentShift(before)).to.be.true;
       expect(employee.workingAdjacentShift(nightShift)).to.be.false;
+    });
+  });
+
+  context('isInPayweek', () => {
+    const payweekDates = [
+      adjustTimezoneOffset(new Date('2017-03-13T00:00:00')),
+      adjustTimezoneOffset(new Date('2017-03-19T23:59:59')),
+      adjustTimezoneOffset(new Date('2017-03-28T09:00:00')),
+      adjustTimezoneOffset(new Date('2017-04-12T09:00:00')),
+    ];
+    const nonPayweekDates = [
+      adjustTimezoneOffset(new Date('2017-03-26T23:59:59')),
+      adjustTimezoneOffset(new Date('2017-03-20T00:00:00')),
+      adjustTimezoneOffset(new Date('2017-04-04T09:00:00')),
+      adjustTimezoneOffset(new Date('2017-04-19T09:00:00')),
+    ];
+    payweekDates.forEach(payweekDate => {
+      it(`returns true when date is ${payweekDate}`, () => {
+        expect(employee.isInPayweek(payweekDate)).to.be.true;
+      });
+    });
+
+    nonPayweekDates.forEach(nonPayweekDate => {
+      it(`returns false when date is ${nonPayweekDate}`, () => {
+        expect(employee.isInPayweek(nonPayweekDate)).to.be.false;
+      });
+    });
+  });
+
+  context('averageWeeklyHours', () => {
+    const thirtyHourWeek = { Mon: tenHourDay, Tue: tenHourDay, Wed: tenHourDay };
+    const twentyHourWeek = { Mon: tenHourDay, Tue: tenHourDay };
+    const hoursByDayOfWeek2 = { payweek: thirtyHourWeek, nonPayweek: twentyHourWeek };
+    it('calculates average weekly hours', () => {
+      expect(employee.calculateAverageWeeklyHours(hoursByDayOfWeek2)).to.equal(25);
     });
   });
 });

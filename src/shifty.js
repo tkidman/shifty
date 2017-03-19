@@ -5,13 +5,20 @@ const Roster = require('./domain/roster');
 const parsers = require('./cell-parsers');
 const logger = require('./common').logger;
 
-const staffColumns = { name: 1, hewLevel: 2, aal: 3, averageWeeklyHours: 4, startMonday: 5 };
+const staffColumns = {
+  name: 1,
+  hewLevel: 2,
+  aal: 3,
+  startMondayPayweek: 4,
+  startMondayNonPayweek: 14,
+  endFridayNonPayweek: 23,
+};
 const shiftColumns = { day: 1, start: 2, end: 3, type: 4, manualName: 5 };
 const negsColumns = { name: 1, day: 2, start: 3, end: 4 };
 const rdosColumns = { name: 1, day: 2 };
 const worksheets = { shifts: 1, staff: 2, negs: 3, rdos: 4 };
 
-const daysByColumn = { 5: 'Mon', 7: 'Tue', 9: 'Wed', 11: 'Thu', 13: 'Fri' };
+const daysByColumn = { 4: 'Mon', 6: 'Tue', 8: 'Wed', 10: 'Thu', 12: 'Fri' };
 
 
 const addTime = (day, time) => {
@@ -24,7 +31,8 @@ const addTime = (day, time) => {
 const tryLoadParamValue = (params, paramName, cell, errors, allStaff, parseFunction) => {
   const parseResult = parseFunction(cell, allStaff);
   if (parseResult.error) {
-    errors.push(`Failed to load '${paramName}' for cell ${cell._address} in ${cell._row._worksheet.name} sheet. Value: ${cell.value}, error: ${parseResult.error}`);
+    errors.push(`Failed to load '${paramName}' for cell ${cell._address} in ${cell._row._worksheet.name} sheet. ` +
+      `Value: ${cell.value}, error: ${parseResult.error}`);
   } else {
     params[paramName] = parseResult.value;
   }
@@ -34,11 +42,28 @@ const tryLoadParamValue = (params, paramName, cell, errors, allStaff, parseFunct
 const tryLoadValue = (paramName, cell, errors, allStaff, parseFunction) =>
   tryLoadParamValue({}, paramName, cell, errors, allStaff, parseFunction)[paramName];
 
+const loadStaffHoursByDayOfWeek = (row, errors, allStaff) => {
+  const hoursByDayOfWeek = { payweek: {}, nonPayweek: {} };
+  for (let i = staffColumns.startMondayPayweek; i <= staffColumns.endFridayNonPayweek; i += 2) {
+    if (row.getCell(i).value) {
+      const startIndex = i;
+      const endIndex = i + 1;
+      const start = tryLoadValue('start', row.getCell(startIndex), errors, allStaff, parsers.dateParser);
+      const end = tryLoadValue('end', row.getCell(endIndex), errors, allStaff, parsers.dateParser);
+      if (endIndex < staffColumns.startMondayNonPayweek) {
+        hoursByDayOfWeek.payweek[daysByColumn[startIndex]] = { start, end };
+      } else {
+        hoursByDayOfWeek.nonPayweek[daysByColumn[i - 10]] = { start, end };
+      }
+    }
+  }
+  return hoursByDayOfWeek;
+};
+
 const loadStaff = (workbook, errors) => {
   const staffSheet = workbook.getWorksheet(worksheets.staff);
   const allStaff = {};
   staffSheet.eachRow((row, rowNumber) => {
-    const hoursByDayOfWeek = {};
     const staffParams = {};
     if (rowNumber > 1) {
       staffParams.name = row.getCell(staffColumns.name).value;
@@ -49,17 +74,7 @@ const loadStaff = (workbook, errors) => {
       tryLoadParamValue(
         staffParams, 'aal', row.getCell(staffColumns.aal), errors, allStaff, parsers.trueFalseParser
       );
-      tryLoadParamValue(
-        staffParams, 'averageWeeklyHours', row.getCell(staffColumns.averageWeeklyHours), errors, allStaff, parsers.numberParser
-      );
-      for (let i = staffColumns.startMonday; i <= staffColumns.startMonday + 8; i += 2) {
-        if (row.getCell(i).value) {
-          const start = tryLoadValue('start', row.getCell(i), errors, allStaff, parsers.dateParser);
-          const end = tryLoadValue('end', row.getCell(i + 1), errors, allStaff, parsers.dateParser);
-          hoursByDayOfWeek[daysByColumn[i]] = { start, end };
-        }
-      }
-      staffParams.hoursByDayOfWeek = hoursByDayOfWeek;
+      staffParams.hoursByDayOfWeek = loadStaffHoursByDayOfWeek(row, errors, allStaff);
       allStaff[staffParams.name] = new Employee(staffParams);
     }
   });

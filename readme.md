@@ -16,6 +16,9 @@ Use this as a guide for defining shifts, staff, negs and RDOs.
 * You can manually assign a person to a shift using the 'Manual Name' column in the 'Shifts' sheet.
 * Shifts are 1 person shifts at the moment, so you need to define 2 shifts at the same time if two people are working
 at the same time.
+* You need to specify a fortnight of regular working hours for each staff member on the 'Staff' sheet. 
+The first week must be the staff member's hours for a pay week, 
+the second for a non pay week. Shifty considers 13/3/2017 to be a Monday of a payweek.
 
 ## How does it work?
 
@@ -33,7 +36,6 @@ Shifty also uses the 'Average Weekly Hours' value defined on the 'Staff' sheet f
 
 ## TODO:
  * night/morning rule
- * Specify employee hours over two weeks
  * Use employee hours to calculate average hours
  * Show % time worked on desk shifts in staff summary
  * Support multi week shifts

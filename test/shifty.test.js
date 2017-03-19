@@ -25,15 +25,27 @@ describe('Shifty', () => {
       expect(roster.shifts[0].start).to.eql(firstShiftStart);
       expect(roster.shifts[0].end).to.eql(firstShiftEnd);
 
-      expect(roster.employees.Edwina.hoursByDayOfWeek.Mon.start.getHours()).to.eql(8);
-      expect(roster.employees.Edwina.hoursByDayOfWeek.Mon.start.getMinutes()).to.eql(0);
-      expect(roster.employees.Edwina.hoursByDayOfWeek.Mon.end.getHours()).to.eql(17);
-      expect(roster.employees.Edwina.hoursByDayOfWeek.Mon.end.getMinutes()).to.eql(0);
+      expect(roster.employees.Edwina.hoursByDayOfWeek.payweek.Mon.start.getHours()).to.eql(8);
+      expect(roster.employees.Edwina.hoursByDayOfWeek.payweek.Mon.start.getMinutes()).to.eql(0);
+      expect(roster.employees.Edwina.hoursByDayOfWeek.payweek.Mon.end.getHours()).to.eql(17);
+      expect(roster.employees.Edwina.hoursByDayOfWeek.payweek.Mon.end.getMinutes()).to.eql(0);
 
-      expect(roster.employees.Rowena.hoursByDayOfWeek.Fri.start.getHours()).to.eql(8);
-      expect(roster.employees.Rowena.hoursByDayOfWeek.Fri.start.getMinutes()).to.eql(30);
-      expect(roster.employees.Rowena.hoursByDayOfWeek.Fri.end.getHours()).to.eql(17);
-      expect(roster.employees.Rowena.hoursByDayOfWeek.Fri.end.getMinutes()).to.eql(0);
+      expect(roster.employees.Edwina.hoursByDayOfWeek.payweek.Fri).to.be.undefined;
+
+      expect(roster.employees.Edwina.hoursByDayOfWeek.nonPayweek.Mon.start.getHours()).to.eql(8);
+      expect(roster.employees.Edwina.hoursByDayOfWeek.nonPayweek.Mon.start.getMinutes()).to.eql(0);
+      expect(roster.employees.Edwina.hoursByDayOfWeek.nonPayweek.Mon.end.getHours()).to.eql(17);
+      expect(roster.employees.Edwina.hoursByDayOfWeek.nonPayweek.Mon.end.getMinutes()).to.eql(0);
+
+      expect(roster.employees.Edwina.hoursByDayOfWeek.nonPayweek.Fri.start.getHours()).to.eql(8);
+      expect(roster.employees.Edwina.hoursByDayOfWeek.nonPayweek.Fri.start.getMinutes()).to.eql(0);
+      expect(roster.employees.Edwina.hoursByDayOfWeek.nonPayweek.Fri.end.getHours()).to.eql(16);
+      expect(roster.employees.Edwina.hoursByDayOfWeek.nonPayweek.Fri.end.getMinutes()).to.eql(30);
+
+      expect(roster.employees.Rowena.hoursByDayOfWeek.payweek.Fri.start.getHours()).to.eql(8);
+      expect(roster.employees.Rowena.hoursByDayOfWeek.payweek.Fri.start.getMinutes()).to.eql(30);
+      expect(roster.employees.Rowena.hoursByDayOfWeek.payweek.Fri.end.getHours()).to.eql(17);
+      expect(roster.employees.Rowena.hoursByDayOfWeek.payweek.Fri.end.getMinutes()).to.eql(0);
 
       const firstNegStart = adjustTimezoneOffset(new Date('2017-02-07T08:00:00'));
       const firstNegEnd = adjustTimezoneOffset(new Date('2017-02-07T09:00:00'));
