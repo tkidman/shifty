@@ -214,7 +214,7 @@ describe('Employee', () => {
     beforeEach(() => {
       anotherShift = new Shift({
         type: shiftTypes.standard,
-        // monday
+        // tuesday
         start: adjustTimezoneOffset(new Date('2017-02-07T09:00:00')),
         end: adjustTimezoneOffset(new Date('2017-02-07T10:00:00')),
       });
