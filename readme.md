@@ -32,7 +32,6 @@ the lowest score is allocated to the shift. Shifty calculates the score on this 
 * If the shift is an AAL or ResponsibleOfficer type and the staff member doesn't have the right skills, the person's score is increased.
 * Shifty increases or decreases the staff member's score based on how close the staff member's hours 
 are to the ideal desk hour percentages defined by the hew level of the staff member. 
-Shifty also uses the 'Average Weekly Hours' value defined on the 'Staff' sheet for this calculation. 
 
 ## TODO:
  * night/morning rule
