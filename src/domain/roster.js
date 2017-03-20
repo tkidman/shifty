@@ -10,6 +10,7 @@ class Roster {
     this.employees = params.employees;
     this.setShiftsByDays();
     Object.keys(this.employees).forEach(key => this.employees[key].setAvailableForShifts(this.shifts));
+    Object.keys(this.employees).forEach(key => this.employees[key].setMinutesWorkedInRoster(this.shiftsByDays));
   }
 
   setShiftsByDays() {

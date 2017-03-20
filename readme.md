@@ -36,9 +36,7 @@ Shifty also uses the 'Average Weekly Hours' value defined on the 'Staff' sheet f
 
 ## TODO:
  * night/morning rule
- * Use employee hours to calculate average hours
- * Show % time worked on desk shifts in staff summary
- * Support multi week shifts
+ * change RDOs to leave.
  * Test pug files
  * Show debug log?
  * Export to excel?

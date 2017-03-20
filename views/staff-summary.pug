@@ -3,7 +3,9 @@ div#staffSummary.tabcontent
     thead
       tr
         th Name
-        th Desk Hours
+        th Desk hours
+        th Total hours worked
+        th Desk hours %
         th Ideal min hours
         th Ideal max hours
         th AAL shifts
@@ -11,6 +13,8 @@ div#staffSummary.tabcontent
       tr
         td= employee.name
         td= employee.getCurrentMinutesAllocatedExcludingBackup() / 60
+        td= employee.getTotalHoursWorked()
+        td= employee.getPercentageDeskHours()
         td= employee.idealMinMinutes / 60
         td= employee.idealMaxMinutes / 60
         td= employee.getAALShiftCount()

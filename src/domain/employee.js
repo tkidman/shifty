@@ -16,32 +16,22 @@ class Employee {
     this.shiftAllocations = [];
     this.negs = [];
     this.rdos = [];
-    this.averageWeeklyHours = this.calculateAverageWeeklyHours(this.hoursByDayOfWeek);
-    this.idealMinMinutes = (this.hewLevel.minDeskPercentage / 100) * this.averageWeeklyHours * 60;
-    this.idealMaxMinutes = (this.hewLevel.maxDeskPercentage / 100) * this.averageWeeklyHours * 60;
-  }
-
-  calculateAverageWeeklyHours(hoursByDayOfWeek) {
-    const totalMinutes = this.calculateMinutesWorkedPerWeek(hoursByDayOfWeek.payweek) +
-      this.calculateMinutesWorkedPerWeek(hoursByDayOfWeek.nonPayweek);
-    return totalMinutes / 2 / 60;
-  }
-
-  calculateMinutesWorkedPerWeek(hoursByWeek) {
-    return Object.keys(hoursByWeek).reduce(
-      (minutesAggreagtor, dayKey) => minutesAggreagtor + moment(hoursByWeek[dayKey].end).diff(hoursByWeek[dayKey].start, 'minutes'),
-      0
-    );
-  }
-
-  isInPayweek(date) {
-    return initialMondayPayweek.diff(date, 'week') % 2 === 0;
   }
 
   setAvailableForShifts(allShifts) {
     allShifts.filter(shift =>
       this._worksDuringShift(shift) && !this._negDuringShift(shift) && !this._rdoDuringShift(shift) && !this._workingShiftAtSameTime(shift)
     ).forEach(availableShift => this.markAsAvailableForShift(availableShift));
+  }
+
+  setMinutesWorkedInRoster(shiftsByDays) {
+    this.minutesWorkedInRoster = this._calculateMinutesWorkedInRoster(shiftsByDays);
+    this.idealMinMinutes = (this.hewLevel.minDeskPercentage / 100) * this.minutesWorkedInRoster;
+    this.idealMaxMinutes = (this.hewLevel.maxDeskPercentage / 100) * this.minutesWorkedInRoster;
+  }
+
+  _isInPayweek(date) {
+    return initialMondayPayweek.diff(date, 'week') % 2 === 0;
   }
 
   _minutes(date) {
@@ -83,7 +73,7 @@ class Employee {
   _getHoursForDayOfShift(shift) {
     const day = days[shift.start.getDay()];
     let hoursForDay;
-    if (this.isInPayweek(shift.start)) {
+    if (this._isInPayweek(shift.start)) {
       hoursForDay = this.hoursByDayOfWeek.payweek[day];
     } else {
       hoursForDay = this.hoursByDayOfWeek.nonPayweek[day];
@@ -156,6 +146,14 @@ class Employee {
     return this.shiftAllocations.some(allocatedShift =>
       allocatedShift.shift.start.getTime() === shift.end.getTime() || allocatedShift.shift.end.getTime() === shift.start.getTime()
     );
+  }
+
+  getTotalHoursWorked() {
+    return this.minutesWorkedInRoster / 60;
+  }
+
+  getPercentageDeskHours() {
+    return `${(this.getCurrentMinutesAllocatedExcludingBackup() / this.minutesWorkedInRoster) * 100} %`;
   }
 }
 

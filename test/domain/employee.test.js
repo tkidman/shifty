@@ -3,6 +3,7 @@ const chai = require('chai');
 const expect = chai.expect;
 const Employee = require('../../src/domain/employee');
 const Shift = require('../../src/domain/shift');
+const ShiftAllocation = require('../../src/domain/shift-allocation');
 const shiftTypes = require('../../src/domain/shift-type').shiftTypes;
 const hewLevels = require('../../src/domain/hew-level');
 const adjustTimezoneOffset = require('../../src/common').adjustTimezoneOffset;
@@ -71,16 +72,6 @@ describe('Employee', () => {
 
     it('removes the same time shift from the employee\'s available shifts', () => {
       expect(employee.availableForShifts.includes(sameTimeShift)).to.be.false;
-    });
-  });
-
-  context('constructor', () => {
-    it('sets ideal min minutes', () => {
-      expect(employee.idealMinMinutes).to.eql(300);
-    });
-
-    it('sets ideal max minutes', () => {
-      expect(employee.idealMaxMinutes).to.eql(600);
     });
   });
 
@@ -190,7 +181,7 @@ describe('Employee', () => {
     });
   });
 
-  context('isInPayweek', () => {
+  context('_isInPayweek', () => {
     const payweekDates = [
       adjustTimezoneOffset(new Date('2017-03-13T00:00:00')),
       adjustTimezoneOffset(new Date('2017-03-19T23:59:59')),
@@ -205,33 +196,53 @@ describe('Employee', () => {
     ];
     payweekDates.forEach(payweekDate => {
       it(`returns true when date is ${payweekDate}`, () => {
-        expect(employee.isInPayweek(payweekDate)).to.be.true;
+        expect(employee._isInPayweek(payweekDate)).to.be.true;
       });
     });
 
     nonPayweekDates.forEach(nonPayweekDate => {
       it(`returns false when date is ${nonPayweekDate}`, () => {
-        expect(employee.isInPayweek(nonPayweekDate)).to.be.false;
+        expect(employee._isInPayweek(nonPayweekDate)).to.be.false;
       });
-    });
-  });
-
-  context('averageWeeklyHours', () => {
-    const thirtyHourWeek = { Mon: tenHourDay, Tue: tenHourDay, Wed: tenHourDay };
-    const twentyHourWeek = { Mon: tenHourDay, Tue: tenHourDay };
-    const hoursByDayOfAnotherWeek = { payweek: thirtyHourWeek, nonPayweek: twentyHourWeek };
-    it('calculates average weekly hours', () => {
-      expect(employee.calculateAverageWeeklyHours(hoursByDayOfAnotherWeek)).to.equal(25);
     });
   });
 
   context('hoursWorkedInRoster', () => {
     let shiftsByDays;
+    let anotherShift;
+
     beforeEach(() => {
-      shiftsByDays = [{ date: shift.start, shifts: [shift] }];
+      anotherShift = new Shift({
+        type: shiftTypes.standard,
+        // monday
+        start: adjustTimezoneOffset(new Date('2017-02-07T09:00:00')),
+        end: adjustTimezoneOffset(new Date('2017-02-07T10:00:00')),
+      });
+      shiftsByDays = [{ date: shift.start, shifts: [shift] }, { date: anotherShift.start, shifts: [anotherShift] }];
     });
+
     it('calculates hours worked', () => {
       expect(employee._calculateMinutesWorkedInRoster(shiftsByDays)).to.eql(10 * 60);
+    });
+
+    it('doesn\'t include annual leave', () => {
+      employee.rdos.push(shift.start);
+      expect(employee._calculateMinutesWorkedInRoster(shiftsByDays)).to.eql(0);
+    });
+
+    it('includes manual shifts', () => {
+      employee.shiftAllocations.push(new ShiftAllocation(anotherShift, employee));
+      expect(employee._calculateMinutesWorkedInRoster(shiftsByDays)).to.eql(10 * 60 + 60);
+    });
+
+    it('sets ideal min minutes', () => {
+      employee.setMinutesWorkedInRoster(shiftsByDays);
+      expect(employee.idealMinMinutes).to.eql(300);
+    });
+
+    it('sets ideal max minutes', () => {
+      employee.setMinutesWorkedInRoster(shiftsByDays);
+      expect(employee.idealMaxMinutes).to.eql(600);
     });
   });
 });

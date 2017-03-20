@@ -42,7 +42,8 @@ describe('Shift', () => {
       end: adjustTimezoneOffset(new Date('2017-02-06T21:00:00')),
     });
     employee = new Employee({ name: 'empy', hewLevel: hewLevels.hewLevel5, aal: true, hoursByDayOfWeek });
-    employee.averageWeeklyHours = 30;
+    employee.idealMinMinutes = 300;
+    employee.idealMaxMinutes = 600;
     employee.markAsAvailableForShift(standardShift);
   });
 
@@ -60,8 +61,8 @@ describe('Shift', () => {
     });
 
     it('returns the correct score when over ideal min minutes and under ideal max minutes', () => {
-      // between 12 and 15
-      for (let i = 0; i < 13; i++) {
+      // between 5 and 10
+      for (let i = 0; i < 8; i++) {
         standardShift.allocateShift(employee);
       }
       const score = standardShift.scoreEmployee(employee);
@@ -69,7 +70,7 @@ describe('Shift', () => {
     });
 
     it('returns the correct score when over ideal max minutes', () => {
-      for (let i = 0; i <= 14; i++) {
+      for (let i = 0; i < 10; i++) {
         standardShift.allocateShift(employee);
       }
       const score = standardShift.scoreEmployee(employee);
@@ -89,12 +90,9 @@ describe('Shift', () => {
 
     beforeEach(() => {
       lowEmployee = new Employee({ name: 'lowEmpy', hewLevel: hewLevels.hewLevel5, hoursByDayOfWeek });
-      lowEmployee.averageWeeklyHours = 30;
       const midEmployee = new Employee({ name: 'midEmpy', hewLevel: hewLevels.hewLevel5, hoursByDayOfWeek });
-      midEmployee.averageWeeklyHours = 30;
       standardShift.allocateShift(midEmployee);
       const highEmployee = new Employee({ name: 'highEmpy', hewLevel: hewLevels.hewLevel5, hoursByDayOfWeek });
-      highEmployee.averageWeeklyHours = 30;
       new Shift({
         type: shiftTypes.standard,
         start: adjustTimezoneOffset(new Date('2017-02-06T17:00:00')),
