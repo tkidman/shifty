@@ -8,8 +8,8 @@ class Roster {
   constructor(params) {
     this.shifts = params.shifts;
     this.employees = params.employees;
-    Object.keys(this.employees).forEach(key => this.employees[key].setAvailableForShifts(this.shifts));
     this.setShiftsByDays();
+    Object.keys(this.employees).forEach(key => this.employees[key].setAvailableForShifts(this.shifts));
   }
 
   setShiftsByDays() {

@@ -54,7 +54,33 @@ class Employee {
       (neg.start.getTime() <= shift.start.getTime() && neg.end.getTime() >= shift.end.getTime());
   }
 
+  _calculateMinutesWorkedInRoster(shiftsByDays) {
+    return shiftsByDays.reduce((minutes, shiftsByDay) => {
+      // any shift on the day is fine to use
+      const shift = shiftsByDay.shifts[0];
+      const hoursForDay = this._getHoursForDayOfShift(shift);
+      if (!hoursForDay) {
+        // check manual shift assignments
+        minutes += this.shiftAllocations
+          .filter(shiftAllocation => moment(shiftAllocation.shift.start).isSame(shift.start, 'day'))
+          .reduce(
+            (allocatedMinutes, shiftAllocation) => moment(shiftAllocation.shift.end).diff(shiftAllocation.shift.start, 'minutes'), 0
+          );
+      } else if (!this._rdoDuringShift(shift)) {
+        minutes += moment(hoursForDay.end).diff(hoursForDay.start, 'minutes');
+      }
+      return minutes;
+    }, 0);
+  }
+
   _worksDuringShift(shift) {
+    const hoursForDay = this._getHoursForDayOfShift(shift);
+    return hoursForDay &&
+      this._minutes(hoursForDay.start) <= this._minutes(shift.start) &&
+      this._minutes(hoursForDay.end) >= this._minutes(shift.end);
+  }
+
+  _getHoursForDayOfShift(shift) {
     const day = days[shift.start.getDay()];
     let hoursForDay;
     if (this.isInPayweek(shift.start)) {
@@ -62,9 +88,7 @@ class Employee {
     } else {
       hoursForDay = this.hoursByDayOfWeek.nonPayweek[day];
     }
-    return hoursForDay &&
-      this._minutes(hoursForDay.start) <= this._minutes(shift.start) &&
-      this._minutes(hoursForDay.end) >= this._minutes(shift.end);
+    return hoursForDay;
   }
 
   _negDuringShift(shift) {

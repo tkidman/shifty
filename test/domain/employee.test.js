@@ -20,6 +20,7 @@ describe('Employee', () => {
   beforeEach(() => {
     shift = new Shift({
       type: shiftTypes.standard,
+      // monday
       start: adjustTimezoneOffset(new Date('2017-02-06T09:00:00')),
       end: adjustTimezoneOffset(new Date('2017-02-06T10:00:00')),
     });
@@ -218,9 +219,19 @@ describe('Employee', () => {
   context('averageWeeklyHours', () => {
     const thirtyHourWeek = { Mon: tenHourDay, Tue: tenHourDay, Wed: tenHourDay };
     const twentyHourWeek = { Mon: tenHourDay, Tue: tenHourDay };
-    const hoursByDayOfWeek2 = { payweek: thirtyHourWeek, nonPayweek: twentyHourWeek };
+    const hoursByDayOfAnotherWeek = { payweek: thirtyHourWeek, nonPayweek: twentyHourWeek };
     it('calculates average weekly hours', () => {
-      expect(employee.calculateAverageWeeklyHours(hoursByDayOfWeek2)).to.equal(25);
+      expect(employee.calculateAverageWeeklyHours(hoursByDayOfAnotherWeek)).to.equal(25);
+    });
+  });
+
+  context('hoursWorkedInRoster', () => {
+    let shiftsByDays;
+    beforeEach(() => {
+      shiftsByDays = [{ date: shift.start, shifts: [shift] }];
+    });
+    it('calculates hours worked', () => {
+      expect(employee._calculateMinutesWorkedInRoster(shiftsByDays)).to.eql(10 * 60);
     });
   });
 });
