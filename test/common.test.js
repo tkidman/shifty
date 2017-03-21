@@ -20,4 +20,20 @@ describe('common', () => {
     const date2 = common.adjustTimezoneOffset(new Date('2017-02-07T00:00:00'));
     expect(common.sameDay(date1, date2)).to.be.false;
   });
+
+  context('isNullOrWhitespace', () => {
+    const nullOrWhiteSpaceValues = ['', null, undefined, '  ', '\t', ' '];
+    nullOrWhiteSpaceValues.forEach(value => {
+      it(`returns true for value '${value}'`, () => {
+        expect(common.isNullOrWhitespace(value)).to.be.true;
+      });
+    });
+
+    const nonNullOrWhiteSpaceValues = ['a', new Date()];
+    nonNullOrWhiteSpaceValues.forEach(value => {
+      it(`returns false for value '${value}'`, () => {
+        expect(common.isNullOrWhitespace(value)).to.be.false;
+      });
+    });
+  });
 });

@@ -5,6 +5,7 @@ const Roster = require('./domain/roster');
 const parsers = require('./cell-parsers');
 const logger = require('./common').logger;
 const moment = require('moment');
+const isNullOrWhitespace = require('./common').isNullOrWhitespace;
 
 const staffColumns = {
   name: 1,
@@ -20,7 +21,6 @@ const leaveColumns = { name: 1, firstDay: 2, lastDay: 3 };
 const worksheets = { shifts: 1, staff: 2, negs: 3, leave: 4 };
 
 const daysByColumn = { 4: 'Mon', 6: 'Tue', 8: 'Wed', 10: 'Thu', 12: 'Fri' };
-
 
 const addTime = (day, time) => {
   const dateTime = new Date(day);
@@ -46,7 +46,7 @@ const tryLoadValue = (paramName, cell, errors, allStaff, parseFunction) =>
 const loadStaffHoursByDayOfWeek = (row, errors, allStaff) => {
   const hoursByDayOfWeek = { payweek: {}, nonPayweek: {} };
   for (let i = staffColumns.startMondayPayweek; i <= staffColumns.endFridayNonPayweek; i += 2) {
-    if (row.getCell(i).value) {
+    if (!isNullOrWhitespace(row.getCell(i).value)) {
       const startIndex = i;
       const endIndex = i + 1;
       const start = tryLoadValue('start', row.getCell(startIndex), errors, allStaff, parsers.dateParser);
@@ -88,7 +88,7 @@ const loadShifts = (workbook, allStaff, errors) => {
   let day;
   shiftsSheet.eachRow((row, rowNumber) => {
     if (rowNumber > 1) {
-      if (row.getCell(shiftColumns.day).value) {
+      if (!isNullOrWhitespace(row.getCell(shiftColumns.day).value)) {
         day = tryLoadValue('day', row.getCell(shiftColumns.day), errors, allStaff, parsers.dateParser);
       }
       const startTime = tryLoadValue('startTime', row.getCell(shiftColumns.start), errors, allStaff, parsers.dateParser);
@@ -98,7 +98,7 @@ const loadShifts = (workbook, allStaff, errors) => {
       const type = tryLoadValue('shiftType', row.getCell(shiftColumns.type), errors, allStaff, parsers.shiftTypeParser);
       const shift = new Shift({ type, start, end });
       const manualNameCell = row.getCell(shiftColumns.manualName);
-      if (manualNameCell.value) {
+      if (!isNullOrWhitespace(manualNameCell.value)) {
         const name = tryLoadValue('manualName', manualNameCell, errors, allStaff, parsers.nameParser);
         if (name) {
           shift.allocateShift(allStaff[name]);
@@ -133,7 +133,7 @@ const loadLeave = (workbook, allStaff, errors) => {
       const firstDay = tryLoadValue('firstDay', row.getCell(leaveColumns.firstDay), errors, allStaff, parsers.dateParser);
       if (firstDay) {
         const leave = { start: moment(firstDay).startOf('day').toDate() };
-        if (row.getCell(leaveColumns.lastDay).value) {
+        if (!isNullOrWhitespace(row.getCell(leaveColumns.lastDay).value)) {
           const lastDay = tryLoadValue('lastDay', row.getCell(leaveColumns.lastDay), errors, allStaff, parsers.dateParser);
           leave.end = moment(lastDay).endOf('day').toDate();
         } else {
