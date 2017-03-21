@@ -252,4 +252,16 @@ describe('Employee', () => {
       expect(employee.idealMaxMinutes).to.eql(600);
     });
   });
+
+  context('getPercentageDeskHours', () => {
+    it('returns nicely formatted string', () => {
+      employee.minutesWorkedInRoster = 999;
+      expect(employee.getPercentageDeskHours()).to.equal('0.00 %');
+      shift.allocateShift(employee);
+      employee.minutesWorkedInRoster = 999;
+      expect(employee.getPercentageDeskHours()).to.equal('6.01 %');
+      employee.minutesWorkedInRoster = 60;
+      expect(employee.getPercentageDeskHours()).to.equal('100 %');
+    });
+  });
 });

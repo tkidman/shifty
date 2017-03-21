@@ -149,7 +149,8 @@ class Employee {
   }
 
   getPercentageDeskHours() {
-    return `${(this.getCurrentMinutesAllocatedExcludingBackup() / this.minutesWorkedInRoster) * 100} %`;
+    const precentageDeskHours = (this.getCurrentMinutesAllocatedExcludingBackup() / this.minutesWorkedInRoster) * 100;
+    return `${precentageDeskHours.toPrecision(3)} %`;
   }
 }
 
