@@ -131,7 +131,7 @@ const loadLeave = (workbook, allStaff, errors) => {
     if (rowNumber > 1) {
       const name = tryLoadValue('name', row.getCell(leaveColumns.name), errors, allStaff, parsers.nameParser);
       const firstDay = tryLoadValue('firstDay', row.getCell(leaveColumns.firstDay), errors, allStaff, parsers.dateParser);
-      if (firstDay) {
+      if (firstDay && name) {
         const leave = { start: moment(firstDay).startOf('day').toDate() };
         if (!isNullOrWhitespace(row.getCell(leaveColumns.lastDay).value)) {
           const lastDay = tryLoadValue('lastDay', row.getCell(leaveColumns.lastDay), errors, allStaff, parsers.dateParser);
