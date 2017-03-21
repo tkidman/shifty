@@ -37,7 +37,10 @@ div.pic, div.blurb { float: left; padding-right: 50px; }
 
 div.container { overflow: hidden; }
 
-div.divform { padding-top: 20px; }
+div.divform {
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
 
 div.tab {
   overflow: hidden;
