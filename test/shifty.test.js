@@ -52,8 +52,16 @@ describe('Shifty', () => {
       expect(roster.employees.Edwina.negs[0].start).to.eql(firstNegStart);
       expect(roster.employees.Edwina.negs[0].end).to.eql(firstNegEnd);
 
-      const rdo = adjustTimezoneOffset(new Date('2017-02-07T00:00:00'));
-      expect(roster.employees.Edwina.rdos[0]).to.eql(rdo);
+      const expectedEdwinaLeave = {
+        start: adjustTimezoneOffset(new Date('2017-02-07T00:00:00')),
+        end: adjustTimezoneOffset(new Date('2017-02-07T23:59:59.999')),
+      };
+      expect(roster.employees.Edwina.leave[0]).to.eql(expectedEdwinaLeave);
+      const expectedRowenaLeave = {
+        start: adjustTimezoneOffset(new Date('2017-02-10T00:00:00')),
+        end: adjustTimezoneOffset(new Date('2017-02-15T23:59:59.999')),
+      };
+      expect(roster.employees.Rowena.leave[0]).to.eql(expectedRowenaLeave);
     });
   });
 });

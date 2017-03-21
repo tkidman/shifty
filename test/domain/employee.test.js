@@ -7,6 +7,7 @@ const ShiftAllocation = require('../../src/domain/shift-allocation');
 const shiftTypes = require('../../src/domain/shift-type').shiftTypes;
 const hewLevels = require('../../src/domain/hew-level');
 const adjustTimezoneOffset = require('../../src/common').adjustTimezoneOffset;
+const moment = require('moment');
 
 describe('Employee', () => {
   let employee;
@@ -147,8 +148,11 @@ describe('Employee', () => {
       expect(employee.availableForShifts.length).to.equal(0);
     });
 
-    it('does not set shift when employee has an overlapping rdo', () => {
-      employee.rdos = [new Date('2017-02-06T09:30:00')];
+    it('does not set shift when employee has overlapping leave', () => {
+      employee.leave = [{
+        start: moment(adjustTimezoneOffset(new Date('2017-02-06T12:00:00'))).startOf('day').toDate(),
+        end: moment(adjustTimezoneOffset(new Date('2017-02-06T12:00:00'))).endOf('day').toDate(),
+      }];
       employee.setAvailableForShifts([shift]);
       expect(employee.availableForShifts.length).to.equal(0);
     });
@@ -226,7 +230,10 @@ describe('Employee', () => {
     });
 
     it('doesn\'t include annual leave', () => {
-      employee.rdos.push(shift.start);
+      employee.leave = [{
+        start: moment(adjustTimezoneOffset(new Date('2017-02-06T12:00:00'))).startOf('day').toDate(),
+        end: moment(adjustTimezoneOffset(new Date('2017-02-06T12:00:00'))).endOf('day').toDate(),
+      }];
       expect(employee._calculateMinutesWorkedInRoster(shiftsByDays)).to.eql(0);
     });
 

@@ -4,6 +4,7 @@ const Employee = require('./domain/employee');
 const Roster = require('./domain/roster');
 const parsers = require('./cell-parsers');
 const logger = require('./common').logger;
+const moment = require('moment');
 
 const staffColumns = {
   name: 1,
@@ -15,8 +16,8 @@ const staffColumns = {
 };
 const shiftColumns = { day: 1, start: 2, end: 3, type: 4, manualName: 5 };
 const negsColumns = { name: 1, day: 2, start: 3, end: 4 };
-const rdosColumns = { name: 1, day: 2 };
-const worksheets = { shifts: 1, staff: 2, negs: 3, rdos: 4 };
+const leaveColumns = { name: 1, firstDay: 2, lastDay: 3 };
+const worksheets = { shifts: 1, staff: 2, negs: 3, leave: 4 };
 
 const daysByColumn = { 4: 'Mon', 6: 'Tue', 8: 'Wed', 10: 'Thu', 12: 'Fri' };
 
@@ -124,13 +125,22 @@ const loadNegs = (workbook, allStaff, errors) => {
   });
 };
 
-const loadRdos = (workbook, allStaff, errors) => {
-  const rdosSheet = workbook.getWorksheet(worksheets.rdos);
-  rdosSheet.eachRow((row, rowNumber) => {
+const loadLeave = (workbook, allStaff, errors) => {
+  const leaveSheet = workbook.getWorksheet(worksheets.leave);
+  leaveSheet.eachRow((row, rowNumber) => {
     if (rowNumber > 1) {
-      const name = tryLoadValue('name', row.getCell(rdosColumns.name), errors, allStaff, parsers.nameParser);
-      const day = tryLoadValue('day', row.getCell(rdosColumns.day), errors, allStaff, parsers.dateParser);
-      allStaff[name].rdos.push(day);
+      const name = tryLoadValue('name', row.getCell(leaveColumns.name), errors, allStaff, parsers.nameParser);
+      const firstDay = tryLoadValue('firstDay', row.getCell(leaveColumns.firstDay), errors, allStaff, parsers.dateParser);
+      if (firstDay) {
+        const leave = { start: moment(firstDay).startOf('day').toDate() };
+        if (row.getCell(leaveColumns.lastDay).value) {
+          const lastDay = tryLoadValue('lastDay', row.getCell(leaveColumns.lastDay), errors, allStaff, parsers.dateParser);
+          leave.end = moment(lastDay).endOf('day').toDate();
+        } else {
+          leave.end = moment(firstDay).endOf('day').toDate();
+        }
+        allStaff[name].leave.push(leave);
+      }
     }
   });
 };
@@ -165,7 +175,7 @@ const doRun = (workbook) => {
   const errors = [];
   const allStaff = loadStaff(workbook, errors);
   loadNegs(workbook, allStaff, errors);
-  loadRdos(workbook, allStaff, errors);
+  loadLeave(workbook, allStaff, errors);
   const shifts = loadShifts(workbook, allStaff, errors);
   if (errors.length > 0) {
     logger.info(`Errors found in spreadsheet: ${errors.join('\n')}`);
