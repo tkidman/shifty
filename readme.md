@@ -23,23 +23,26 @@ the second for a non pay week. Shifty considers 13/3/2017 to be a Monday of a pa
 ## How does it work?
 
 Shifty first works out which people can work which shifts, taking into account negs and leave.  
-It then goes though the shifts in this order: 
-AAL, ResponsibleOfficer, Standard, Backup. 
-For each shift, shifty calculates a score for the staff that are available to work that shift. The person with 
+It then goes though night shifts in this order: AAL, ResponsibleOfficer, Standard, Backup, followed by normal shifts in the same order.
+Night shifts are shifts that end after 18:30.
+
+For each shift, shifty calculates a score for the staff members that are available to work that shift. The person with 
 the lowest score is allocated to the shift. Shifty calculates the score on this basis:
 * If the person has worked less than four hours of desk shifts, the person's score is reduced
 * If working an adjacent shift, the person's score is increased
 * If the shift is an AAL or ResponsibleOfficer type and the staff member doesn't have the right skills, the person's score is increased.
 * Shifty increases or decreases the staff member's score based on how close the staff member's hours 
-are to the ideal desk hour percentages defined by the hew level of the staff member. 
-
+are to the ideal desk hour percentages defined by the hew level of the staff member.
+* Shifty tries to distribute AAL shifts evenly by increasing the score for each AAL shift worked.
+ 
 ## TODO:
  * night/morning rule
- * fill night shifts earlier
  * new shift types (reference, SLC)
- * shift description
+ * shift description column (eg: carlton)
  * staff negative shift type (some staff shouldn't work standard shifts)
+ * show if week 1 or week 2 on roster
  * show more info when no-one found (no one working, people on leave/neg)
+ * no warnings for backup shifts
  * shifty legacy - parse input by column names
  * handle exceptions gracefully
  * trim whitespace from input fields

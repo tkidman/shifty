@@ -29,16 +29,24 @@ class Roster {
 
   sortShifts() {
     return (Array.from(this.shifts)).sort((firstShift, secondShift) =>
-      this.shiftScore(firstShift) - this.shiftScore(secondShift));
+    this.shiftScore(firstShift) - this.shiftScore(secondShift));
   }
 
   shiftScore(shift) {
     let value = 0;
+    if (moment(shift.end).hours(18)
+      // night shifts first.
+        .minutes(30)
+        .isBefore(shift.end)) {
+      value -= 100000;
+    }
     if (shift.type === shiftTypes.responsibleOfficer) {
       value -= 10000;
-    } else if (shift.type === shiftTypes.aal) {
+    }
+    if (shift.type === shiftTypes.aal) {
       value -= 1000;
-    } else if (shift.type === shiftTypes.standard) {
+    }
+    if (shift.type === shiftTypes.standard) {
       value -= 100;
     }
     // backup gets filled last.
