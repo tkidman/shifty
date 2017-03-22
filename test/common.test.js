@@ -15,7 +15,7 @@ describe('common', () => {
     expect(common.sameDay(date1, date2)).to.be.true;
   });
 
-  it('returns false when dates are on the same day', () => {
+  it('returns false when dates are not on the same day', () => {
     const date1 = common.adjustTimezoneOffset(new Date('2017-02-06T08:00:00'));
     const date2 = common.adjustTimezoneOffset(new Date('2017-02-07T00:00:00'));
     expect(common.sameDay(date1, date2)).to.be.false;
@@ -29,7 +29,7 @@ describe('common', () => {
       });
     });
 
-    const nonNullOrWhiteSpaceValues = ['a', new Date()];
+    const nonNullOrWhiteSpaceValues = ['a', new Date(), 2];
     nonNullOrWhiteSpaceValues.forEach(value => {
       it(`returns false for value '${value}'`, () => {
         expect(common.isNullOrWhitespace(value)).to.be.false;

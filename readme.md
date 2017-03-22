@@ -35,6 +35,12 @@ are to the ideal desk hour percentages defined by the hew level of the staff mem
 
 ## TODO:
  * night/morning rule
+ * fill night shifts earlier
+ * new shift types (reference, SLC)
+ * shift description
+ * shifty legacy - parse input by column names
+ * handle exceptions gracefully
+ * trim whitespace from input fields
  * Test pug files
  * Show debug log?
  * Export to excel?
