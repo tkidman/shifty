@@ -38,6 +38,8 @@ are to the ideal desk hour percentages defined by the hew level of the staff mem
  * fill night shifts earlier
  * new shift types (reference, SLC)
  * shift description
+ * staff negative shift type (some staff shouldn't work standard shifts)
+ * show more info when no-one found (no one working, people on leave/neg)
  * shifty legacy - parse input by column names
  * handle exceptions gracefully
  * trim whitespace from input fields
