@@ -5,6 +5,7 @@ const shifty = require('../src/shifty');
 const parsers = shifty.parsers;
 const hewLevels = require('../src/domain/hew-level');
 const adjustTimezoneOffset = require('../src/common').adjustTimezoneOffset;
+const shiftTypesList = require('../src/domain/shift-type').shiftTypesList;
 
 context('parsers', () => {
   it('hew level parser returns hew level for valid hew level', () => {
@@ -54,7 +55,7 @@ context('parsers', () => {
 
   it('shiftType parser returns error for invalid shiftType', () => {
     expect(parsers.shiftTypeParser({ value: 'abc' }).error).to.equal(
-      'abc is not a valid shift type. Allowed values: Standard,ResponsibleOfficer,AAL,Backup'
+      `abc is not a valid shift type. Allowed values: ${shiftTypesList}`
     );
   });
 });

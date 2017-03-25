@@ -15,7 +15,11 @@ const staffColumns = {
   startMondayPayweek: 4,
   startMondayNonPayweek: 14,
   endFridayNonPayweek: 23,
+  slc: 24,
+  reference: 25,
+  standard: 26,
 };
+
 const shiftColumns = { day: 1, start: 2, end: 3, type: 4, manualName: 5 };
 const negsColumns = { name: 1, day: 2, start: 3, end: 4 };
 const leaveColumns = { name: 1, firstDay: 2, lastDay: 3 };
@@ -44,6 +48,13 @@ const tryLoadParamValue = (params, paramName, cell, errors, allStaff, parseFunct
 const tryLoadValue = (paramName, cell, errors, allStaff, parseFunction) =>
   tryLoadParamValue({}, paramName, cell, errors, allStaff, parseFunction)[paramName];
 
+const tryLoadBoolean = (paramName, cell, errors, allStaff, parseFunction, returnThisIfNull) => {
+  if (isNullOrWhitespace(cell.value) && returnThisIfNull !== undefined) {
+    return returnThisIfNull;
+  }
+  return tryLoadParamValue({}, paramName, cell, errors, allStaff, parseFunction)[paramName];
+};
+
 const loadStaffHoursByDayOfWeek = (row, errors, allStaff) => {
   const hoursByDayOfWeek = { payweek: {}, nonPayweek: {} };
   for (let i = staffColumns.startMondayPayweek; i <= staffColumns.endFridayNonPayweek; i += 2) {
@@ -66,7 +77,7 @@ const loadStaff = (workbook, errors) => {
   const staffSheet = workbook.getWorksheet(worksheets.staff);
   const allStaff = {};
   staffSheet.eachRow((row, rowNumber) => {
-    const staffParams = { shiftTypes: [shiftTypes.backup, shiftTypes.standard] };
+    const staffParams = { shiftTypes: [shiftTypes.backup] };
     if (rowNumber > 1) {
       staffParams.name = row.getCell(staffColumns.name).value;
 
@@ -74,8 +85,17 @@ const loadStaff = (workbook, errors) => {
         staffParams, 'hewLevel', row.getCell(staffColumns.hewLevel), errors, allStaff, parsers.hewLevelParser
       );
 
-      if (tryLoadValue('aal', row.getCell(staffColumns.aal), errors, allStaff, parsers.trueFalseParser)) {
+      if (tryLoadBoolean('aal', row.getCell(staffColumns.aal), errors, allStaff, parsers.trueFalseParser, false)) {
         staffParams.shiftTypes.push(shiftTypes.aal);
+      }
+      if (tryLoadBoolean('slc', row.getCell(staffColumns.slc), errors, allStaff, parsers.trueFalseParser, false)) {
+        staffParams.shiftTypes.push(shiftTypes.slc);
+      }
+      if (tryLoadBoolean('reference', row.getCell(staffColumns.reference), errors, allStaff, parsers.trueFalseParser, false)) {
+        staffParams.shiftTypes.push(shiftTypes.reference);
+      }
+      if (tryLoadBoolean('standard', row.getCell(staffColumns.standard), errors, allStaff, parsers.trueFalseParser, true)) {
+        staffParams.shiftTypes.push(shiftTypes.standard);
       }
 
       staffParams.hoursByDayOfWeek = loadStaffHoursByDayOfWeek(row, errors, allStaff);

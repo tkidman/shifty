@@ -27,11 +27,6 @@ describe('Shift', () => {
         end: adjustTimezoneOffset(new Date('2017-02-07T10:00:00')),
       }),
       new Shift({
-        type: shiftTypes.responsibleOfficer,
-        start: adjustTimezoneOffset(new Date('2017-02-07T10:00:00')),
-        end: adjustTimezoneOffset(new Date('2017-02-07T11:00:00')),
-      }),
-      new Shift({
         // night shift
         type: shiftTypes.standard,
         start: adjustTimezoneOffset(new Date('2017-02-07T18:00:00')),
@@ -58,12 +53,7 @@ describe('Shift', () => {
   context('sort', () => {
     it('sorts correctly based on type', () => {
       const sortedShifts = roster.sortShifts();
-      expect(sortedShifts[0]).to.equal(roster.shifts[5]);
-      expect(sortedShifts[1]).to.equal(roster.shifts[4]);
-      expect(sortedShifts[2]).to.equal(roster.shifts[3]);
-      expect(sortedShifts[3]).to.equal(roster.shifts[2]);
-      expect(sortedShifts[4]).to.equal(roster.shifts[1]);
-      expect(sortedShifts[5]).to.equal(roster.shifts[0]);
+      expect(sortedShifts).to.eql(roster.shifts.slice().reverse());
     });
   });
 });

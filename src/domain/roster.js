@@ -1,8 +1,12 @@
 'use strict';
 
 const shiftTypes = require('./shift-type').shiftTypes;
+const shiftTypesList = require('./shift-type').shiftTypesList;
 const moment = require('moment');
 const sameDay = require('../common').sameDay;
+const _ = require('lodash');
+
+const skilledShifts = _.difference(shiftTypesList, [shiftTypes.backup, shiftTypes.standard]);
 
 class Roster {
   constructor(params) {
@@ -38,12 +42,9 @@ class Roster {
       // night shifts first.
         .minutes(30)
         .isBefore(shift.end)) {
-      value -= 100000;
-    }
-    if (shift.type === shiftTypes.responsibleOfficer) {
       value -= 10000;
     }
-    if (shift.type === shiftTypes.aal) {
+    if (skilledShifts.includes(shift.type)) {
       value -= 1000;
     }
     if (shift.type === shiftTypes.standard) {
