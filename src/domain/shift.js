@@ -8,12 +8,13 @@ const shiftTypes = require('./shift-type').shiftTypes;
 const ShiftAllocation = require('./shift-allocation');
 const warnings = require('./warnings');
 
-const employeeMinMinutes = 4 * 60;
-const minMinutesScoreChange = -1000;
-const nonAALScoreChange = 10000;
-const nonResponsibleOfficerScoreChange = 10000;
-const workingAdjacentShiftScoreChange = 10000;
-const workingAALShiftScoreChange = 2000;
+const scoreConstants = {
+  employeeMinMinutes: 4 * 60,
+  minMinutesScoreChange: -1000,
+  shouldNotPerformShiftTypeScoreChange: 100000,
+  workingAdjacentShiftScoreChange: 10000,
+  workingAALShiftScoreChange: 100000,
+};
 
 class Shift {
   constructor(params) {
@@ -76,8 +77,8 @@ class Shift {
     const employeeMinutes = employee.getCurrentMinutesAllocated();
     const minutesWithShift = employeeMinutes + this.getShiftLengthMinutes();
 
-    if (employeeMinutes < employeeMinMinutes) {
-      scoreResult.score += minMinutesScoreChange;
+    if (employeeMinutes < scoreConstants.employeeMinMinutes) {
+      scoreResult.score += scoreConstants.minMinutesScoreChange;
     }
 
     if (minutesWithShift < employee.idealMinMinutes) {
@@ -86,30 +87,22 @@ class Shift {
       scoreResult.score += minutesWithShift - employee.idealMaxMinutes;
     }
 
-    this.scoreAAL(employee, scoreResult);
+    if (!employee.shiftTypes.includes(this.type)) {
+      scoreResult.score += scoreConstants.shouldNotPerformShiftTypeScoreChange;
+      scoreResult.warningsList.push(warnings.shouldNotPerformShiftType(employee, this));
+    }
 
-    if (this.type === shiftTypes.responsibleOfficer && !employee.isResponsibleOfficer()) {
-      scoreResult.score += nonResponsibleOfficerScoreChange;
-      scoreResult.warningsList.push(warnings.nonResponsibleOfficer(employee.name));
+    if (this.type === shiftTypes.aal) {
+      const aalShifts = employee.shiftAllocations.filter(shiftAllocation => shiftAllocation.shift.type === shiftTypes.aal);
+      scoreResult.score += scoreConstants.workingAALShiftScoreChange * aalShifts.length;
     }
 
     if (employee.workingAdjacentShift(this)) {
-      scoreResult.score += workingAdjacentShiftScoreChange;
-      scoreResult.warningsList.push(warnings.workingAdjacentShift(employee.name));
+      scoreResult.score += scoreConstants.workingAdjacentShiftScoreChange;
+      scoreResult.warningsList.push(warnings.workingAdjacentShift(employee));
     }
 
     return scoreResult;
-  }
-
-  scoreAAL(employee, scoreResult) {
-    if (this.type === shiftTypes.aal) {
-      const aalShifts = employee.shiftAllocations.filter(shiftAllocation => shiftAllocation.shift.type === shiftTypes.aal);
-      scoreResult.score += workingAALShiftScoreChange * aalShifts.length;
-      if (!employee.aal) {
-        scoreResult.score += nonAALScoreChange;
-        scoreResult.warningsList.push(warnings.nonAAL(employee.name));
-      }
-    }
   }
 
   toString() {
@@ -121,4 +114,4 @@ class Shift {
   }
 }
 
-module.exports = Shift;
+module.exports = { Shift, scoreConstants };

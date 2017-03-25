@@ -2,7 +2,7 @@
 const chai = require('chai');
 const expect = chai.expect;
 const Employee = require('../../src/domain/employee');
-const Shift = require('../../src/domain/shift');
+const Shift = require('../../src/domain/shift').Shift;
 const ShiftAllocation = require('../../src/domain/shift-allocation');
 const shiftTypes = require('../../src/domain/shift-type').shiftTypes;
 const hewLevels = require('../../src/domain/hew-level');
@@ -15,6 +15,7 @@ describe('Employee', () => {
   let sameTimeShift;
   let nightShift;
   let backupShift;
+  let standardShiftTypes;
   const tenHourDay = { start: new Date(new Date().setHours(8)), end: new Date(new Date().setHours(18)) };
   const tenHourWeek = { Mon: tenHourDay };
   const hoursByDayOfWeek = { payweek: tenHourWeek, nonPayweek: tenHourWeek };
@@ -41,7 +42,8 @@ describe('Employee', () => {
       start: adjustTimezoneOffset(new Date('2017-02-07T17:00:00')),
       end: adjustTimezoneOffset(new Date('2017-02-07T21:00:00')),
     });
-    employee = new Employee({ name: 'empy', hewLevel: hewLevels.hewLevel4, aal: true, hoursByDayOfWeek });
+    standardShiftTypes = [shiftTypes.aal, shiftTypes.standard, shiftTypes.backup];
+    employee = new Employee({ name: 'empy', hewLevel: hewLevels.hewLevel4, shiftTypes: standardShiftTypes, hoursByDayOfWeek });
     employee.markAsAvailableForShift(shift);
     employee.markAsAvailableForShift(sameTimeShift);
   });
@@ -117,7 +119,7 @@ describe('Employee', () => {
         start: adjustTimezoneOffset(new Date('2017-02-07T09:00:00')),
         end: adjustTimezoneOffset(new Date('2017-02-07T10:00:00')),
       });
-      employee = new Employee({ name: 'empy', hewLevel: hewLevels.hewLevel4, hoursByDayOfWeek });
+      employee = new Employee({ name: 'empy', hewLevel: hewLevels.hewLevel4, hoursByDayOfWeek, shiftTypes: standardShiftTypes });
     });
 
     it('does not set shift when employee does not work during shift', () => {
@@ -174,7 +176,7 @@ describe('Employee', () => {
         end: adjustTimezoneOffset(new Date('2017-02-06T09:00:00')),
       });
 
-      employee = new Employee({ name: 'empy', hewLevel: hewLevels.hewLevel4, hoursByDayOfWeek });
+      employee = new Employee({ name: 'empy', hewLevel: hewLevels.hewLevel4, hoursByDayOfWeek, shiftTypes: standardShiftTypes });
       shift.allocateShift(employee);
     });
 

@@ -9,8 +9,10 @@ class Employee {
   constructor(params) {
     this.name = params.name;
     this.hewLevel = params.hewLevel;
-    // boolean
-    this.aal = params.aal;
+    this.shiftTypes = params.shiftTypes || [];
+    if (this.hewLevel.responsibleOfficer) {
+      this.shiftTypes.push(shiftTypes.responsibleOfficer);
+    }
     this.hoursByDayOfWeek = params.hoursByDayOfWeek;
     this.availableForShifts = [];
     this.shiftAllocations = [];

@@ -1,5 +1,6 @@
 const Excel = require('exceljs');
-const Shift = require('./domain/shift');
+const Shift = require('./domain/shift').Shift;
+const shiftTypes = require('./domain/shift-type').shiftTypes;
 const Employee = require('./domain/employee');
 const Roster = require('./domain/roster');
 const parsers = require('./cell-parsers');
@@ -65,16 +66,18 @@ const loadStaff = (workbook, errors) => {
   const staffSheet = workbook.getWorksheet(worksheets.staff);
   const allStaff = {};
   staffSheet.eachRow((row, rowNumber) => {
-    const staffParams = {};
+    const staffParams = { shiftTypes: [shiftTypes.backup, shiftTypes.standard] };
     if (rowNumber > 1) {
       staffParams.name = row.getCell(staffColumns.name).value;
 
       tryLoadParamValue(
         staffParams, 'hewLevel', row.getCell(staffColumns.hewLevel), errors, allStaff, parsers.hewLevelParser
       );
-      tryLoadParamValue(
-        staffParams, 'aal', row.getCell(staffColumns.aal), errors, allStaff, parsers.trueFalseParser
-      );
+
+      if (tryLoadValue('aal', row.getCell(staffColumns.aal), errors, allStaff, parsers.trueFalseParser)) {
+        staffParams.shiftTypes.push(shiftTypes.aal);
+      }
+
       staffParams.hoursByDayOfWeek = loadStaffHoursByDayOfWeek(row, errors, allStaff);
       allStaff[staffParams.name] = new Employee(staffParams);
     }

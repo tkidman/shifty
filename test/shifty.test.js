@@ -4,6 +4,7 @@ const expect = chai.expect;
 const shifty = require('../src/shifty');
 const hewLevels = require('../src/domain/hew-level');
 const adjustTimezoneOffset = require('../src/common').adjustTimezoneOffset;
+const shiftTypes = require('../src/domain/shift-type').shiftTypes;
 
 describe('Shifty', () => {
   let roster;
@@ -17,7 +18,8 @@ describe('Shifty', () => {
 
     it('parses data from a spreadsheet', () => {
       expect(roster.employees.Edwina.hewLevel).to.eql(hewLevels.hewLevel5);
-      expect(roster.employees.Edwina.aal).to.eql(true);
+      expect(roster.employees.Edwina.shiftTypes.includes(shiftTypes.aal)).to.eql(true);
+      expect(roster.employees.Rowena.shiftTypes.includes(shiftTypes.aal)).to.eql(false);
 
       const firstShiftStart = adjustTimezoneOffset(new Date('2017-02-06T08:00:00'));
       const firstShiftEnd = adjustTimezoneOffset(new Date('2017-02-06T09:00:00'));

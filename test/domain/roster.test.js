@@ -2,7 +2,7 @@
 const chai = require('chai');
 const expect = chai.expect;
 const Roster = require('../../src/domain/roster');
-const Shift = require('../../src/domain/shift');
+const Shift = require('../../src/domain/shift').Shift;
 const shiftTypes = require('../../src/domain/shift-type').shiftTypes;
 const adjustTimezoneOffset = require('../../src/common').adjustTimezoneOffset;
 
