@@ -10,6 +10,7 @@ const shiftTypesList = require('../src/domain/shift-type').shiftTypesList;
 context('parsers', () => {
   it('hew level parser returns hew level for valid hew level', () => {
     expect(parsers.hewLevelParser({ value: 8 }).value).to.equal(hewLevels.hewLevel8);
+    expect(parsers.hewLevelParser({ value: ' 5 ' }).value).to.equal(hewLevels.hewLevel5);
   });
 
   it('hew level parser generates error for invalid hew level', () => {
@@ -20,8 +21,8 @@ context('parsers', () => {
     expect(parsers.trueFalseParser({ value: 'yes' }).value).to.equal(true);
   });
 
-  it('true false parser generates false for FalSE', () => {
-    expect(parsers.trueFalseParser({ value: 'FalSE' }).value).to.equal(false);
+  it('true false parser generates false for FalSE ', () => {
+    expect(parsers.trueFalseParser({ value: ' FalSE ' }).value).to.equal(false);
   });
 
   it('true false parser generates error for abc', () => {
@@ -50,7 +51,7 @@ context('parsers', () => {
   });
 
   it('shiftType parser returns shiftType for valid shiftType', () => {
-    expect(parsers.shiftTypeParser({ value: 'AAL' }).value).to.eql('AAL');
+    expect(parsers.shiftTypeParser({ value: ' AAL  ' }).value).to.eql('AAL');
   });
 
   it('shiftType parser returns error for invalid shiftType', () => {

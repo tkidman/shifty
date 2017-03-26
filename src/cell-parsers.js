@@ -12,23 +12,31 @@ const hewLevelsByNumber = {
   9: hewLevels.hewLevel9,
 };
 
+const tryTrimValue = (cell) => {
+  const value = cell.value;
+  if (value && typeof value === 'string') {
+    return value.trim();
+  }
+  return value;
+};
+
 const parsers = {
   hewLevelParser: (cell) => {
-    const value = hewLevelsByNumber[cell.value];
-    if (!value) {
+    const hewLevel = hewLevelsByNumber[tryTrimValue(cell)];
+    if (!hewLevel) {
       return { error: `Unable to find hew level for value: ${cell.value}` };
     }
-    return { value };
+    return { value: hewLevel };
   },
   nameParser: (cell, allStaff) => {
-    const name = cell.value;
+    const name = tryTrimValue(cell);
     if (!allStaff[name]) {
       return { error: `Unable to find staff member with name: ${name}` };
     }
     return { value: name };
   },
   trueFalseParser: (cell) => {
-    const value = cell.value;
+    const value = tryTrimValue(cell);
     if (value) {
       if (['Y', 'YES', 'TRUE'].some(yes => yes === value.toUpperCase())) {
         return { value: true };
@@ -54,7 +62,7 @@ const parsers = {
     return { error: `${value} is not a date` };
   },
   shiftTypeParser: (cell) => {
-    const value = cell.value;
+    const value = tryTrimValue(cell);
     if (value && shiftTypesList.includes(value)) {
       return { value };
     }
