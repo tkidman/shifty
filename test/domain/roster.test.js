@@ -3,42 +3,40 @@ const chai = require('chai');
 const expect = chai.expect;
 const Roster = require('../../src/domain/roster');
 const Shift = require('../../src/domain/shift').Shift;
+const Employee = require('../../src/domain/employee');
+const hewLevels = require('../../src/domain/hew-level');
 const shiftTypes = require('../../src/domain/shift-type').shiftTypes;
 const adjustTimezoneOffset = require('../../src/common').adjustTimezoneOffset;
 
-describe('Shift', () => {
+describe('Roster', () => {
   let roster;
+  let expectedSortedShifts;
 
   beforeEach(() => {
-    const shifts = [
-      new Shift({
-        type: shiftTypes.backup,
-        start: adjustTimezoneOffset(new Date('2017-02-06T08:00:00')),
-        end: adjustTimezoneOffset(new Date('2017-02-06T09:00:00')),
-      }),
-      new Shift({
-        type: shiftTypes.standard,
-        start: adjustTimezoneOffset(new Date('2017-02-06T09:00:00')),
-        end: adjustTimezoneOffset(new Date('2017-02-06T10:00:00')),
-      }),
-      new Shift({
-        type: shiftTypes.aal,
-        start: adjustTimezoneOffset(new Date('2017-02-07T09:00:00')),
-        end: adjustTimezoneOffset(new Date('2017-02-07T10:00:00')),
-      }),
-      new Shift({
-        // night shift
-        type: shiftTypes.standard,
-        start: adjustTimezoneOffset(new Date('2017-02-07T18:00:00')),
-        end: adjustTimezoneOffset(new Date('2017-02-07T18:31:00')),
-      }),
-      new Shift({
-        // night shift
-        type: shiftTypes.responsibleOfficer,
-        start: adjustTimezoneOffset(new Date('2017-02-07T18:00:00')),
-        end: adjustTimezoneOffset(new Date('2017-02-07T18:31:00')),
-      }),
-    ];
+    const startDay1 = adjustTimezoneOffset(new Date('2017-02-06T08:00:00'));
+    const endDay1 = adjustTimezoneOffset(new Date('2017-02-06T09:00:00'));
+    const startDay2 = adjustTimezoneOffset(new Date('2017-02-07T08:00:00'));
+    const endDay2 = adjustTimezoneOffset(new Date('2017-02-07T09:00:00'));
+
+    const employee1 = new Employee({ name: 'empy', hewLevel: hewLevels.hewLevel4 });
+    const employee2 = new Employee({ name: 'empy', hewLevel: hewLevels.hewLevel4 });
+
+    const backupShift = new Shift({ type: shiftTypes.backup, start: startDay1, end: endDay1 });
+
+    const aal2AvailableShift = new Shift({ type: shiftTypes.aal, start: startDay1, end: endDay1 });
+    aal2AvailableShift.addAvailableEmployee(employee1);
+    aal2AvailableShift.addAvailableEmployee(employee2);
+
+    const standard1AvailableShift = new Shift({ type: shiftTypes.standard, start: startDay2, end: endDay2 });
+    standard1AvailableShift.addAvailableEmployee(employee1);
+
+    const ro1AvailableShift = new Shift({ type: shiftTypes.responsibleOfficer, start: startDay2, end: endDay2 });
+    ro1AvailableShift.addAvailableEmployee(employee1);
+
+    const aalNoneAvailableShift = new Shift({ type: shiftTypes.aal, start: startDay2, end: endDay2 });
+
+    const shifts = [backupShift, aal2AvailableShift, standard1AvailableShift, ro1AvailableShift, aalNoneAvailableShift];
+    expectedSortedShifts = Array.from(shifts).reverse();
     roster = new Roster({ shifts, employees: {} });
   });
 
@@ -53,7 +51,7 @@ describe('Shift', () => {
   context('sort', () => {
     it('sorts correctly based on type', () => {
       const sortedShifts = roster.sortShifts();
-      expect(sortedShifts).to.eql(roster.shifts.slice().reverse());
+      expect(sortedShifts).to.be.eql(expectedSortedShifts);
     });
   });
 });

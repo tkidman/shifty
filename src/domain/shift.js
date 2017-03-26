@@ -13,9 +13,9 @@ const moment = require('moment');
 const scoreConstants = {
   employeeMinMinutes: 4 * 60,
   minMinutesScoreChange: -1000,
-  shouldNotPerformShiftTypeScoreChange: 100000,
-  workingAdjacentShiftScoreChange: 10000,
-  workingAALShiftScoreChange: 100000,
+  shouldNotPerformShiftTypeScoreChange: 1000000,
+  workingAdjacentShiftScoreChange: 100000,
+  workingAALShiftScoreChange: 1000,
 };
 
 class Shift {

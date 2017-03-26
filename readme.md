@@ -25,20 +25,17 @@ denote a Pay week and Non pay week.
 ## How does it work?
 
 Shifty first works out which people can work which shifts, taking into account negs and leave.  
-It then goes though night shifts in this order: Non Standard, Standard, Backup, followed by day shifts in the same order.
-Night shifts are shifts that end after 18:30.
-
-For each shift, shifty calculates a score for the staff members that are available to work that shift. The person with 
+It then tries to sort the shifts from hardest to fill to easiest to fill.
+For each shift in that order, shifty calculates a score for the staff members that are available to work that shift. The person with 
 the lowest score is allocated to the shift. Shifty calculates the score on this basis:
 * If the person has worked less than four hours of desk shifts, the person's score is reduced
-* If working an adjacent shift, the person's score is increased
-* If the shift is an AAL or ResponsibleOfficer type and the staff member doesn't have the right skills, the person's score is increased.
+* If working an adjacent shift, the person's score is increased. A night shift followed by a morning shift is considered adjacent.
+* If the staff member doesn't have the right skills based on shift type, the person's score is increased.
 * Shifty increases or decreases the staff member's score based on how close the staff member's hours 
 are to the ideal desk hour percentages defined by the hew level of the staff member.
 * Shifty tries to distribute AAL shifts evenly by increasing the score for each AAL shift worked.
  
 ## TODO:
- * night/morning rule
  * no warnings for backup shifts
  * show more info when no-one found (no one working, people on leave/neg)
  * shifty legacy - parse input by column names instead of indexes.

@@ -43,18 +43,18 @@ class Roster {
   }
 
   shiftScore(shift) {
-    let value = 0;
-    if (shift.isNightShift()) {
-      value -= 10000;
-    }
+    // sort by number available employees first.
+    let value = -1000000 + (shift.availableEmployees.length * 10000);
+
     if (skilledShifts.includes(shift.type)) {
-      value -= 1000;
-    }
-    if (shift.type === shiftTypes.standard) {
       value -= 100;
     }
+
     // backup gets filled last.
-    value += shift.availableEmployees.length;
+    if (shift.type === shiftTypes.backup) {
+      value += 10000000;
+    }
+
     return value;
   }
 }
