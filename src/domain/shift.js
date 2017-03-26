@@ -23,6 +23,7 @@ class Shift {
     this.shiftAllocation = null;
     this.start = params.start;
     this.end = params.end;
+    this.label = params.label;
   }
 
   getShiftLengthMinutes() {
@@ -111,6 +112,13 @@ class Shift {
 
   timeSpanString() {
     return `${timeString(this.start)}-${timeString(this.end)}`;
+  }
+
+  getTypeAndLabel() {
+    if (this.label) {
+      return `${this.type} - ${this.label}`;
+    }
+    return this.type;
   }
 }
 

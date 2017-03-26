@@ -32,6 +32,7 @@ describe('Shift', () => {
       type: shiftTypes.aal,
       start: adjustTimezoneOffset(new Date('2017-02-06T11:00:00')),
       end: adjustTimezoneOffset(new Date('2017-02-06T12:00:00')),
+      label: 'Carlton swap',
     });
     aalShift2 = new Shift({
       type: shiftTypes.aal,
@@ -194,6 +195,13 @@ describe('Shift', () => {
   context('toString', () => {
     it('converts to a string', () => {
       expect(`${standardShift}`).to.eql('6/2/2017 09:00-10:00 Standard');
+    });
+  });
+
+  context('getTypeAndLabel', () => {
+    it('returns correct string', () => {
+      expect(standardShift.getTypeAndLabel()).to.eql('Standard');
+      expect(aalShift1.getTypeAndLabel()).to.eql('AAL - Carlton swap');
     });
   });
 });

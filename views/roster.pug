@@ -9,4 +9,4 @@ div#roster.tabcontent
           tr
             td.time #{shift.timeSpanString()}
             include ./name.pug
-            td.type #{shift.type}
+            td.type #{shift.getTypeAndLabel()}

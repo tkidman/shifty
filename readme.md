@@ -36,9 +36,9 @@ are to the ideal desk hour percentages defined by the hew level of the staff mem
 * Shifty tries to distribute AAL shifts evenly by increasing the score for each AAL shift worked.
  
 ## TODO:
- * shift description column (eg: carlton)
  * show if week 1 or week 2 on roster
  * handle exceptions gracefully
+ * format numbers nicely on staff summary
  * night/morning rule
  * show more info when no-one found (no one working, people on leave/neg)
  * no warnings for backup shifts

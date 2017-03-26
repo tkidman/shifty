@@ -20,7 +20,7 @@ const staffColumns = {
   standard: 26,
 };
 
-const shiftColumns = { day: 1, start: 2, end: 3, type: 4, manualName: 5 };
+const shiftColumns = { day: 1, start: 2, end: 3, type: 4, manualName: 5, label: 6 };
 const negsColumns = { name: 1, day: 2, start: 3, end: 4 };
 const leaveColumns = { name: 1, firstDay: 2, lastDay: 3 };
 const worksheets = { shifts: 1, staff: 2, negs: 3, leave: 4 };
@@ -119,7 +119,8 @@ const loadShifts = (workbook, allStaff, errors) => {
       const start = addTime(day, startTime);
       const end = addTime(day, endTime);
       const type = tryLoadValue('shiftType', row.getCell(shiftColumns.type), errors, allStaff, parsers.shiftTypeParser);
-      const shift = new Shift({ type, start, end });
+      const label = row.getCell(shiftColumns.label).value;
+      const shift = new Shift({ type, start, end, label });
       const manualNameCell = row.getCell(shiftColumns.manualName);
       if (!isNullOrWhitespace(manualNameCell.value)) {
         const name = tryLoadValue('manualName', manualNameCell, errors, allStaff, parsers.nameParser);
