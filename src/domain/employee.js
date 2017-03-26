@@ -2,7 +2,9 @@
 const shiftTypes = require('./shift-type').shiftTypes;
 const days = { 1: 'Mon', 2: 'Tue', 3: 'Wed', 4: 'Thu', 5: 'Fri' };
 const moment = require('moment');
-const isInPayweek = require('../common').isInPayweek;
+const common = require('../common');
+const isInPayweek = common.isInPayweek;
+const formatNumber = common.formatNumber;
 
 class Employee {
   constructor(params) {
@@ -142,12 +144,26 @@ class Employee {
   }
 
   getTotalHoursWorked() {
-    return this.minutesWorkedInRoster / 60;
+    return formatNumber(this.minutesWorkedInRoster / 60);
   }
 
   getPercentageDeskHours() {
-    const precentageDeskHours = (this.getCurrentMinutesAllocatedExcludingBackup() / this.minutesWorkedInRoster) * 100;
-    return `${precentageDeskHours.toPrecision(3)} %`;
+    if (this.minutesWorkedInRoster > 0) {
+      return `${formatNumber((this.getCurrentMinutesAllocatedExcludingBackup() / this.minutesWorkedInRoster) * 100)} %`;
+    }
+    return 'N/A';
+  }
+
+  getStaffSummaryHoursAllocated() {
+    return formatNumber(this.getCurrentMinutesAllocatedExcludingBackup() / 60);
+  }
+
+  getStaffSummaryIdealMinHours() {
+    return formatNumber(this.idealMinMinutes / 60);
+  }
+
+  getStaffSummaryIdealMaxHours() {
+    return formatNumber(this.idealMaxMinutes / 60);
   }
 }
 

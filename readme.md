@@ -38,11 +38,9 @@ are to the ideal desk hour percentages defined by the hew level of the staff mem
 * Shifty tries to distribute AAL shifts evenly by increasing the score for each AAL shift worked.
  
 ## TODO:
- * handle exceptions gracefully
- * format numbers nicely on staff summary
  * night/morning rule
- * show more info when no-one found (no one working, people on leave/neg)
  * no warnings for backup shifts
+ * show more info when no-one found (no one working, people on leave/neg)
  * shifty legacy - parse input by column names instead of indexes.
  * Test pug files
  * Show debug log?

@@ -63,5 +63,21 @@ describe('common', () => {
     });
   });
 
+  context('formatNumber', () => {
+    const tests = {
+      100: '100',
+      1.336: '1.34',
+      10000.111: '10000.11',
+    };
 
+    Object.keys(tests).forEach((key) => {
+      it(`displays ${tests[key]} when formatting ${key}`, () => {
+        expect(common.formatNumber(key)).to.equal(tests[key]);
+      });
+    });
+
+    it('works with NaN', () => {
+      expect(common.formatNumber(10 / 0)).to.equal('Infinity');
+    });
+  });
 });
