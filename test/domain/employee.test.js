@@ -232,12 +232,14 @@ describe('Employee', () => {
   context('getPercentageDeskHours', () => {
     it('returns nicely formatted string', () => {
       employee.minutesWorkedInRoster = 999;
-      expect(employee.getPercentageDeskHours()).to.equal('0.00 %');
+      expect(employee.getPercentageDeskHours()).to.equal('0 %');
       shift.allocateShift(employee);
       employee.minutesWorkedInRoster = 999;
       expect(employee.getPercentageDeskHours()).to.equal('6.01 %');
       employee.minutesWorkedInRoster = 60;
       expect(employee.getPercentageDeskHours()).to.equal('100 %');
+      employee.minutesWorkedInRoster = undefined;
+      expect(employee.getPercentageDeskHours()).to.equal('N/A');
     });
   });
 });
