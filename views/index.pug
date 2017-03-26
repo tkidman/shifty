@@ -5,7 +5,7 @@ block content
     div.pic
       img(src="images/desk.jpg")
     div.blurb
-      h1= title
+      h1 Shifty
       p More updates for Shifty!
       ul
         li There are 2 new shift types - Reference and SLC. These new columns can be found after the staff hours on the Staff sheet.
@@ -35,3 +35,6 @@ block content
     ul
       each error in errors
         li= error
+  if exception
+    p.error Sorry, Shifty has encountered an error: #{exception.message}
+    | Please contact Mel for support!

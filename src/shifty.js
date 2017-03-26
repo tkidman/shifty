@@ -169,32 +169,6 @@ const loadLeave = (workbook, allStaff, errors) => {
   });
 };
 
-const printRoster = (roster, sheet) => {
-  sheet.addRow(['Shift', 'Name']);
-  let day = roster.shifts[0].start.day;
-  roster.shifts.forEach(shift => {
-    const name = shift.shiftAllocation ? shift.shiftAllocation.employee.name : 'No one found :(';
-    sheet.addRow([shift.toString(), name]);
-    if (shift.start.date !== day) {
-      sheet.addRow([]);
-      day = shift.start.date;
-    }
-  });
-};
-
-const printStaffSummary = (roster, sheet) => {
-  sheet.addRow(['Name', 'Desk Hours', 'Ideal min hours', 'Ideal max hours']);
-  Object.keys(roster.employees).forEach(key => {
-    const employee = roster.employees[key];
-    sheet.addRow([
-      employee.name,
-      employee.getCurrentMinutesAllocated() / 60,
-      employee.idealMinMinutes / 60,
-      employee.idealMaxMinutes / 60,
-    ]);
-  });
-};
-
 const doRun = (workbook) => {
   const errors = [];
   const allStaff = loadStaff(workbook, errors);
@@ -207,17 +181,14 @@ const doRun = (workbook) => {
   }
   const roster = new Roster({ shifts, employees: allStaff });
   roster.fillShifts();
-  const output = new Excel.Workbook();
-  const sheet = output.addWorksheet('roster');
-  printRoster(roster, sheet);
-  printStaffSummary(roster, sheet);
-  return { output, roster };
+  return { roster };
 };
 
 const run = (fullFilename) => {
   const workbook = new Excel.Workbook();
   return workbook.xlsx.readFile(fullFilename)
-    .then(() => doRun(workbook));
+    .then(() => doRun(workbook))
+    .catch((err) => ({ exception: err }));
 };
 
 module.exports = { run, parsers };

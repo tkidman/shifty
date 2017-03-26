@@ -24,7 +24,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/', (req, res) => {
-  res.render('index', { title: 'Shifty' });
+  res.render('index');
 });
 
 app.post('/run', (req, res) => {
@@ -36,7 +36,7 @@ app.post('/run', (req, res) => {
     file.pipe(fstream);
     fstream.on('close', () => {
       shifty.run(fullFilename).then((runResult) => {
-        res.render('index', { title: 'Shifty', roster: runResult.roster, errors: runResult.errors });
+        res.render('index', runResult);
       });
     });
   });

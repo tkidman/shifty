@@ -103,3 +103,8 @@ div.tab button.active {
 .tooltip:hover .tooltiptext {
   visibility: visible;
 }
+
+.error {
+  color: darkred;
+  font-weight: bold;
+}
