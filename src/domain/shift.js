@@ -8,6 +8,7 @@ const _ = require('lodash');
 const shiftTypes = require('./shift-type').shiftTypes;
 const ShiftAllocation = require('./shift-allocation');
 const warnings = require('./warnings');
+const moment = require('moment');
 
 const scoreConstants = {
   employeeMinMinutes: 4 * 60,
@@ -124,6 +125,36 @@ class Shift {
 
   isShiftInPayweek() {
     return isInPayweek(this.start);
+  }
+
+  isNightShift() {
+    // a night shift ends after 6:30
+    return moment(this.end).hours(18)
+      .minutes(30)
+      .isBefore(this.end);
+  }
+
+  isMorningShift() {
+    // a morning shift begins before 9:00
+    return moment(this.start).hours(8)
+    // night shifts first.
+      .minutes(59)
+      .isAfter(this.start);
+  }
+
+  isDayBefore(shift) {
+    return moment(this.start).add(1, 'days').isSame(shift.start, 'day');
+  }
+
+  isAdjacent(otherShift) {
+    if (this.isNightShift() && otherShift.isMorningShift() && this.isDayBefore(otherShift)) {
+      return true;
+    }
+    if (this.isMorningShift() && otherShift.isNightShift() && otherShift.isDayBefore(this)) {
+      return true;
+    }
+    return otherShift.start.getTime() === this.end.getTime() ||
+      otherShift.end.getTime() === this.start.getTime();
   }
 }
 

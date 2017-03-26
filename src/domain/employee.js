@@ -133,14 +133,8 @@ class Employee {
     return this.shiftAllocations.filter(shiftAllocation => shiftAllocation.shift.type === shiftTypes.aal).length;
   }
 
-  isResponsibleOfficer() {
-    return this.hewLevel.responsibleOfficer;
-  }
-
   workingAdjacentShift(shift) {
-    return this.shiftAllocations.some(allocatedShift =>
-      allocatedShift.shift.start.getTime() === shift.end.getTime() || allocatedShift.shift.end.getTime() === shift.start.getTime()
-    );
+    return this.shiftAllocations.some(shiftAllocation => shiftAllocation.shift.isAdjacent(shift));
   }
 
   getTotalHoursWorked() {

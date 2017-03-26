@@ -204,4 +204,83 @@ describe('Shift', () => {
       expect(aalShift1.getTypeAndLabel()).to.eql('AAL - Carlton swap');
     });
   });
+
+  context('isNightShift', () => {
+    it('is a night shift when it ends after 6:30pm', () => {
+      standardShift.end = adjustTimezoneOffset(new Date('2017-02-06T18:31:00'));
+      expect(standardShift.isNightShift()).to.be.true;
+    });
+
+    it('is not a night shift when it ends before 6:30pm', () => {
+      standardShift.end = adjustTimezoneOffset(new Date('2017-02-06T18:29:00'));
+      expect(standardShift.isNightShift()).to.be.false;
+    });
+  });
+
+  context('isMorningShift', () => {
+    it('is a morning shift when it starts before 9:00am', () => {
+      standardShift.start = adjustTimezoneOffset(new Date('2017-02-06T08:55:00'));
+      expect(standardShift.isMorningShift()).to.be.true;
+    });
+
+    it('is not a morning shift when it starts after 9:00am', () => {
+      standardShift.end = adjustTimezoneOffset(new Date('2017-02-06T09:00:00'));
+      expect(standardShift.isMorningShift()).to.be.false;
+    });
+  });
+
+  context('isDayBefore', () => {
+    it('returns true when this shift is a day before', () => {
+      const dayBeforeStandardShift = new Shift({
+        type: shiftTypes.standard,
+        start: adjustTimezoneOffset(new Date('2017-02-05T09:00:00')),
+        end: adjustTimezoneOffset(new Date('2017-02-05T10:00:00')),
+      });
+      expect(dayBeforeStandardShift.isDayBefore(standardShift)).to.be.true;
+    });
+  });
+
+  context('isAdjacent', () => {
+    let night;
+    let morning;
+    let afterMorning;
+    let notAdjacent;
+
+    beforeEach(() => {
+      night = new Shift({
+        type: shiftTypes.standard,
+        start: adjustTimezoneOffset(new Date('2017-02-06T18:00:00')),
+        end: adjustTimezoneOffset(new Date('2017-02-06T20:00:00')),
+      });
+      morning = new Shift({
+        type: shiftTypes.standard,
+        start: adjustTimezoneOffset(new Date('2017-02-07T08:00:00')),
+        end: adjustTimezoneOffset(new Date('2017-02-07T09:00:00')),
+      });
+      afterMorning = new Shift({
+        type: shiftTypes.standard,
+        start: adjustTimezoneOffset(new Date('2017-02-07T09:00:00')),
+        end: adjustTimezoneOffset(new Date('2017-02-07T10:00:00')),
+      });
+      notAdjacent = new Shift({
+        type: shiftTypes.standard,
+        start: adjustTimezoneOffset(new Date('2017-02-07T12:00:00')),
+        end: adjustTimezoneOffset(new Date('2017-02-07T13:00:00')),
+      });
+    });
+
+    it('returns true when shift is adjacent', () => {
+      expect(night.isAdjacent(morning)).to.be.true;
+      expect(morning.isAdjacent(night)).to.be.true;
+      expect(morning.isAdjacent(afterMorning)).to.be.true;
+      expect(afterMorning.isAdjacent(morning)).to.be.true;
+    });
+
+    it('returns false when shift is not adjacent', () => {
+      expect(night.isAdjacent(notAdjacent)).to.be.false;
+      expect(morning.isAdjacent(notAdjacent)).to.be.false;
+      expect(afterMorning.isAdjacent(notAdjacent)).to.be.false;
+      expect(night.isAdjacent(afterMorning)).to.be.false;
+    });
+  });
 });

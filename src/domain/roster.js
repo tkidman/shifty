@@ -44,10 +44,7 @@ class Roster {
 
   shiftScore(shift) {
     let value = 0;
-    if (moment(shift.end).hours(18)
-      // night shifts first.
-        .minutes(30)
-        .isBefore(shift.end)) {
+    if (shift.isNightShift()) {
       value -= 10000;
     }
     if (skilledShifts.includes(shift.type)) {
