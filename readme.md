@@ -18,7 +18,9 @@ Use this as a guide for defining shifts, staff, negs and leave.
 at the same time.
 * You need to specify a fortnight of regular working hours for each staff member on the 'Staff' sheet. 
 The first week must be the staff member's hours for a pay week, 
-the second for a non pay week. Shifty considers 13/3/2017 to be a Monday of a payweek.
+the second for a non pay week. Shifty considers 13/3/2017 to be a Monday of a payweek. 
+The column headers in the example spreadsheet use 'P' and 'N' to
+denote a Pay week and Non pay week.
 
 ## How does it work?
 
@@ -36,7 +38,6 @@ are to the ideal desk hour percentages defined by the hew level of the staff mem
 * Shifty tries to distribute AAL shifts evenly by increasing the score for each AAL shift worked.
  
 ## TODO:
- * show if week 1 or week 2 on roster
  * handle exceptions gracefully
  * format numbers nicely on staff summary
  * night/morning rule

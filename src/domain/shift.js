@@ -3,6 +3,7 @@
 const dateString = require('../common').dateString;
 const timeString = require('../common').timeString;
 const logger = require('../common').logger;
+const isInPayweek = require('../common').isInPayweek;
 const _ = require('lodash');
 const shiftTypes = require('./shift-type').shiftTypes;
 const ShiftAllocation = require('./shift-allocation');
@@ -119,6 +120,10 @@ class Shift {
       return `${this.type} - ${this.label}`;
     }
     return this.type;
+  }
+
+  isShiftInPayweek() {
+    return isInPayweek(this.start);
   }
 }
 

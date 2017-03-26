@@ -46,7 +46,7 @@ describe('Shift', () => {
     it('organises shifts by days', () => {
       expect(roster.shiftsByDays.length).to.be.equal(2);
       expect(roster.shiftsByDays[0].shifts.length).to.be.equal(2);
-      expect(roster.shiftsByDays[0].formattedDate).to.be.equal('Monday, 6th February 2017');
+      expect(roster.shiftsByDays[0].header).to.be.equal('Monday, 6th February 2017 - Pay Week');
     });
   });
 

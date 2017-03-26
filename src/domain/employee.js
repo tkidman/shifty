@@ -1,9 +1,8 @@
 'use strict';
 const shiftTypes = require('./shift-type').shiftTypes;
 const days = { 1: 'Mon', 2: 'Tue', 3: 'Wed', 4: 'Thu', 5: 'Fri' };
-const adjustTimezoneOffset = require('../common').adjustTimezoneOffset;
 const moment = require('moment');
-const initialMondayPayweek = moment(adjustTimezoneOffset(new Date('2017-03-13T00:00:00')));
+const isInPayweek = require('../common').isInPayweek;
 
 class Employee {
   constructor(params) {
@@ -30,10 +29,6 @@ class Employee {
     this.minutesWorkedInRoster = this._calculateMinutesWorkedInRoster(shiftsByDays);
     this.idealMinMinutes = (this.hewLevel.minDeskPercentage / 100) * this.minutesWorkedInRoster;
     this.idealMaxMinutes = (this.hewLevel.maxDeskPercentage / 100) * this.minutesWorkedInRoster;
-  }
-
-  _isInPayweek(date) {
-    return initialMondayPayweek.diff(date, 'week') % 2 === 0;
   }
 
   _minutes(date) {
@@ -75,7 +70,7 @@ class Employee {
   _getHoursForDayOfShift(shift) {
     const day = days[shift.start.getDay()];
     let hoursForDay;
-    if (this._isInPayweek(shift.start)) {
+    if (isInPayweek(shift.start)) {
       hoursForDay = this.hoursByDayOfWeek.payweek[day];
     } else {
       hoursForDay = this.hoursByDayOfWeek.nonPayweek[day];

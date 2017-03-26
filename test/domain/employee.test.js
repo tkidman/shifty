@@ -187,32 +187,6 @@ describe('Employee', () => {
     });
   });
 
-  context('_isInPayweek', () => {
-    const payweekDates = [
-      adjustTimezoneOffset(new Date('2017-03-13T00:00:00')),
-      adjustTimezoneOffset(new Date('2017-03-19T23:59:59')),
-      adjustTimezoneOffset(new Date('2017-03-28T09:00:00')),
-      adjustTimezoneOffset(new Date('2017-04-12T09:00:00')),
-    ];
-    const nonPayweekDates = [
-      adjustTimezoneOffset(new Date('2017-03-26T23:59:59')),
-      adjustTimezoneOffset(new Date('2017-03-20T00:00:00')),
-      adjustTimezoneOffset(new Date('2017-04-04T09:00:00')),
-      adjustTimezoneOffset(new Date('2017-04-19T09:00:00')),
-    ];
-    payweekDates.forEach(payweekDate => {
-      it(`returns true when date is ${payweekDate}`, () => {
-        expect(employee._isInPayweek(payweekDate)).to.be.true;
-      });
-    });
-
-    nonPayweekDates.forEach(nonPayweekDate => {
-      it(`returns false when date is ${nonPayweekDate}`, () => {
-        expect(employee._isInPayweek(nonPayweekDate)).to.be.false;
-      });
-    });
-  });
-
   context('hoursWorkedInRoster', () => {
     let shiftsByDays;
     let anotherShift;

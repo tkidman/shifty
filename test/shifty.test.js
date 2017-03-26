@@ -33,6 +33,7 @@ describe('Shifty', () => {
       expect(roster.shifts[0].end).to.eql(firstShiftEnd);
       expect(roster.shifts[0].label).to.eql('Carlton Swap');
       expect(roster.shifts[1].label).to.be.null;
+      expect(roster.shiftsByDays[0].header).to.be.eql('Monday, 6th February 2017 - Pay Week');
 
       expect(edwina.hoursByDayOfWeek.payweek.Mon.start.getHours()).to.eql(8);
       expect(edwina.hoursByDayOfWeek.payweek.Mon.start.getMinutes()).to.eql(0);

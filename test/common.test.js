@@ -36,4 +36,32 @@ describe('common', () => {
       });
     });
   });
+
+  context('isInPayweek', () => {
+    const payweekDates = [
+      common.adjustTimezoneOffset(new Date('2017-03-13T00:00:00')),
+      common.adjustTimezoneOffset(new Date('2017-03-19T23:59:59')),
+      common.adjustTimezoneOffset(new Date('2017-03-28T09:00:00')),
+      common.adjustTimezoneOffset(new Date('2017-04-12T09:00:00')),
+    ];
+    const nonPayweekDates = [
+      common.adjustTimezoneOffset(new Date('2017-03-26T23:59:59')),
+      common.adjustTimezoneOffset(new Date('2017-03-20T00:00:00')),
+      common.adjustTimezoneOffset(new Date('2017-04-04T09:00:00')),
+      common.adjustTimezoneOffset(new Date('2017-04-19T09:00:00')),
+    ];
+    payweekDates.forEach(payweekDate => {
+      it(`returns true when date is ${payweekDate}`, () => {
+        expect(common.isInPayweek(payweekDate)).to.be.true;
+      });
+    });
+
+    nonPayweekDates.forEach(nonPayweekDate => {
+      it(`returns false when date is ${nonPayweekDate}`, () => {
+        expect(common.isInPayweek(nonPayweekDate)).to.be.false;
+      });
+    });
+  });
+
+
 });

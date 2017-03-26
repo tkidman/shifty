@@ -3,7 +3,8 @@
 const shiftTypes = require('./shift-type').shiftTypes;
 const shiftTypesList = require('./shift-type').shiftTypesList;
 const moment = require('moment');
-const sameDay = require('../common').sameDay;
+const common = require('../common');
+const sameDay = common.sameDay;
 const _ = require('lodash');
 
 const skilledShifts = _.difference(shiftTypesList, [shiftTypes.backup, shiftTypes.standard]);
@@ -19,8 +20,13 @@ class Roster {
 
   setShiftsByDays() {
     this.shiftsByDays = this.shifts.reduce((aggregator, shift) => {
+      const weekDescription = shift.isShiftInPayweek() ? 'Pay Week' : 'Non Pay Week';
       if (aggregator.length === 0 || !sameDay(aggregator[aggregator.length - 1].date, shift.start)) {
-        aggregator.push({ date: shift.start, shifts: [], formattedDate: moment(shift.start).format('dddd, Do MMMM YYYY') });
+        aggregator.push({
+          date: shift.start,
+          shifts: [],
+          header: `${moment(shift.start).format('dddd, Do MMMM YYYY')} - ${weekDescription}`,
+        });
       }
       aggregator[aggregator.length - 1].shifts.push(shift);
       return aggregator;
