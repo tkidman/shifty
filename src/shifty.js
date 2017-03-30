@@ -74,6 +74,7 @@ const loadStaffHoursByDayOfWeek = (row, errors, allStaff) => {
 };
 
 const loadStaff = (workbook, errors) => {
+  const metricStart = moment();
   const staffSheet = workbook.getWorksheet(worksheets.staff);
   const allStaff = {};
   staffSheet.eachRow((row, rowNumber) => {
@@ -102,10 +103,12 @@ const loadStaff = (workbook, errors) => {
       allStaff[staffParams.name] = new Employee(staffParams);
     }
   });
+  logger.info(`loadStaff time taken: ${moment().diff(metricStart)}`);
   return allStaff;
 };
 
 const loadShifts = (workbook, allStaff, errors) => {
+  const metricStart = moment();
   const shiftsSheet = workbook.getWorksheet(worksheets.shifts);
   const shifts = [];
   let day;
@@ -131,10 +134,12 @@ const loadShifts = (workbook, allStaff, errors) => {
       shifts.push(shift);
     }
   });
+  logger.info(`loadShifts time taken: ${moment().diff(metricStart)}`);
   return shifts;
 };
 
 const loadNegs = (workbook, allStaff, errors) => {
+  const metricStart = moment();
   const negsSheet = workbook.getWorksheet(worksheets.negs);
   negsSheet.eachRow((row, rowNumber) => {
     if (rowNumber > 1) {
@@ -147,9 +152,11 @@ const loadNegs = (workbook, allStaff, errors) => {
       allStaff[name].negs.push({ start, end });
     }
   });
+  logger.info(`loadNegs time taken: ${moment().diff(metricStart)}`);
 };
 
 const loadLeave = (workbook, allStaff, errors) => {
+  const metricStart = moment();
   const leaveSheet = workbook.getWorksheet(worksheets.leave);
   leaveSheet.eachRow((row, rowNumber) => {
     if (rowNumber > 1) {
@@ -167,9 +174,11 @@ const loadLeave = (workbook, allStaff, errors) => {
       }
     }
   });
+  logger.info(`loadLeave time taken: ${moment().diff(metricStart)}`);
 };
 
 const doRun = (workbook) => {
+  const metricStart = moment();
   const errors = [];
   const allStaff = loadStaff(workbook, errors);
   loadNegs(workbook, allStaff, errors);
@@ -181,14 +190,23 @@ const doRun = (workbook) => {
   }
   const roster = new Roster({ shifts, employees: allStaff });
   roster.fillShifts();
+  logger.info(`doRun time taken: ${moment().diff(metricStart)}`);
   return { roster };
 };
 
 const run = (fullFilename) => {
+  const metricStart = moment();
   const workbook = new Excel.Workbook();
+  logger.info('about to load workbork');
   return workbook.xlsx.readFile(fullFilename)
-    .then(() => doRun(workbook))
-    .catch((err) => ({ exception: err }));
+    .then(() => {
+      logger.info(`time taken to load workbook: ${moment().diff(metricStart)}`);
+      return doRun(workbook);
+    })
+    .catch((err) => {
+      logger.error(err);
+      return { exception: err };
+    });
 };
 
 module.exports = { run, parsers };

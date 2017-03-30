@@ -63,7 +63,7 @@ class Shift {
     const bestScoreResult = sortedScores[0];
     if (bestScoreResult) {
       if (Object.keys(bestScoreResult.warningsList).length > 0) {
-        logger.warn(
+        logger.info(
           `warnings found for best employee. shift: ${this}` +
           `, result: ${JSON.stringify(_.omit(bestScoreResult, 'employee'))}`
         );

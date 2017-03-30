@@ -21,6 +21,17 @@ The first week must be the staff member's hours for a pay week,
 the second for a non pay week. Shifty considers 13/3/2017 to be a Monday of a payweek. 
 The column headers in the example spreadsheet use 'P' and 'N' to
 denote a Pay week and Non pay week.
+* If exporting from google sheets, make sure you don't have lots of empty cells. Delete any unnecessary columns and rows from the google sheet! 
+This can reduce the size of your exported excel file from 3MB to 25KiBs. 
+It will be much faster to upload, and will be much faster for shifty to process too. 
+Feel free to add as many shifts and employees as you want, though.
+* Shifts have a shift type, currently the shift types are: Standard, ResponsibleOfficer, AAL, SLC, Reference, and Backup.
+Use the 'Shifts' sheet to specify the shift type.
+* Staff members can be assigned shift types they can work through the columns on the 'Staff' sheet.
+Use Y to indicate that a staff member can work the shift type.
+If the column is empty, then the staff member should not work the shift type,
+except for Standard shifts - in that case you need to use N to show that they should not work that type of shift.
+
 
 ## How does it work?
 
@@ -39,6 +50,7 @@ are to the ideal desk hour percentages defined by the hew level of the staff mem
  * no warnings for backup shifts
  * show more info when no-one found (no one working, people on leave/neg)
  * shifty legacy - parse input by column names instead of indexes.
+ * shifty generified - allow configuration of shift types & percentages 
  * Test pug files
  * Show debug log?
  * Export to excel?

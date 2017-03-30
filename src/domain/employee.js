@@ -23,7 +23,10 @@ class Employee {
 
   setAvailableForShifts(allShifts) {
     allShifts.filter(shift =>
-      this._worksDuringShift(shift) && !this._negDuringShift(shift) && !this._onLeaveDuringShift(shift) && !this._workingShiftAtSameTime(shift)
+      this._worksDuringShift(shift) &&
+      !this._negDuringShift(shift) &&
+      !this._onLeaveDuringShift(shift) &&
+      !this._workingShiftAtSameTime(shift)
     ).forEach(availableShift => this.markAsAvailableForShift(availableShift));
   }
 

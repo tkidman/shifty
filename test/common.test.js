@@ -77,7 +77,7 @@ describe('common', () => {
     });
 
     it('works with NaN', () => {
-      expect(common.formatNumber(10 / 0)).to.equal('Infinity');
+      expect(common.formatNumber(10 / 0)).to.equal('NaN');
     });
   });
 });
