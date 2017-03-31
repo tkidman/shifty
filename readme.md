@@ -31,6 +31,7 @@ Use the 'Shifts' sheet to specify the shift type.
 Use Y to indicate that a staff member can work the shift type.
 If the column is empty, then the staff member should not work the shift type,
 except for Standard shifts - in that case you need to use N to show that they should not work that type of shift.
+* Staff members with a Hew level of 5 or above can work ResponsibleOfficer shifts.
 
 
 ## How does it work?
