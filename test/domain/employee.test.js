@@ -55,14 +55,14 @@ describe('Employee', () => {
     });
 
     it('returns false after the employee gets allocated to the shift', () => {
-      shift.allocateShift(employee);
+      shift.allocateShift(new ShiftAllocation(shift, employee));
       expect(employee.canWorkShift(shift)).to.be.false;
     });
   });
 
   context('allocates to shift', () => {
     beforeEach(() => {
-      shift.allocateShift(employee);
+      shift.allocateShift(new ShiftAllocation(shift, employee));
     });
 
     it('adds the shift to the employee', () => {
@@ -84,28 +84,29 @@ describe('Employee', () => {
     });
 
     it('reports correct minutes when shifts allocated', () => {
-      shift.allocateShift(employee);
-      nightShift.allocateShift(employee);
+      shift.allocateShift(new ShiftAllocation(shift, employee));
+      nightShift.allocateShift(new ShiftAllocation(nightShift, employee));
       expect(employee.getCurrentMinutesAllocated()).to.eql(300);
     });
 
     it('reports correct minutes when shifts allocated excluding backup', () => {
-      shift.allocateShift(employee);
-      backupShift.allocateShift(employee);
+      shift.allocateShift(new ShiftAllocation(shift, employee));
+      backupShift.allocateShift(new ShiftAllocation(backupShift, employee));
       expect(employee.getCurrentMinutesAllocatedExcludingBackup()).to.eql(60);
     });
   });
 
   context('getAALShiftCount', () => {
     it('counts the number of assigned aal shifts', () => {
-      shift.allocateShift(employee);
+      shift.allocateShift(new ShiftAllocation(shift, employee));
       expect(employee.getAALShiftCount()).to.eql(0);
-      shift.allocateShift(employee);
-      new Shift({
+      shift.allocateShift(new ShiftAllocation(shift, employee));
+      const aalShift = new Shift({
         type: shiftTypes.aal,
         start: adjustTimezoneOffset(new Date('2017-02-07T09:00:00')),
         end: adjustTimezoneOffset(new Date('2017-02-07T10:00:00')),
-      }).allocateShift(employee);
+      });
+      aalShift.allocateShift(new ShiftAllocation(aalShift, employee));
       expect(employee.getAALShiftCount()).to.eql(1);
     });
   });
@@ -177,7 +178,7 @@ describe('Employee', () => {
       });
 
       employee = new Employee({ name: 'empy', hewLevel: hewLevels.hewLevel4, hoursByDayOfWeek, shiftTypes: standardShiftTypes });
-      shift.allocateShift(employee);
+      shift.allocateShift(new ShiftAllocation(shift, employee));
     });
 
     it('returns correct value when employee working adjacent shift', () => {
@@ -233,7 +234,7 @@ describe('Employee', () => {
     it('returns nicely formatted string', () => {
       employee.minutesWorkedInRoster = 999;
       expect(employee.getPercentageDeskHours()).to.equal('0 %');
-      shift.allocateShift(employee);
+      shift.allocateShift(new ShiftAllocation(shift, employee));
       employee.minutesWorkedInRoster = 999;
       expect(employee.getPercentageDeskHours()).to.equal('6.01 %');
       employee.minutesWorkedInRoster = 60;

@@ -3,6 +3,7 @@ const Shift = require('./domain/shift').Shift;
 const shiftTypes = require('./domain/shift-type').shiftTypes;
 const Employee = require('./domain/employee');
 const Roster = require('./domain/roster');
+const ShiftAllocation = require('./domain/shift-allocation');
 const parsers = require('./cell-parsers');
 const logger = require('./common').logger;
 const moment = require('moment');
@@ -128,7 +129,7 @@ const loadShifts = (workbook, allStaff, errors) => {
       if (!isNullOrWhitespace(manualNameCell.value)) {
         const name = tryLoadValue('manualName', manualNameCell, errors, allStaff, parsers.nameParser);
         if (name) {
-          shift.allocateShift(allStaff[name]);
+          shift.allocateShift(new ShiftAllocation(shift, allStaff[name]));
         }
       }
       shifts.push(shift);

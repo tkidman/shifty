@@ -3,6 +3,7 @@ class ShiftAllocation {
     this.shift = shift;
     this.employee = employee;
     this.warningsList = warningsList || [];
+    this.score = 0;
   }
 }
 

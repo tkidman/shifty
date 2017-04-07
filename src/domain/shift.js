@@ -37,75 +37,72 @@ class Shift {
   }
 
   fill() {
-    const scoreResult = this.findBestEmployee();
-    if (scoreResult) {
-      this.allocateShift(scoreResult.employee, scoreResult.warningsList);
+    const bestAllocation = this.findBestShiftAllocation();
+    if (bestAllocation) {
+      this.allocateShift(bestAllocation);
     } else {
       logger.info(`unable to find employee for shift: ${this}`);
     }
   }
 
-  allocateShift(employee, warningsList) {
-    this.shiftAllocation = new ShiftAllocation(this, employee, warningsList);
-    employee.allocateToShift(this.shiftAllocation);
-    this.availableEmployees.splice(this.availableEmployees.indexOf(employee), 1);
-  }
-
-  findBestEmployee() {
-    // give each available employee a score to sort on
-    const sortedScores = this.availableEmployees.map(employee => this.scoreEmployee(employee))
-      .sort((firstScore, secondScore) => firstScore.score - secondScore.score);
-    let scoreDebugMessage = `scores for shift: ${this}`;
-    sortedScores.forEach(score => {
-      scoreDebugMessage += `\n\t ${JSON.stringify(_.omit(score, 'employee'))}`;
+  findBestShiftAllocation() {
+    const potentialAllocations = this.availableEmployees.map(employee => this.getPotentialShiftAllocation(employee))
+      .sort((firstAllocation, secondAllocation) => firstAllocation.score - secondAllocation.score);
+    let allocationDebugMessage = `Potential allocations for shift: ${this}`;
+    potentialAllocations.forEach(potentialAllocation => {
+      allocationDebugMessage += `\n\t ${JSON.stringify(_.omit(potentialAllocation, 'employee', 'shift'))}`;
     });
-    logger.debug(scoreDebugMessage);
-    const bestScoreResult = sortedScores[0];
-    if (bestScoreResult) {
-      if (Object.keys(bestScoreResult.warningsList).length > 0) {
+    logger.debug(allocationDebugMessage);
+    const bestPotentialAllocation = potentialAllocations[0];
+    if (bestPotentialAllocation) {
+      if (Object.keys(bestPotentialAllocation.warningsList).length > 0) {
         logger.info(
-          `warnings found for best employee. shift: ${this}` +
-          `, result: ${JSON.stringify(_.omit(bestScoreResult, 'employee'))}`
+          `warnings found for best allocation. shift: ${this}` +
+          `, result: ${JSON.stringify(_.omit(bestPotentialAllocation, 'employee', 'shift'))}`
         );
       }
-      return bestScoreResult;
+      return bestPotentialAllocation;
     }
     return null;
   }
 
-  // lower the better
-  scoreEmployee(employee) {
-    const scoreResult = { score: 0, employee, warningsList: [] };
-    scoreResult.name = employee.name;
+  allocateShift(bestAllocation) {
+    this.shiftAllocation = bestAllocation;
+    bestAllocation.employee.allocateToShift(bestAllocation);
+    this.availableEmployees.splice(this.availableEmployees.indexOf(bestAllocation.employee), 1);
+  }
+
+  getPotentialShiftAllocation(employee) {
+    const potentialAllocation = new ShiftAllocation(this, employee);
     const employeeMinutes = employee.getCurrentMinutesAllocated();
     const minutesWithShift = employeeMinutes + this.getShiftLengthMinutes();
 
     if (employeeMinutes < scoreConstants.employeeMinMinutes) {
-      scoreResult.score += scoreConstants.minMinutesScoreChange;
+      potentialAllocation.score += scoreConstants.minMinutesScoreChange;
     }
 
     if (minutesWithShift < employee.idealMinMinutes) {
-      scoreResult.score += minutesWithShift - employee.idealMinMinutes;
+      potentialAllocation.score += minutesWithShift - employee.idealMinMinutes;
     } else if (minutesWithShift > employee.idealMaxMinutes) {
-      scoreResult.score += minutesWithShift - employee.idealMaxMinutes;
+      potentialAllocation.score += minutesWithShift - employee.idealMaxMinutes;
     }
 
     if (!employee.shiftTypes.includes(this.type)) {
-      scoreResult.score += scoreConstants.shouldNotPerformShiftTypeScoreChange;
-      scoreResult.warningsList.push(warnings.shouldNotPerformShiftType(employee, this));
+      potentialAllocation.score += scoreConstants.shouldNotPerformShiftTypeScoreChange;
+      potentialAllocation.warningsList.push(warnings.shouldNotPerformShiftType(employee, this));
     }
 
     if (this.type === shiftTypes.aal) {
       const aalShifts = employee.shiftAllocations.filter(shiftAllocation => shiftAllocation.shift.type === shiftTypes.aal);
-      scoreResult.score += scoreConstants.workingAALShiftScoreChange * aalShifts.length;
+      potentialAllocation.score += scoreConstants.workingAALShiftScoreChange * aalShifts.length;
     }
 
     if (employee.workingAdjacentShift(this)) {
-      scoreResult.score += scoreConstants.workingAdjacentShiftScoreChange;
-      scoreResult.warningsList.push(warnings.workingAdjacentShift(employee));
+      potentialAllocation.score += scoreConstants.workingAdjacentShiftScoreChange;
+      potentialAllocation.warningsList.push(warnings.workingAdjacentShift(employee));
     }
 
-    return scoreResult;
+    return potentialAllocation;
   }
 
   toString() {

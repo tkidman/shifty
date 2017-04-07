@@ -5,6 +5,7 @@ const Employee = require('../../src/domain/employee');
 const Shift = require('../../src/domain/shift').Shift;
 const scoreConstants = require('../../src/domain/shift').scoreConstants;
 const shiftTypes = require('../../src/domain/shift-type').shiftTypes;
+const ShiftAllocation = require('../../src/domain/shift-allocation');
 const hewLevels = require('../../src/domain/hew-level');
 const adjustTimezoneOffset = require('../../src/common').adjustTimezoneOffset;
 
@@ -53,14 +54,14 @@ describe('Shift', () => {
 
   context('scoreEmployee', () => {
     it('returns the correct score when under minimum minutes', () => {
-      const empScore = standardShift.scoreEmployee(employee);
+      const empScore = standardShift.getPotentialShiftAllocation(employee);
       const expectedScore = standardShift.getShiftLengthMinutes() - employee.idealMinMinutes + scoreConstants.minMinutesScoreChange;
       expect(empScore.score).to.eql(expectedScore);
     });
 
     it('returns the correct score when over minimum minutes and under ideal minutes', () => {
-      nightShift.allocateShift(employee);
-      const score = standardShift.scoreEmployee(employee);
+      nightShift.allocateShift(new ShiftAllocation(nightShift, employee));
+      const score = standardShift.getPotentialShiftAllocation(employee);
       const expectedScore = nightShift.getShiftLengthMinutes() + standardShift.getShiftLengthMinutes() - employee.idealMinMinutes;
       expect(score.score).to.eql(expectedScore);
     });
@@ -68,31 +69,31 @@ describe('Shift', () => {
     it('returns the correct score when over ideal min minutes and under ideal max minutes', () => {
       // between 5 and 10
       for (let i = 0; i < 8; i++) {
-        standardShift.allocateShift(employee);
+        standardShift.allocateShift(new ShiftAllocation(standardShift, employee));
       }
-      const score = standardShift.scoreEmployee(employee);
+      const score = standardShift.getPotentialShiftAllocation(employee);
       expect(score.score).to.eql(0);
     });
 
     it('returns the correct score when over ideal max minutes', () => {
       for (let i = 0; i < 10; i++) {
-        standardShift.allocateShift(employee);
+        standardShift.allocateShift(new ShiftAllocation(standardShift, employee));
       }
-      const score = standardShift.scoreEmployee(employee);
+      const score = standardShift.getPotentialShiftAllocation(employee);
       expect(score.score).to.eql(60);
     });
 
     it('returns the correct score when AAL shift and employee has worked 1 AAL shifts', () => {
-      aalShift2.allocateShift(employee);
-      const aalScoreResult = aalShift1.scoreEmployee(employee);
-      const standardScoreResult = standardShift.scoreEmployee(employee);
+      aalShift2.allocateShift(new ShiftAllocation(aalShift2, employee));
+      const aalScoreResult = aalShift1.getPotentialShiftAllocation(employee);
+      const standardScoreResult = standardShift.getPotentialShiftAllocation(employee);
       expect(aalScoreResult.score - standardScoreResult.score).to.eql(scoreConstants.workingAALShiftScoreChange);
     });
 
     it('returns the correct score when employee does not have the shift type', () => {
-      const initialScore = standardShift.scoreEmployee(employee);
+      const initialScore = standardShift.getPotentialShiftAllocation(employee);
       employee.shiftTypes = [];
-      const noShiftTypeScore = standardShift.scoreEmployee(employee);
+      const noShiftTypeScore = standardShift.getPotentialShiftAllocation(employee);
       expect(noShiftTypeScore.score - initialScore.score).to.eql(scoreConstants.shouldNotPerformShiftTypeScoreChange);
     });
   });
@@ -113,18 +114,19 @@ describe('Shift', () => {
         hoursByDayOfWeek,
         shiftTypes: standardShiftTypes,
       });
-      standardShift.allocateShift(midEmployee);
+      standardShift.allocateShift(new ShiftAllocation(standardShift, midEmployee));
       const highEmployee = new Employee({
         name: 'highEmpy',
         hewLevel: hewLevels.hewLevel5,
         hoursByDayOfWeek,
         shiftTypes: standardShiftTypes,
       });
-      new Shift({
+      const standardShift2 = new Shift({
         type: shiftTypes.standard,
         start: adjustTimezoneOffset(new Date('2017-02-06T17:00:00')),
         end: adjustTimezoneOffset(new Date('2017-02-06T21:00:00')),
-      }).allocateShift(highEmployee);
+      });
+      standardShift2.allocateShift(new ShiftAllocation(standardShift2, highEmployee));
       highEmployee.markAsAvailableForShift(nightShift);
       lowEmployee.markAsAvailableForShift(nightShift);
       midEmployee.markAsAvailableForShift(nightShift);
@@ -132,7 +134,7 @@ describe('Shift', () => {
 
     context('findBestEmployee', () => {
       it('returns the employee with the lowest score', () => {
-        expect(nightShift.findBestEmployee().employee).to.equal(lowEmployee);
+        expect(nightShift.findBestShiftAllocation().employee).to.equal(lowEmployee);
       });
     });
 
@@ -169,7 +171,7 @@ describe('Shift', () => {
         end: adjustTimezoneOffset(new Date('2017-02-06T10:00:00')),
       });
       employee.markAsAvailableForShift(sameTimeShift);
-      standardShift.allocateShift(employee);
+      standardShift.allocateShift(new ShiftAllocation(standardShift, employee));
     });
 
     it('allocates employee to the shift', () => {
