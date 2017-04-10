@@ -46,8 +46,7 @@ class Shift {
   }
 
   findBestShiftAllocation() {
-    const potentialAllocations = this.availableEmployees.map(employee => this.getPotentialShiftAllocation(employee))
-      .sort((firstAllocation, secondAllocation) => firstAllocation.score - secondAllocation.score);
+    const potentialAllocations = this.getSortedPotentialShiftAllocations();
     let allocationDebugMessage = `Potential allocations for shift: ${this}`;
     potentialAllocations.forEach(potentialAllocation => {
       allocationDebugMessage += `\n\t ${JSON.stringify(_.omit(potentialAllocation, 'employee', 'shift'))}`;
@@ -64,6 +63,12 @@ class Shift {
       return bestPotentialAllocation;
     }
     return null;
+  }
+
+  getSortedPotentialShiftAllocations() {
+    const potentialAllocations = this.availableEmployees.map(employee => this.getPotentialShiftAllocation(employee))
+      .sort((firstAllocation, secondAllocation) => firstAllocation.score - secondAllocation.score);
+    return potentialAllocations;
   }
 
   allocateShift(bestAllocation) {
@@ -152,6 +157,34 @@ class Shift {
     }
     return otherShift.start.getTime() === this.end.getTime() ||
       otherShift.end.getTime() === this.start.getTime();
+  }
+
+  getShiftAllocationSummary(allEmployees) {
+    // other people that could work the shift
+    const worksDuringShiftEmployees = allEmployees.filter(
+      employee => employee.worksDuringShift(this) && employee !== this.shiftAllocation.employee
+    );
+    const shiftAllocationSummary = {
+      onLeaveEmployees: [],
+      negEmployees: [],
+      workingAtSameTimeEmployees: [],
+      worsePotentialAllocations: [],
+    };
+    worksDuringShiftEmployees.reduce((summary, employee) => {
+      if (employee.onLeaveDuringShift(this)) {
+        summary.onLeaveEmployees.push(employee);
+      } else if (employee.negDuringShift(this)) {
+        summary.negEmployees.push(employee);
+      } else if (employee.workingShiftAtSameTime(this)) {
+        summary.workingAtSameTimeEmployees.push(employee);
+      }
+      return shiftAllocationSummary;
+    }, shiftAllocationSummary);
+
+    shiftAllocationSummary.worsePotentialAllocations = this.getSortedPotentialShiftAllocations().filter(
+      shiftAllocation => shiftAllocation.employee !== this.shiftAllocation.employee
+    );
+    return shiftAllocationSummary;
   }
 }
 

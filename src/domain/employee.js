@@ -24,9 +24,9 @@ class Employee {
   setAvailableForShifts(allShifts) {
     allShifts.filter(shift =>
       this._worksDuringShift(shift) &&
-      !this._negDuringShift(shift) &&
-      !this._onLeaveDuringShift(shift) &&
-      !this._workingShiftAtSameTime(shift)
+      !this.negDuringShift(shift) &&
+      !this.onLeaveDuringShift(shift) &&
+      !this.workingShiftAtSameTime(shift)
     ).forEach(availableShift => this.markAsAvailableForShift(availableShift));
   }
 
@@ -58,7 +58,7 @@ class Employee {
           .reduce(
             (allocatedMinutes, shiftAllocation) => moment(shiftAllocation.shift.end).diff(shiftAllocation.shift.start, 'minutes'), 0
           );
-      } else if (!this._onLeaveDuringShift(shift)) {
+      } else if (!this.onLeaveDuringShift(shift)) {
         minutes += moment(hoursForDay.end).diff(hoursForDay.start, 'minutes');
       }
       return minutes;
@@ -83,15 +83,15 @@ class Employee {
     return hoursForDay;
   }
 
-  _negDuringShift(shift) {
+  negDuringShift(shift) {
     return this.negs.some(neg => this._overlap(neg, shift));
   }
 
-  _onLeaveDuringShift(shift) {
+  onLeaveDuringShift(shift) {
     return this.leave.some(leave => this._overlap(leave, shift));
   }
 
-  _workingShiftAtSameTime(shift) {
+  workingShiftAtSameTime(shift) {
     return this.shiftAllocations.some(shiftAllocation => this._overlap(shiftAllocation.shift, shift));
   }
 

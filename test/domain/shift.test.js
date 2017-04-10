@@ -285,4 +285,36 @@ describe('Shift', () => {
       expect(night.isAdjacent(afterMorning)).to.be.false;
     });
   });
+
+  context('shiftAllocationSummary', () => {
+    const loadEmployeeStub = (func, returnVal) => {
+      const employeeStub = {
+        worksDuringShift: () => true,
+        onLeaveDuringShift: () => false,
+        negDuringShift: () => false,
+        workingShiftAtSameTime: () => false,
+      };
+      employeeStub[func] = () => returnVal;
+      return employeeStub;
+    };
+
+    it('loads the expected shift allocation summary', () => {
+      const onLeaveEmployee = loadEmployeeStub('onLeaveDuringShift', true);
+      const negEmployee = loadEmployeeStub('negDuringShift', true);
+      const sameTimeEmployee = loadEmployeeStub('workingShiftAtSameTime', true);
+      const notWorkingEmployee = loadEmployeeStub('worksDuringShift', false);
+      const allEmployees = [onLeaveEmployee, negEmployee, sameTimeEmployee, notWorkingEmployee];
+      const allocation = { employee: 'bill' };
+      aalShift1.getSortedPotentialShiftAllocations = () => [allocation];
+      aalShift1.shiftAllocation = new ShiftAllocation(aalShift1);
+
+      const expectedShiftAllocationSummary = {
+        onLeaveEmployees: [onLeaveEmployee],
+        negEmployees: [negEmployee],
+        workingAtSameTimeEmployees: [sameTimeEmployee],
+        worsePotentialAllocations: [allocation],
+      };
+      expect(aalShift1.getShiftAllocationSummary(allEmployees)).to.eql(expectedShiftAllocationSummary);
+    });
+  });
 });
