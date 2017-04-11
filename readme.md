@@ -37,7 +37,7 @@ except for Standard shifts - in that case you need to use N to show that they sh
 ## How does it work?
 
 Shifty first works out which people can work which shifts, taking into account negs and leave.  
-It then tries to sort the shifts from hardest to fill to easiest to fill.
+It then tries to sort the shifts from hardest to fill to easiest to fill (Backup shifts are filled last).
 For each shift in that order, shifty calculates a score for the staff members that are available to work that shift. The person with 
 the lowest score is allocated to the shift. Shifty calculates the score on this basis:
 * If the person has worked less than four hours of desk shifts, the person's score is reduced
@@ -48,8 +48,7 @@ are to the ideal desk hour percentages defined by the hew level of the staff mem
 * Shifty tries to distribute AAL shifts evenly by increasing the score for each AAL shift worked.
  
 ## TODO:
- * no warnings for backup shifts
- * show more info when no-one found (no one working, people on leave/neg)
+ * no warnings for backup shifts? Maybe we should keep the warnings ...
  * shifty legacy - parse input by column names instead of indexes.
  * shifty generified - allow configuration of shift types & percentages
  * shifty UI - create a UI for managing staff/shifts/negs/leave
