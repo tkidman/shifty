@@ -308,13 +308,11 @@ describe('Shift', () => {
       aalShift1.getSortedPotentialShiftAllocations = () => [allocation];
       aalShift1.shiftAllocation = new ShiftAllocation(aalShift1);
 
-      const expectedShiftAllocationSummary = {
-        onLeaveEmployees: [onLeaveEmployee],
-        negEmployees: [negEmployee],
-        workingAtSameTimeEmployees: [sameTimeEmployee],
-        worsePotentialAllocations: [allocation],
-      };
-      expect(aalShift1.getShiftAllocationSummary(allEmployees)).to.eql(expectedShiftAllocationSummary);
+      const shiftAllocationSummary = aalShift1.getShiftAllocationSummary(allEmployees);
+      expect(shiftAllocationSummary.onLeaveEmployees).to.eql([onLeaveEmployee]);
+      expect(shiftAllocationSummary.negEmployees).to.eql([negEmployee]);
+      expect(shiftAllocationSummary.workingAtSameTimeEmployees).to.eql([sameTimeEmployee]);
+      expect(shiftAllocationSummary.worsePotentialAllocations).to.eql([allocation]);
     });
   });
 });

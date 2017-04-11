@@ -64,6 +64,10 @@ class Roster {
 
     return value;
   }
+
+  employeeList() {
+    return Object.keys(this.employees).map(key => this.employees[key]);
+  }
 }
 
 module.exports = Roster;

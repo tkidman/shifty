@@ -23,7 +23,7 @@ class Employee {
 
   setAvailableForShifts(allShifts) {
     allShifts.filter(shift =>
-      this._worksDuringShift(shift) &&
+      this.worksDuringShift(shift) &&
       !this.negDuringShift(shift) &&
       !this.onLeaveDuringShift(shift) &&
       !this.workingShiftAtSameTime(shift)
@@ -65,7 +65,7 @@ class Employee {
     }, 0);
   }
 
-  _worksDuringShift(shift) {
+  worksDuringShift(shift) {
     const hoursForDay = this._getHoursForDayOfShift(shift);
     return hoursForDay &&
       this._minutes(hoursForDay.start) <= this._minutes(shift.start) &&

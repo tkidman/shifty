@@ -51,7 +51,8 @@ are to the ideal desk hour percentages defined by the hew level of the staff mem
  * no warnings for backup shifts
  * show more info when no-one found (no one working, people on leave/neg)
  * shifty legacy - parse input by column names instead of indexes.
- * shifty generified - allow configuration of shift types & percentages 
+ * shifty generified - allow configuration of shift types & percentages
+ * shifty UI - create a UI for managing staff/shifts/negs/leave
  * Test pug files
  * Show debug log?
  * Export to excel?

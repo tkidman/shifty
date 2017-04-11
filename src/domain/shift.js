@@ -170,6 +170,17 @@ class Shift {
       workingAtSameTimeEmployees: [],
       worsePotentialAllocations: [],
     };
+    shiftAllocationSummary.names = (employees) => employees.map(employee => employee.name).join(', ');
+    shiftAllocationSummary.onLeaveNames = () => shiftAllocationSummary.names(shiftAllocationSummary.onLeaveEmployees);
+    shiftAllocationSummary.negNames = () => shiftAllocationSummary.names(shiftAllocationSummary.negEmployees);
+    shiftAllocationSummary.workingNames = () => shiftAllocationSummary.names(shiftAllocationSummary.workingAtSameTimeEmployees);
+    shiftAllocationSummary.worseAllocationDisplays = () =>
+      shiftAllocationSummary.worsePotentialAllocations.map(
+        allocation => `${allocation.employee.name} (${allocation.warningsList.join(', ')})`
+      );
+    shiftAllocationSummary.worseNames = () => shiftAllocationSummary.names(
+      shiftAllocationSummary.worsePotentialAllocations.map(allocation => allocation.employee)
+    );
     worksDuringShiftEmployees.reduce((summary, employee) => {
       if (employee.onLeaveDuringShift(this)) {
         summary.onLeaveEmployees.push(employee);

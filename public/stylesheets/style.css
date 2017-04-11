@@ -89,7 +89,7 @@ div.tab button.active {
 /* Tooltip text */
 .tooltip .tooltiptext {
   visibility: hidden;
-  width: 400px;
+  width: 700px;
   background-color: black;
   color: #fff;
   text-align: left;
