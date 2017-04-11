@@ -1,23 +1,23 @@
 if shift.shiftAllocation
   td.name
     if (shift.shiftAllocation.warningsList.length > 0)
-      - var shiftAllocationSummary = shift.getShiftAllocationSummary(roster.employeeList());
+      - var worseAllocationsDisplayList = shift.worseAllocationsDisplayList()
       div.tooltip #{shift.shiftAllocation.employee.name}
         span.tooltiptext
           p Warning - there are problems with this allocation
           ul
             each warning in shift.shiftAllocation.warningsList
               li= warning
-          if (shiftAllocationSummary.onLeaveEmployees.length > 0)
-            p These employees work at this time but are on leave: #{shiftAllocationSummary.onLeaveNames()}
-          if (shiftAllocationSummary.negEmployees.length > 0)
-            p These employees work at this time but have a neg: #{shiftAllocationSummary.negNames()}
-          if (shiftAllocationSummary.workingAtSameTimeEmployees.length > 0)
-            p These employees are working a shift at the same time: #{shiftAllocationSummary.workingNames()}
-          if (shiftAllocationSummary.worsePotentialAllocations.length > 0)
+          if (shift.onLeaveEmployees.length > 0)
+            p These employees work at this time but are on leave: #{shift.employeeNames(shift.onLeaveEmployees)}
+          if (shift.negEmployees.length > 0)
+            p These employees work at this time but have a neg: #{shift.employeeNames(shift.negEmployees)}
+          if (shift.workingShiftAtSameTimeEmployees.length > 0)
+            p These employees are working a shift at the same time: #{shift.employeeNames(shift.workingShiftAtSameTimeEmployees)}
+          if (worseAllocationsDisplayList.length > 0)
             p These employees could work the shift but have a worse score:
             ul
-              each worseAllocationDisplay in shiftAllocationSummary.worseAllocationDisplays()
+              each worseAllocationDisplay in worseAllocationsDisplayList
                 li= worseAllocationDisplay
     else
       div= shift.shiftAllocation.employee.name

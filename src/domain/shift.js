@@ -22,6 +22,9 @@ class Shift {
   constructor(params) {
     this.type = params.type;
     this.availableEmployees = [];
+    this.onLeaveEmployees = [];
+    this.negEmployees = [];
+    this.workingShiftAtSameTimeEmployees = [];
     this.shiftAllocation = null;
     this.start = params.start;
     this.end = params.end;
@@ -159,43 +162,30 @@ class Shift {
       otherShift.end.getTime() === this.start.getTime();
   }
 
-  getShiftAllocationSummary(allEmployees) {
-    // other people that could work the shift
-    const worksDuringShiftEmployees = allEmployees.filter(
-      employee => employee.worksDuringShift(this) && employee !== this.shiftAllocation.employee
-    );
-    const shiftAllocationSummary = {
-      onLeaveEmployees: [],
-      negEmployees: [],
-      workingAtSameTimeEmployees: [],
-      worsePotentialAllocations: [],
-    };
-    shiftAllocationSummary.names = (employees) => employees.map(employee => employee.name).join(', ');
-    shiftAllocationSummary.onLeaveNames = () => shiftAllocationSummary.names(shiftAllocationSummary.onLeaveEmployees);
-    shiftAllocationSummary.negNames = () => shiftAllocationSummary.names(shiftAllocationSummary.negEmployees);
-    shiftAllocationSummary.workingNames = () => shiftAllocationSummary.names(shiftAllocationSummary.workingAtSameTimeEmployees);
-    shiftAllocationSummary.worseAllocationDisplays = () =>
-      shiftAllocationSummary.worsePotentialAllocations.map(
-        allocation => `${allocation.employee.name} (${allocation.warningsList.join(', ')})`
-      );
-    shiftAllocationSummary.worseNames = () => shiftAllocationSummary.names(
-      shiftAllocationSummary.worsePotentialAllocations.map(allocation => allocation.employee)
-    );
-    worksDuringShiftEmployees.reduce((summary, employee) => {
-      if (employee.onLeaveDuringShift(this)) {
-        summary.onLeaveEmployees.push(employee);
-      } else if (employee.negDuringShift(this)) {
-        summary.negEmployees.push(employee);
-      } else if (employee.workingShiftAtSameTime(this)) {
-        summary.workingAtSameTimeEmployees.push(employee);
-      }
-      return shiftAllocationSummary;
-    }, shiftAllocationSummary);
+  employeeNames(employees) {
+    return employees.map(employee => employee.name).join(', ');
+  }
 
-    shiftAllocationSummary.worsePotentialAllocations = this.getSortedPotentialShiftAllocations().filter(
-      shiftAllocation => shiftAllocation.employee !== this.shiftAllocation.employee
-    );
-    return shiftAllocationSummary;
+  worseAllocationsDisplayList() {
+    return this.getSortedPotentialShiftAllocations()
+      .filter(shiftAllocation => shiftAllocation.employee !== this.shiftAllocation.employee)
+      .map(allocation => `${allocation.employee.name} (${allocation.warningsList.join(', ')})`);
+  }
+
+  initialise(allEmployees) {
+    allEmployees.forEach(employee => {
+      if (employee.worksDuringShift(this) && (!this.shiftAllocation || employee !== this.shiftAllocation.employee)) {
+        if (employee.onLeaveDuringShift(this)) {
+          this.onLeaveEmployees.push(employee);
+        } else if (employee.negDuringShift(this)) {
+          this.negEmployees.push(employee);
+        } else if (employee.workingShiftAtSameTime(this)) {
+          this.workingShiftAtSameTimeEmployees.push(employee);
+        } else {
+          employee.markAsAvailableForShift(this);
+        }
+      }
+    });
   }
 }
 

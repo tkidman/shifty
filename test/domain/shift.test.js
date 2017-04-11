@@ -286,7 +286,7 @@ describe('Shift', () => {
     });
   });
 
-  context('shiftAllocationSummary', () => {
+  context('initialise', () => {
     const loadEmployeeStub = (func, returnVal) => {
       const employeeStub = {
         worksDuringShift: () => true,
@@ -298,21 +298,17 @@ describe('Shift', () => {
       return employeeStub;
     };
 
-    it('loads the expected shift allocation summary', () => {
+    it('initialises the employee lists correctly', () => {
       const onLeaveEmployee = loadEmployeeStub('onLeaveDuringShift', true);
       const negEmployee = loadEmployeeStub('negDuringShift', true);
       const sameTimeEmployee = loadEmployeeStub('workingShiftAtSameTime', true);
       const notWorkingEmployee = loadEmployeeStub('worksDuringShift', false);
       const allEmployees = [onLeaveEmployee, negEmployee, sameTimeEmployee, notWorkingEmployee];
-      const allocation = { employee: 'bill' };
-      aalShift1.getSortedPotentialShiftAllocations = () => [allocation];
-      aalShift1.shiftAllocation = new ShiftAllocation(aalShift1);
 
-      const shiftAllocationSummary = aalShift1.getShiftAllocationSummary(allEmployees);
-      expect(shiftAllocationSummary.onLeaveEmployees).to.eql([onLeaveEmployee]);
-      expect(shiftAllocationSummary.negEmployees).to.eql([negEmployee]);
-      expect(shiftAllocationSummary.workingAtSameTimeEmployees).to.eql([sameTimeEmployee]);
-      expect(shiftAllocationSummary.worsePotentialAllocations).to.eql([allocation]);
+      aalShift1.initialise(allEmployees);
+      expect(aalShift1.onLeaveEmployees).to.eql([onLeaveEmployee]);
+      expect(aalShift1.negEmployees).to.eql([negEmployee]);
+      expect(aalShift1.workingShiftAtSameTimeEmployees).to.eql([sameTimeEmployee]);
     });
   });
 });

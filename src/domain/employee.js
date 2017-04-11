@@ -21,15 +21,6 @@ class Employee {
     this.leave = [];
   }
 
-  setAvailableForShifts(allShifts) {
-    allShifts.filter(shift =>
-      this.worksDuringShift(shift) &&
-      !this.negDuringShift(shift) &&
-      !this.onLeaveDuringShift(shift) &&
-      !this.workingShiftAtSameTime(shift)
-    ).forEach(availableShift => this.markAsAvailableForShift(availableShift));
-  }
-
   setMinutesWorkedInRoster(shiftsByDays) {
     this.minutesWorkedInRoster = this._calculateMinutesWorkedInRoster(shiftsByDays);
     this.idealMinMinutes = (this.hewLevel.minDeskPercentage / 100) * this.minutesWorkedInRoster;
@@ -67,9 +58,11 @@ class Employee {
 
   worksDuringShift(shift) {
     const hoursForDay = this._getHoursForDayOfShift(shift);
-    return hoursForDay &&
-      this._minutes(hoursForDay.start) <= this._minutes(shift.start) &&
-      this._minutes(hoursForDay.end) >= this._minutes(shift.end);
+    if (hoursForDay) {
+      return this._minutes(hoursForDay.start) <= this._minutes(shift.start) &&
+        this._minutes(hoursForDay.end) >= this._minutes(shift.end);
+    }
+    return false;
   }
 
   _getHoursForDayOfShift(shift) {
@@ -111,6 +104,7 @@ class Employee {
     this.availableForShifts.filter(availableShift => this._overlap(shiftAllocation.shift, availableShift))
       .forEach(sameTimeShift => {
         sameTimeShift.availableEmployees.splice(sameTimeShift.availableEmployees.indexOf(this), 1);
+        sameTimeShift.workingShiftAtSameTimeEmployees.push(this);
         this.availableForShifts.splice(this.availableForShifts.indexOf(sameTimeShift), 1);
       });
   }

@@ -15,9 +15,10 @@ class Roster {
     const metricStart = moment();
     this.shifts = params.shifts;
     this.employees = params.employees;
+    this.employeesList = Object.keys(this.employees).map(key => this.employees[key]);
     this.setShiftsByDays();
-    Object.keys(this.employees).forEach(key => this.employees[key].setAvailableForShifts(this.shifts));
-    Object.keys(this.employees).forEach(key => this.employees[key].setMinutesWorkedInRoster(this.shiftsByDays));
+    this.shifts.forEach(shift => shift.initialise(this.employeesList));
+    this.employeesList.forEach(employee => employee.setMinutesWorkedInRoster(this.shiftsByDays));
     logger.info(`construct roster time taken: ${moment().diff(metricStart)}`);
   }
 
@@ -63,10 +64,6 @@ class Roster {
     }
 
     return value;
-  }
-
-  employeeList() {
-    return Object.keys(this.employees).map(key => this.employees[key]);
   }
 }
 
