@@ -4,6 +4,7 @@ class ShiftAllocation {
     this.employee = employee;
     this.warningsList = warningsList || [];
     this.score = 0;
+    this.name = employee ? employee.name : 'None Found';
   }
 }
 

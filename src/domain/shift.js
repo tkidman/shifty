@@ -40,11 +40,10 @@ class Shift {
   }
 
   fill() {
-    const bestAllocation = this.findBestShiftAllocation();
-    if (bestAllocation) {
+    // check for manual allocation
+    if (!this.shiftAllocation) {
+      const bestAllocation = this.findBestShiftAllocation();
       this.allocateShift(bestAllocation);
-    } else {
-      logger.info(`unable to find employee for shift: ${this}`);
     }
   }
 
@@ -65,7 +64,8 @@ class Shift {
       }
       return bestPotentialAllocation;
     }
-    return null;
+    logger.info(`unable to find employee for shift: ${this}`);
+    return new ShiftAllocation(this, null, [warnings.nobodyFound()]);
   }
 
   getSortedPotentialShiftAllocations() {
@@ -76,8 +76,10 @@ class Shift {
 
   allocateShift(bestAllocation) {
     this.shiftAllocation = bestAllocation;
-    bestAllocation.employee.allocateToShift(bestAllocation);
-    this.availableEmployees.splice(this.availableEmployees.indexOf(bestAllocation.employee), 1);
+    if (this.shiftAllocation.employee) {
+      this.shiftAllocation.employee.allocateToShift(bestAllocation);
+      this.availableEmployees.splice(this.availableEmployees.indexOf(bestAllocation.employee), 1);
+    }
   }
 
   getPotentialShiftAllocation(employee) {
@@ -168,12 +170,13 @@ class Shift {
 
   worseAllocationsDisplayList() {
     return this.getSortedPotentialShiftAllocations()
-      .filter(shiftAllocation => shiftAllocation.employee !== this.shiftAllocation.employee)
+      .filter(worseShiftAllocation => worseShiftAllocation.employee !== this.shiftAllocation.employee)
       .map(allocation => `${allocation.employee.name} (${allocation.warningsList.join(', ')})`);
   }
 
   initialise(allEmployees) {
     allEmployees.forEach(employee => {
+      // remember manual assignments
       if (employee.worksDuringShift(this) && (!this.shiftAllocation || employee !== this.shiftAllocation.employee)) {
         if (employee.onLeaveDuringShift(this)) {
           this.onLeaveEmployees.push(employee);

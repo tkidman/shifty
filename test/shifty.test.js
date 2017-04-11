@@ -28,11 +28,12 @@ describe('Shifty', () => {
 
       const firstShiftStart = adjustTimezoneOffset(new Date('2017-02-06T08:00:00'));
       const firstShiftEnd = adjustTimezoneOffset(new Date('2017-02-06T09:00:00'));
-      expect(roster.shifts[0].shiftAllocation.employee.name).to.eql('Edwina');
+      expect(roster.shifts[0].shiftAllocation.name).to.eql('Edwina');
       expect(roster.shifts[0].start).to.eql(firstShiftStart);
       expect(roster.shifts[0].end).to.eql(firstShiftEnd);
       expect(roster.shifts[0].label).to.eql('Carlton Swap');
       expect(roster.shifts[1].label).to.be.null;
+      expect(roster.shifts[2].shiftAllocation.name).to.be.equal('None Found');
       expect(roster.shiftsByDays[0].header).to.be.eql('Monday, 6th February 2017 - Pay Week');
 
       expect(edwina.hoursByDayOfWeek.payweek.Mon.start.getHours()).to.eql(8);
