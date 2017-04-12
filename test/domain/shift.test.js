@@ -11,6 +11,7 @@ const adjustTimezoneOffset = require('../../src/common').adjustTimezoneOffset;
 
 describe('Shift', () => {
   let employee;
+  let employee2;
   // 1 hour shift
   let standardShift;
   // 4 hour shift
@@ -50,6 +51,7 @@ describe('Shift', () => {
     employee.idealMinMinutes = 300;
     employee.idealMaxMinutes = 600;
     employee.markAsAvailableForShift(standardShift);
+    employee2 = new Employee({ name: 'ompy', hewLevel: hewLevels.hewLevel5, hoursByDayOfWeek, shiftTypes: standardShiftTypes });
   });
 
   context('scoreEmployee', () => {
@@ -309,6 +311,36 @@ describe('Shift', () => {
       expect(aalShift1.onLeaveEmployees).to.eql([onLeaveEmployee]);
       expect(aalShift1.negEmployees).to.eql([negEmployee]);
       expect(aalShift1.workingShiftAtSameTimeEmployees).to.eql([sameTimeEmployee]);
+    });
+  });
+
+  context('employeeNames', () => {
+    it('produces a nicely formatted string of employee names', () => {
+      expect(standardShift.employeeNames([employee, employee2])).to.eql('empy, ompy');
+      expect(standardShift.employeeNames([employee])).to.eql('empy');
+      expect(standardShift.employeeNames([])).to.eql('');
+    });
+  });
+
+  context('worseAllocationsDisplayList', () => {
+    const employeeMessage = 'empy (warning the first, warning the second)';
+    const employee2Message = 'ompy (warning the first)';
+
+    beforeEach(() => {
+      standardShift.getSortedPotentialShiftAllocations = () => ([
+        new ShiftAllocation(standardShift, employee, ['warning the first', 'warning the second']),
+        new ShiftAllocation(standardShift, employee2, ['warning the first']),
+      ]);
+      standardShift.shiftAllocation = new ShiftAllocation(standardShift);
+    });
+
+    it('produces a list of nicely formatted worse allocations', () => {
+      expect(standardShift.worseAllocationsDisplayList()).to.eql([employeeMessage, employee2Message]);
+    });
+
+    it('does not include actual allocation in the list', () => {
+      standardShift.shiftAllocation.employee = employee;
+      expect(standardShift.worseAllocationsDisplayList()).to.eql([employee2Message]);
     });
   });
 });

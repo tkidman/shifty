@@ -48,7 +48,6 @@ are to the ideal desk hour percentages defined by the hew level of the staff mem
 * Shifty tries to distribute AAL shifts evenly by increasing the score for each AAL shift worked.
  
 ## TODO:
- * no warnings for backup shifts? Maybe we should keep the warnings ...
  * shifty legacy - parse input by column names instead of indexes.
  * shifty generified - allow configuration of shift types & percentages
  * shifty UI - create a UI for managing staff/shifts/negs/leave
