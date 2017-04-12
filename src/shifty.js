@@ -9,24 +9,33 @@ const logger = require('./common').logger;
 const moment = require('moment');
 const isNullOrWhitespace = require('./common').isNullOrWhitespace;
 
-const staffColumns = {
-  name: 1,
-  hewLevel: 2,
-  aal: 3,
-  startMondayPayweek: 4,
-  startMondayNonPayweek: 14,
-  endFridayNonPayweek: 23,
-  slc: 24,
-  reference: 25,
-  standard: 26,
+const columnIndiciesLegacy = {
+  staffColumns: {
+    name: 1,
+    hewLevel: 2,
+    aal: 3,
+    startMondayPayweek: 4,
+    startMondayNonPayweek: 14,
+    endFridayNonPayweek: 23,
+    slc: 24,
+    reference: 25,
+    standard: 26,
+  },
+  shiftColumns: { day: 1, start: 2, end: 3, type: 4, manualName: 5, label: 6 },
+  negsColumns: { name: 1, day: 2, start: 3, end: 4 },
+  leaveColumns: { name: 1, firstDay: 2, lastDay: 3 },
 };
 
-const shiftColumns = { day: 1, start: 2, end: 3, type: 4, manualName: 5, label: 6 };
-const negsColumns = { name: 1, day: 2, start: 3, end: 4 };
-const leaveColumns = { name: 1, firstDay: 2, lastDay: 3 };
 const worksheets = { shifts: 1, staff: 2, negs: 3, leave: 4 };
 
 const daysByColumn = { 4: 'Mon', 6: 'Tue', 8: 'Wed', 10: 'Thu', 12: 'Fri' };
+
+const loadColumnIndicies = (workbook, legacy) => {
+  if (legacy) {
+    return columnIndiciesLegacy;
+  }
+  return null;
+};
 
 const addTime = (day, time) => {
   const dateTime = new Date(day);
@@ -56,7 +65,7 @@ const tryLoadBoolean = (paramName, cell, errors, allStaff, parseFunction, return
   return tryLoadParamValue({}, paramName, cell, errors, allStaff, parseFunction)[paramName];
 };
 
-const loadStaffHoursByDayOfWeek = (row, errors, allStaff) => {
+const loadStaffHoursByDayOfWeek = (row, errors, allStaff, staffColumns) => {
   const hoursByDayOfWeek = { payweek: {}, nonPayweek: {} };
   for (let i = staffColumns.startMondayPayweek; i <= staffColumns.endFridayNonPayweek; i += 2) {
     if (!isNullOrWhitespace(row.getCell(i).value)) {
@@ -74,10 +83,12 @@ const loadStaffHoursByDayOfWeek = (row, errors, allStaff) => {
   return hoursByDayOfWeek;
 };
 
-const loadStaff = (workbook, errors) => {
+const loadStaff = (workbook, errors, columnIndicies) => {
   const metricStart = moment();
   const staffSheet = workbook.getWorksheet(worksheets.staff);
   const allStaff = {};
+  const staffColumns = columnIndicies.staffColumns;
+
   staffSheet.eachRow((row, rowNumber) => {
     const staffParams = { shiftTypes: [shiftTypes.backup] };
     if (rowNumber > 1) {
@@ -100,7 +111,7 @@ const loadStaff = (workbook, errors) => {
         staffParams.shiftTypes.push(shiftTypes.standard);
       }
 
-      staffParams.hoursByDayOfWeek = loadStaffHoursByDayOfWeek(row, errors, allStaff);
+      staffParams.hoursByDayOfWeek = loadStaffHoursByDayOfWeek(row, errors, allStaff, staffColumns);
       allStaff[staffParams.name] = new Employee(staffParams);
     }
   });
@@ -108,9 +119,10 @@ const loadStaff = (workbook, errors) => {
   return allStaff;
 };
 
-const loadShifts = (workbook, allStaff, errors) => {
+const loadShifts = (workbook, allStaff, errors, columnIndicies) => {
   const metricStart = moment();
   const shiftsSheet = workbook.getWorksheet(worksheets.shifts);
+  const shiftColumns = columnIndicies.shiftColumns;
   const shifts = [];
   let day;
   shiftsSheet.eachRow((row, rowNumber) => {
@@ -139,9 +151,11 @@ const loadShifts = (workbook, allStaff, errors) => {
   return shifts;
 };
 
-const loadNegs = (workbook, allStaff, errors) => {
+const loadNegs = (workbook, allStaff, errors, columnIndicies) => {
   const metricStart = moment();
   const negsSheet = workbook.getWorksheet(worksheets.negs);
+  const negsColumns = columnIndicies.negsColumns;
+
   negsSheet.eachRow((row, rowNumber) => {
     if (rowNumber > 1) {
       const name = tryLoadValue('name', row.getCell(negsColumns.name), errors, allStaff, parsers.nameParser);
@@ -156,9 +170,10 @@ const loadNegs = (workbook, allStaff, errors) => {
   logger.info(`loadNegs time taken: ${moment().diff(metricStart)}`);
 };
 
-const loadLeave = (workbook, allStaff, errors) => {
+const loadLeave = (workbook, allStaff, errors, columnIndicies) => {
   const metricStart = moment();
   const leaveSheet = workbook.getWorksheet(worksheets.leave);
+  const leaveColumns = columnIndicies.leaveColumns;
   leaveSheet.eachRow((row, rowNumber) => {
     if (rowNumber > 1) {
       const name = tryLoadValue('name', row.getCell(leaveColumns.name), errors, allStaff, parsers.nameParser);
@@ -181,10 +196,11 @@ const loadLeave = (workbook, allStaff, errors) => {
 const doRun = (workbook) => {
   const metricStart = moment();
   const errors = [];
-  const allStaff = loadStaff(workbook, errors);
-  loadNegs(workbook, allStaff, errors);
-  loadLeave(workbook, allStaff, errors);
-  const shifts = loadShifts(workbook, allStaff, errors);
+  const columnIndicies = loadColumnIndicies(workbook, true);
+  const allStaff = loadStaff(workbook, errors, columnIndicies);
+  loadNegs(workbook, allStaff, errors, columnIndicies);
+  loadLeave(workbook, allStaff, errors, columnIndicies);
+  const shifts = loadShifts(workbook, allStaff, errors, columnIndicies);
   if (errors.length > 0) {
     logger.info(`Errors found in spreadsheet: ${errors.join('\n')}`);
     return { errors };
