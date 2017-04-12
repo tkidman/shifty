@@ -76,6 +76,10 @@ describe('Employee', () => {
     it('removes the same time shift from the employee\'s available shifts', () => {
       expect(employee.availableForShifts.includes(sameTimeShift)).to.be.false;
     });
+
+    it('adds the employee to the same time shift\'s list of employees working at the same time', () => {
+      expect(sameTimeShift.workingShiftAtSameTimeEmployees.includes(employee)).to.be.true;
+    });
   });
 
   context('currentMinutesAllocated', () => {
