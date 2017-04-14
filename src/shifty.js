@@ -8,34 +8,11 @@ const parsers = require('./cell-parsers');
 const logger = require('./common').logger;
 const moment = require('moment');
 const isNullOrWhitespace = require('./common').isNullOrWhitespace;
+const loadColumnIndicies = require('./column-indicies').loadColumnIndicies;
+const hoursForDaysKeys = require('./column-indicies').hoursForDaysKeys;
 
-const columnIndiciesLegacy = {
-  staffColumns: {
-    name: 1,
-    hewLevel: 2,
-    aal: 3,
-    startMondayPayweek: 4,
-    startMondayNonPayweek: 14,
-    endFridayNonPayweek: 23,
-    slc: 24,
-    reference: 25,
-    standard: 26,
-  },
-  shiftColumns: { day: 1, start: 2, end: 3, type: 4, manualName: 5, label: 6 },
-  negsColumns: { name: 1, day: 2, start: 3, end: 4 },
-  leaveColumns: { name: 1, firstDay: 2, lastDay: 3 },
-};
 
 const worksheets = { shifts: 1, staff: 2, negs: 3, leave: 4 };
-
-const daysByColumn = { 4: 'Mon', 6: 'Tue', 8: 'Wed', 10: 'Thu', 12: 'Fri' };
-
-const loadColumnIndicies = (workbook, legacy) => {
-  if (legacy) {
-    return columnIndiciesLegacy;
-  }
-  return null;
-};
 
 const addTime = (day, time) => {
   const dateTime = new Date(day);
@@ -67,19 +44,21 @@ const tryLoadBoolean = (paramName, cell, errors, allStaff, parseFunction, return
 
 const loadStaffHoursByDayOfWeek = (row, errors, allStaff, staffColumns) => {
   const hoursByDayOfWeek = { payweek: {}, nonPayweek: {} };
-  for (let i = staffColumns.startMondayPayweek; i <= staffColumns.endFridayNonPayweek; i += 2) {
-    if (!isNullOrWhitespace(row.getCell(i).value)) {
-      const startIndex = i;
-      const endIndex = i + 1;
+
+  hoursForDaysKeys.forEach(key => {
+    const startIndex = staffColumns[key.start];
+    const endIndex = staffColumns[key.end];
+    const day = key.start.slice(0, 3);
+    if (startIndex && !isNullOrWhitespace(row.getCell(startIndex).value)) {
       const start = tryLoadValue('start', row.getCell(startIndex), errors, allStaff, parsers.dateParser);
       const end = tryLoadValue('end', row.getCell(endIndex), errors, allStaff, parsers.dateParser);
-      if (endIndex < staffColumns.startMondayNonPayweek) {
-        hoursByDayOfWeek.payweek[daysByColumn[startIndex]] = { start, end };
+      if (key.start[key.start.length - 1] === 'P') {
+        hoursByDayOfWeek.payweek[day] = { start, end };
       } else {
-        hoursByDayOfWeek.nonPayweek[daysByColumn[i - 10]] = { start, end };
+        hoursByDayOfWeek.nonPayweek[day] = { start, end };
       }
     }
-  }
+  });
   return hoursByDayOfWeek;
 };
 
