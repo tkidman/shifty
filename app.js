@@ -35,7 +35,7 @@ app.post('/run', (req, res) => {
     fstream = fs.createWriteStream(fullFilename);
     file.pipe(fstream);
     fstream.on('close', () => {
-      shifty.run(fullFilename).then((runResult) => {
+      shifty.run(fullFilename, true).then((runResult) => {
         res.render('index', runResult);
       });
     });

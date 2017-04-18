@@ -1,14 +1,16 @@
+const _ = require('lodash');
+
 const columnIndiciesLegacy = {
   staffColumns: {
     name: 1,
-    hewLevel: 2,
+    hew: 2,
     aal: 3,
     slc: 24,
     reference: 25,
     standard: 26,
   },
-  shiftColumns: { day: 1, start: 2, end: 3, type: 4, manualName: 5, label: 6 },
-  negsColumns: { name: 1, day: 2, start: 3, end: 4 },
+  shiftColumns: { date: 1, startTime: 2, endTime: 3, shiftType: 4, manualName: 5, label: 6 },
+  negsColumns: { name: 1, date: 2, startTime: 3, endTime: 4 },
   leaveColumns: { name: 1, firstDay: 2, lastDay: 3 },
 };
 
@@ -35,11 +37,33 @@ const generateAllHoursForDaysKeys = () => generateHoursForDaysKeys('P').concat(g
 
 const hoursForDaysKeys = generateAllHoursForDaysKeys();
 
-const loadColumnIndicies = (workbook, legacy) => {
-  if (legacy) {
+const loadColumnNamesToIndicies = sheet => {
+  const columnsNamesToIndicies = {};
+  sheet.getRow(1).eachCell((cell, columnNumber) => {
+    if (cell.value) {
+      columnsNamesToIndicies[cell.value.replace(/\s+/g, '').toUpperCase()] = columnNumber;
+    }
+  });
+  return columnsNamesToIndicies;
+};
+
+const loadIndicies = (sheet, columns) => {
+  const columnNamesToIndicies = loadColumnNamesToIndicies(sheet);
+  Object.keys(columns).forEach(key => {
+    columns[key] = columnNamesToIndicies[key.toUpperCase()];
+  });
+};
+
+const loadColumnIndicies = (workbook, legacyMode) => {
+  if (legacyMode) {
     return columnIndiciesLegacy;
   }
-  return null;
+  const columnIndicies = _.cloneDeep(columnIndiciesLegacy);
+  loadIndicies(workbook.getWorksheet('Staff'), columnIndicies.staffColumns);
+  loadIndicies(workbook.getWorksheet('Shifts'), columnIndicies.shiftColumns);
+  loadIndicies(workbook.getWorksheet('Negs'), columnIndicies.negsColumns);
+  loadIndicies(workbook.getWorksheet('Leave'), columnIndicies.leaveColumns);
+  return columnIndicies;
 };
 
 module.exports = { loadColumnIndicies, hoursForDaysKeys };
