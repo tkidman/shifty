@@ -74,8 +74,9 @@ const loadStaff = (workbook, errors, columnIndicies) => {
       staffParams.name = row.getCell(staffColumns.name).value;
 
       tryLoadParamValue(
-        staffParams, 'hewLevel', row.getCell(staffColumns.hewLevel), errors, allStaff, parsers.hewLevelParser
+        staffParams, 'hew', row.getCell(staffColumns.hew), errors, allStaff, parsers.hewLevelParser
       );
+      staffParams.hewLevel = staffParams.hew;
 
       if (tryLoadBoolean('aal', row.getCell(staffColumns.aal), errors, allStaff, parsers.trueFalseParser, false)) {
         staffParams.shiftTypes.push(shiftTypes.aal);
@@ -106,14 +107,14 @@ const loadShifts = (workbook, allStaff, errors, columnIndicies) => {
   let day;
   shiftsSheet.eachRow((row, rowNumber) => {
     if (rowNumber > 1) {
-      if (!isNullOrWhitespace(row.getCell(shiftColumns.day).value)) {
-        day = tryLoadValue('day', row.getCell(shiftColumns.day), errors, allStaff, parsers.dateParser);
+      if (!isNullOrWhitespace(row.getCell(shiftColumns.date).value)) {
+        day = tryLoadValue('date', row.getCell(shiftColumns.date), errors, allStaff, parsers.dateParser);
       }
-      const startTime = tryLoadValue('startTime', row.getCell(shiftColumns.start), errors, allStaff, parsers.dateParser);
-      const endTime = tryLoadValue('endTime', row.getCell(shiftColumns.end), errors, allStaff, parsers.dateParser);
+      const startTime = tryLoadValue('startTime', row.getCell(shiftColumns.startTime), errors, allStaff, parsers.dateParser);
+      const endTime = tryLoadValue('endTime', row.getCell(shiftColumns.endTime), errors, allStaff, parsers.dateParser);
       const start = addTime(day, startTime);
       const end = addTime(day, endTime);
-      const type = tryLoadValue('shiftType', row.getCell(shiftColumns.type), errors, allStaff, parsers.shiftTypeParser);
+      const type = tryLoadValue('shiftType', row.getCell(shiftColumns.shiftType), errors, allStaff, parsers.shiftTypeParser);
       const label = row.getCell(shiftColumns.label).value;
       const shift = new Shift({ type, start, end, label });
       const manualNameCell = row.getCell(shiftColumns.manualName);
@@ -138,9 +139,9 @@ const loadNegs = (workbook, allStaff, errors, columnIndicies) => {
   negsSheet.eachRow((row, rowNumber) => {
     if (rowNumber > 1) {
       const name = tryLoadValue('name', row.getCell(negsColumns.name), errors, allStaff, parsers.nameParser);
-      const day = tryLoadValue('day', row.getCell(negsColumns.day), errors, allStaff, parsers.dateParser);
-      const startTime = tryLoadValue('startTime', row.getCell(negsColumns.start), errors, allStaff, parsers.dateParser);
-      const endTime = tryLoadValue('endTime', row.getCell(negsColumns.end), errors, allStaff, parsers.dateParser);
+      const day = tryLoadValue('date', row.getCell(negsColumns.date), errors, allStaff, parsers.dateParser);
+      const startTime = tryLoadValue('startTime', row.getCell(negsColumns.startTime), errors, allStaff, parsers.dateParser);
+      const endTime = tryLoadValue('endTime', row.getCell(negsColumns.endTime), errors, allStaff, parsers.dateParser);
       const start = addTime(day, startTime);
       const end = addTime(day, endTime);
       allStaff[name].negs.push({ start, end });
@@ -172,10 +173,10 @@ const loadLeave = (workbook, allStaff, errors, columnIndicies) => {
   logger.info(`loadLeave time taken: ${moment().diff(metricStart)}`);
 };
 
-const doRun = (workbook) => {
+const doRun = (workbook, legacyMode) => {
   const metricStart = moment();
   const errors = [];
-  const columnIndicies = loadColumnIndicies(workbook, true);
+  const columnIndicies = loadColumnIndicies(workbook, legacyMode);
   const allStaff = loadStaff(workbook, errors, columnIndicies);
   loadNegs(workbook, allStaff, errors, columnIndicies);
   loadLeave(workbook, allStaff, errors, columnIndicies);
@@ -190,14 +191,14 @@ const doRun = (workbook) => {
   return { roster };
 };
 
-const run = (fullFilename) => {
+const run = (fullFilename, legacyMode) => {
   const metricStart = moment();
   const workbook = new Excel.Workbook();
   logger.info('about to load workbork');
   return workbook.xlsx.readFile(fullFilename)
     .then(() => {
       logger.info(`time taken to load workbook: ${moment().diff(metricStart)}`);
-      return doRun(workbook);
+      return doRun(workbook, legacyMode);
     })
     .catch((err) => {
       logger.error(err);
