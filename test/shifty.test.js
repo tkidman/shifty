@@ -10,6 +10,7 @@ const _ = require('lodash');
 
 describe('Shifty', () => {
   let roster;
+  let errors;
 
   const runTests = () => {
     const edwina = roster.employees.Edwina;
@@ -68,23 +69,33 @@ describe('Shifty', () => {
     expect(rowena.leave[0]).to.eql(expectedRowenaLeave);
   };
 
-  const loadRoster = (legacy) =>
-    shifty.run('./data/shifty.xlsx', legacy).then((runResult) => {
+  const loadRoster = (legacy, path) =>
+    shifty.run(path, legacy).then((runResult) => {
       roster = runResult.roster;
-      return roster;
+      errors = runResult.errors;
     });
 
   context('runs legacy', () => {
-    beforeEach(() => loadRoster(true));
+    beforeEach(() => loadRoster(true, './data/shifty.xlsx'));
     it('parses data from a legacy spreadsheet', () => {
       runTests();
     });
   });
 
   context('runs non legacy', () => {
-    beforeEach(() => loadRoster());
+    beforeEach(() => loadRoster(false, './data/shifty.xlsx'));
     it('parses data from a spreadsheet', () => {
       runTests();
+    });
+  });
+
+  context('runs broken', () => {
+    beforeEach(() => loadRoster(false, './data/shifty_broken.xlsx'));
+    it('generates errors when columns are invalid', () => {
+      expect(errors).to.eql([
+        'Unexpected column named \'Wrong\' found in sheet \'Staff\'',
+        'Unexpected column named \'Names\' found in sheet \'Leave\'',
+      ]);
     });
   });
 });
