@@ -1,6 +1,6 @@
 const moment = require('moment');
 const logger = require('winston');
-logger.level = 'info';
+logger.level = 'debug';
 const numeral = require('numeral');
 
 const common = {

@@ -1,6 +1,7 @@
 const shiftTypesList = require('./domain/shift-type').shiftTypesList;
 const hewLevels = require('./domain/hew-level');
 const adjustTimezoneOffset = require('./common').adjustTimezoneOffset;
+const logger = require('./common').logger;
 
 const hewLevelsByNumber = {
   3: hewLevels.hewLevel3,
@@ -38,6 +39,7 @@ const parsers = {
   trueFalseParser: (cell) => {
     const value = tryTrimValue(cell);
     if (value) {
+      logger.debug(`trueFalse value: ${value}`);
       if (['Y', 'YES', 'TRUE'].some(yes => yes === value.toUpperCase())) {
         return { value: true };
       } else if (['N', 'NO', 'FALSE'].some(no => no === value.toUpperCase())) {

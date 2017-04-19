@@ -35,19 +35,26 @@ const tryLoadParamValue = (params, paramName, cell, errors, allStaff, parseFunct
 const tryLoadValue = (paramName, cell, errors, allStaff, parseFunction) =>
   tryLoadParamValue({}, paramName, cell, errors, allStaff, parseFunction)[paramName];
 
-const tryLoadBoolean = (paramName, cell, errors, allStaff, parseFunction, returnThisIfNull) => {
-  if (isNullOrWhitespace(cell.value) && returnThisIfNull !== undefined) {
+const tryLoadBoolean = (paramName, columnIndex, errors, allStaff, parseFunction, returnThisIfNull, row) => {
+  if (!columnIndex.index) {
     return returnThisIfNull;
   }
+  const cell = row.getCell(columnIndex.index);
+  if (isNullOrWhitespace(cell.value)) {
+    return returnThisIfNull;
+  }
+
   return tryLoadParamValue({}, paramName, cell, errors, allStaff, parseFunction)[paramName];
 };
+
+const extractIndex = columnIndex => (columnIndex ? columnIndex.index : null);
 
 const loadStaffHoursByDayOfWeek = (row, errors, allStaff, staffColumns) => {
   const hoursByDayOfWeek = { payweek: {}, nonPayweek: {} };
 
   hoursForDaysKeys.forEach(key => {
-    const startIndex = staffColumns[key.start];
-    const endIndex = staffColumns[key.end];
+    const startIndex = extractIndex(staffColumns[key.start]);
+    const endIndex = extractIndex(staffColumns[key.end]);
     const day = key.start.slice(0, 3);
     if (startIndex && !isNullOrWhitespace(row.getCell(startIndex).value)) {
       const start = tryLoadValue('start', row.getCell(startIndex), errors, allStaff, parsers.dateParser);
@@ -71,23 +78,22 @@ const loadStaff = (workbook, errors, columnIndicies) => {
   staffSheet.eachRow((row, rowNumber) => {
     const staffParams = { shiftTypes: [shiftTypes.backup] };
     if (rowNumber > 1) {
-      staffParams.name = row.getCell(staffColumns.name).value;
+      staffParams.name = row.getCell(staffColumns.name.index).value;
 
       tryLoadParamValue(
-        staffParams, 'hew', row.getCell(staffColumns.hew), errors, allStaff, parsers.hewLevelParser
+        staffParams, 'hewLevel', row.getCell(staffColumns.hew.index), errors, allStaff, parsers.hewLevelParser
       );
-      staffParams.hewLevel = staffParams.hew;
 
-      if (tryLoadBoolean('aal', row.getCell(staffColumns.aal), errors, allStaff, parsers.trueFalseParser, false)) {
+      if (tryLoadBoolean('aal', staffColumns.aal, errors, allStaff, parsers.trueFalseParser, false, row)) {
         staffParams.shiftTypes.push(shiftTypes.aal);
       }
-      if (tryLoadBoolean('slc', row.getCell(staffColumns.slc), errors, allStaff, parsers.trueFalseParser, false)) {
+      if (tryLoadBoolean('slc', staffColumns.slc, errors, allStaff, parsers.trueFalseParser, false, row)) {
         staffParams.shiftTypes.push(shiftTypes.slc);
       }
-      if (tryLoadBoolean('reference', row.getCell(staffColumns.reference), errors, allStaff, parsers.trueFalseParser, false)) {
+      if (tryLoadBoolean('reference', staffColumns.reference, errors, allStaff, parsers.trueFalseParser, false, row)) {
         staffParams.shiftTypes.push(shiftTypes.reference);
       }
-      if (tryLoadBoolean('standard', row.getCell(staffColumns.standard), errors, allStaff, parsers.trueFalseParser, true)) {
+      if (tryLoadBoolean('standard', staffColumns.standard, errors, allStaff, parsers.trueFalseParser, true, row)) {
         staffParams.shiftTypes.push(shiftTypes.standard);
       }
 
@@ -107,18 +113,24 @@ const loadShifts = (workbook, allStaff, errors, columnIndicies) => {
   let day;
   shiftsSheet.eachRow((row, rowNumber) => {
     if (rowNumber > 1) {
-      if (!isNullOrWhitespace(row.getCell(shiftColumns.date).value)) {
-        day = tryLoadValue('date', row.getCell(shiftColumns.date), errors, allStaff, parsers.dateParser);
+      if (!isNullOrWhitespace(row.getCell(shiftColumns.date.index).value)) {
+        day = tryLoadValue('date', row.getCell(shiftColumns.date.index), errors, allStaff, parsers.dateParser);
       }
-      const startTime = tryLoadValue('startTime', row.getCell(shiftColumns.startTime), errors, allStaff, parsers.dateParser);
-      const endTime = tryLoadValue('endTime', row.getCell(shiftColumns.endTime), errors, allStaff, parsers.dateParser);
+      const startTime = tryLoadValue('startTime', row.getCell(shiftColumns.startTime.index), errors, allStaff, parsers.dateParser);
+      const endTime = tryLoadValue('endTime', row.getCell(shiftColumns.endTime.index), errors, allStaff, parsers.dateParser);
       const start = addTime(day, startTime);
       const end = addTime(day, endTime);
-      const type = tryLoadValue('shiftType', row.getCell(shiftColumns.shiftType), errors, allStaff, parsers.shiftTypeParser);
-      const label = row.getCell(shiftColumns.label).value;
+      const type = tryLoadValue('shiftType', row.getCell(shiftColumns.shiftType.index), errors, allStaff, parsers.shiftTypeParser);
+      let label;
+      if (shiftColumns.label.index) {
+        label = row.getCell(shiftColumns.label.index).value;
+      }
       const shift = new Shift({ type, start, end, label });
-      const manualNameCell = row.getCell(shiftColumns.manualName);
-      if (!isNullOrWhitespace(manualNameCell.value)) {
+      let manualNameCell;
+      if (shiftColumns.manualName.index) {
+        manualNameCell = row.getCell(shiftColumns.manualName.index);
+      }
+      if (manualNameCell && !isNullOrWhitespace(manualNameCell.value)) {
         const name = tryLoadValue('manualName', manualNameCell, errors, allStaff, parsers.nameParser);
         if (name) {
           shift.allocateShift(new ShiftAllocation(shift, allStaff[name]));
@@ -138,10 +150,10 @@ const loadNegs = (workbook, allStaff, errors, columnIndicies) => {
 
   negsSheet.eachRow((row, rowNumber) => {
     if (rowNumber > 1) {
-      const name = tryLoadValue('name', row.getCell(negsColumns.name), errors, allStaff, parsers.nameParser);
-      const day = tryLoadValue('date', row.getCell(negsColumns.date), errors, allStaff, parsers.dateParser);
-      const startTime = tryLoadValue('startTime', row.getCell(negsColumns.startTime), errors, allStaff, parsers.dateParser);
-      const endTime = tryLoadValue('endTime', row.getCell(negsColumns.endTime), errors, allStaff, parsers.dateParser);
+      const name = tryLoadValue('name', row.getCell(negsColumns.name.index), errors, allStaff, parsers.nameParser);
+      const day = tryLoadValue('date', row.getCell(negsColumns.date.index), errors, allStaff, parsers.dateParser);
+      const startTime = tryLoadValue('startTime', row.getCell(negsColumns.startTime.index), errors, allStaff, parsers.dateParser);
+      const endTime = tryLoadValue('endTime', row.getCell(negsColumns.endTime.index), errors, allStaff, parsers.dateParser);
       const start = addTime(day, startTime);
       const end = addTime(day, endTime);
       allStaff[name].negs.push({ start, end });
@@ -156,12 +168,12 @@ const loadLeave = (workbook, allStaff, errors, columnIndicies) => {
   const leaveColumns = columnIndicies.leaveColumns;
   leaveSheet.eachRow((row, rowNumber) => {
     if (rowNumber > 1) {
-      const name = tryLoadValue('name', row.getCell(leaveColumns.name), errors, allStaff, parsers.nameParser);
-      const firstDay = tryLoadValue('firstDay', row.getCell(leaveColumns.firstDay), errors, allStaff, parsers.dateParser);
+      const name = tryLoadValue('name', row.getCell(leaveColumns.name.index), errors, allStaff, parsers.nameParser);
+      const firstDay = tryLoadValue('firstDay', row.getCell(leaveColumns.firstDay.index), errors, allStaff, parsers.dateParser);
       if (firstDay && name) {
         const leave = { start: moment(firstDay).startOf('day').toDate() };
-        if (!isNullOrWhitespace(row.getCell(leaveColumns.lastDay).value)) {
-          const lastDay = tryLoadValue('lastDay', row.getCell(leaveColumns.lastDay), errors, allStaff, parsers.dateParser);
+        if (!isNullOrWhitespace(row.getCell(leaveColumns.lastDay.index).value)) {
+          const lastDay = tryLoadValue('lastDay', row.getCell(leaveColumns.lastDay.index), errors, allStaff, parsers.dateParser);
           leave.end = moment(lastDay).endOf('day').toDate();
         } else {
           leave.end = moment(firstDay).endOf('day').toDate();
@@ -176,15 +188,23 @@ const loadLeave = (workbook, allStaff, errors, columnIndicies) => {
 const doRun = (workbook, legacyMode) => {
   const metricStart = moment();
   const errors = [];
-  const columnIndicies = loadColumnIndicies(workbook, legacyMode);
-  const allStaff = loadStaff(workbook, errors, columnIndicies);
-  loadNegs(workbook, allStaff, errors, columnIndicies);
-  loadLeave(workbook, allStaff, errors, columnIndicies);
-  const shifts = loadShifts(workbook, allStaff, errors, columnIndicies);
+  const columnIndicies = loadColumnIndicies(workbook, legacyMode, errors);
+
   if (errors.length > 0) {
     logger.info(`Errors found in spreadsheet: ${errors.join('\n')}`);
     return { errors };
   }
+
+  const allStaff = loadStaff(workbook, errors, columnIndicies);
+  loadNegs(workbook, allStaff, errors, columnIndicies);
+  loadLeave(workbook, allStaff, errors, columnIndicies);
+  const shifts = loadShifts(workbook, allStaff, errors, columnIndicies);
+
+  if (errors.length > 0) {
+    logger.info(`Errors found in spreadsheet: ${errors.join('\n')}`);
+    return { errors };
+  }
+
   const roster = new Roster({ shifts, employees: allStaff });
   roster.fillShifts();
   logger.info(`doRun time taken: ${moment().diff(metricStart)}`);
