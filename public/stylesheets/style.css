@@ -82,14 +82,14 @@ div.tab button.active {
 .tooltip {
   position: relative;
   display: inline-block;
-  color: darkred;
-  border-bottom: 1px dotted darkred; /* If you want dots under the hoverable text */
+  color: green;
+  border-bottom: 1px dotted green; /* If you want dots under the hoverable text */
 }
 
 /* Tooltip text */
 .tooltip .tooltiptext {
   visibility: hidden;
-  width: 700px;
+  width: 800px;
   background-color: black;
   color: #fff;
   text-align: left;
@@ -109,4 +109,9 @@ div.tab button.active {
 .error {
   color: darkred;
   font-weight: bold;
+}
+
+.tooltip-error {
+  color: darkred;
+  border-bottom: 1px dotted darkred;
 }

@@ -171,7 +171,12 @@ class Shift {
   worseAllocationsDisplayList() {
     return this.getSortedPotentialShiftAllocations()
       .filter(worseShiftAllocation => worseShiftAllocation.employee !== this.shiftAllocation.employee)
-      .map(allocation => `${allocation.employee.name} (${allocation.warningsList.join(', ')})`);
+      .map(allocation => {
+        if (allocation.warningsList.length > 0) {
+          return `${allocation.employee.name} (${allocation.warningsList.join(', ')})`;
+        }
+        return allocation.employee.name;
+      });
   }
 
   initialise(allEmployees) {
