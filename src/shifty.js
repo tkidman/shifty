@@ -11,7 +11,6 @@ const isNullOrWhitespace = require('./common').isNullOrWhitespace;
 const loadColumnIndicies = require('./column-indicies').loadColumnIndicies;
 const hoursForDaysKeys = require('./column-indicies').hoursForDaysKeys;
 
-
 const worksheets = { shifts: 1, staff: 2, negs: 3, leave: 4 };
 
 const addTime = (day, time) => {

@@ -5,7 +5,18 @@ block content
     div.pic
       img(src="images/desk.jpg")
     div.blurb
-      h1 Shifty
+      if (legacyMode)
+        h1 Shifty (legacy mode)
+        p Looking for normal mode? Click
+          |
+          |
+          a(href="./") here!
+      else
+        h1 Shifty
+        p Looking for legacy mode? Click
+          |
+          |
+          a(href="./?legacyMode=true") here!
       p Shifty has been updated!
       p Shifty now shows detailed information about all shift allocations.
         |  The tooltip on the staff member's name shows:
@@ -21,7 +32,7 @@ block content
         |  for support!
       a(href="https://github.com/tkidman/shifty" target="_blank") See here for more information
       div.divform
-        form(action="/run", method="post", enctype="multipart/form-data")
+        form(action=legacyMode ? "/run?legacyMode=true" : "/run", method="post", enctype="multipart/form-data")
           input(type="file", name="input")
           input(type="submit", name="submit")
   if roster
