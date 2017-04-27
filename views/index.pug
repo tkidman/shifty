@@ -6,7 +6,8 @@ block content
       img(src="images/desk.jpg")
     div.blurb
       if (legacyMode)
-        h1 Shifty (legacy mode)
+        h1.legacy Shifty
+        h3.legacy (legacy mode - grape flavour)
         p Looking for normal mode? Click
           |
           |
@@ -17,14 +18,11 @@ block content
           |
           |
           a(href="./?legacyMode=true") here!
-      p Shifty has been updated!
-      p Shifty now shows detailed information about all shift allocations.
-        |  The tooltip on the staff member's name shows:
-      ul
-        li Other Staff members who could work the shift, ordered from best match to worst
-        li Staff members who usually work the shift but are on leave
-        li Staff members who usually work the shift but have a neg
-        li Staff members who are working other shifts at the same time
+        p Shifty has been updated! It now uses column names from the spreadsheet to get to the data.
+          |  This means you can now order the columns within a sheet in any order you want, and delete ones that you don't care about.
+          |  Just make sure the column names match what Shifty expects.  See the readme in the link below for a detailed rundown.
+        p There's a chance that older spreadsheets will no longer work.  In that case, you can use Legacy Mode.
+          |  Click the link above to enter Legacy Mode, and your older sheets should work again.
       p Contact
         |
         |

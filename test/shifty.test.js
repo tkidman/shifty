@@ -76,13 +76,13 @@ describe('Shifty', () => {
     });
 
   context('runs legacy', () => {
-    beforeEach(() => loadRoster(true, './data/shifty.xlsx'));
+    beforeEach(() => loadRoster(true, './data/shifty_legacy.xlsx'));
     it('parses data from a legacy spreadsheet', () => {
       runTests();
     });
   });
 
-  context('runs non legacy', () => {
+  context('runs normal', () => {
     beforeEach(() => loadRoster(false, './data/shifty.xlsx'));
     it('parses data from a spreadsheet', () => {
       runTests();

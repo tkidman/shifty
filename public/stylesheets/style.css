@@ -115,3 +115,7 @@ div.tab button.active {
   color: darkred;
   border-bottom: 1px dotted darkred;
 }
+
+.legacy {
+  color: rebeccapurple;
+}
