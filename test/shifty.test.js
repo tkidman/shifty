@@ -6,7 +6,6 @@ const hewLevels = require('../src/domain/hew-level');
 const adjustTimezoneOffset = require('../src/common').adjustTimezoneOffset;
 const shiftTypes = require('../src/domain/shift-type').shiftTypes;
 const shiftTypesList = require('../src/domain/shift-type').shiftTypesList;
-const _ = require('lodash');
 
 describe('Shifty', () => {
   let roster;
@@ -16,9 +15,8 @@ describe('Shifty', () => {
     const edwina = roster.employees.Edwina;
     const rowena = roster.employees.Rowena;
     expect(edwina.hewLevel).to.eql(hewLevels.hewLevel5);
-    expect(_.difference(edwina.shiftTypes, shiftTypesList)).to.eql([]);
-    expect(_.difference(rowena.shiftTypes, [shiftTypes.backup, shiftTypes.responsibleOfficer])).to.eql([]);
-    expect(rowena.shiftTypes.includes(shiftTypes.aal)).to.eql(false);
+    expect(edwina.shiftTypes.sort()).to.eql(shiftTypesList.sort());
+    expect(rowena.shiftTypes.sort()).to.eql([shiftTypes.backup, shiftTypes.responsibleOfficer]);
 
     const firstShiftStart = adjustTimezoneOffset(new Date('2017-02-06T08:00:00'));
     const firstShiftEnd = adjustTimezoneOffset(new Date('2017-02-06T09:00:00'));

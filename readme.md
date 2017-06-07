@@ -52,7 +52,7 @@ are to the ideal desk hour percentages defined by the hew level of the staff mem
 | Date | Yes | Excel Formatted Date | The date of the Shift | 
 | Start Time | Yes | Excel Formatted Time | The start time of the Shift |
 | End Time | Yes | Excel Formatted Time | The end time of the Shift |
-| Shift Type | Yes | One of: Standard, ResponsibleOfficer, AAL, SLC, Reference, Backup  | The type of the Shift |
+| Shift Type | Yes | One of: Standard, ResponsibleOfficer, AAL, SLC, Reference, Backup, BEast | The type of the Shift |
 | Manual Name | No | A name that matches the name of a Staff member on the staff sheet | If a name is provided, Shifty will always assign this staff member to the Shift |
 | Label | No | Text | Shifty will append this label to the Shift in the output.  It doesn't affect rostering logic |
 
@@ -66,6 +66,7 @@ are to the ideal desk hour percentages defined by the hew level of the staff mem
 | SLC | No | One of: Y or N (empty means N) | Should this staff member perform SLC shifts? |
 | Reference | No | One of: Y or N (empty means N) | Can this staff member perform Reference shifts? |
 | Standard | No | One of: Y or N (**empty means Y**) | Can this staff member perform Standard shifts? |
+| BEast | No | One of: Y or N (empty means N) | Can this staff member perform Bundoora East shifts? |
 | Mon Start P | No | Excel Formatted Time | The time the employee starts work on the Monday of a Payweek |
 | Mon End P | No | Excel Formatted Time | The time the employee ends work on the Monday of a Payweek |
 | ... | ... | ... | ... |

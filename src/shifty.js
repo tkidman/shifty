@@ -92,6 +92,9 @@ const loadStaff = (workbook, errors, columnIndicies) => {
       if (tryLoadBoolean('reference', staffColumns.reference, errors, allStaff, parsers.trueFalseParser, false, row)) {
         staffParams.shiftTypes.push(shiftTypes.reference);
       }
+      if (tryLoadBoolean('bEast', staffColumns.bEast, errors, allStaff, parsers.trueFalseParser, false, row)) {
+        staffParams.shiftTypes.push(shiftTypes.bEast);
+      }
       if (tryLoadBoolean('standard', staffColumns.standard, errors, allStaff, parsers.trueFalseParser, true, row)) {
         staffParams.shiftTypes.push(shiftTypes.standard);
       }

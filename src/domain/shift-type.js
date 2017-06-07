@@ -4,6 +4,7 @@ const shiftTypes = {
   aal: 'AAL',
   backup: 'Backup',
   slc: 'SLC',
+  bEast: 'BEast',
   reference: 'Reference',
 };
 

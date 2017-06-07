@@ -18,11 +18,13 @@ block content
           |
           |
           a(href="./?legacyMode=true") here!
-        p Shifty has been updated! It now uses column names from the spreadsheet to get to the data.
-          |  This means you can now order the columns within a sheet in any order you want, and delete ones that you don't care about.
-          |  Just make sure the column names match what Shifty expects.  See the readme in the link below for a detailed rundown.
-        p There's a chance that older spreadsheets will no longer work.  In that case, you can use Legacy Mode.
-          |  Click the link above to enter Legacy Mode, and your older sheets should work again.
+        p A couple of small updates for shifty
+        ul
+          li You can now use formulae on your date columns to save some typing! Say you have the date 19/7/17 in cell A1,
+          |  if in A2 you put '=A1+1', this will make A2 one day after A1 (20/7/17).
+          |  So add formulae to the dates in your shift sheet, and you'll only need to update the first date when it's time to create a new roster.
+          li For our friends in Bundoora we now have the BEast shift type.  BEastly :)
+        b If no one says anything, I'll be removing legacy mode in the next update, so contact Mel if you still need it.
       p Contact
         |
         |
