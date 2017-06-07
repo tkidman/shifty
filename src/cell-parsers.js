@@ -58,8 +58,12 @@ const parsers = {
   },
   dateParser: (cell) => {
     const value = cell.value;
-    if (value && typeof value.getMonth === 'function') {
-      return { value: adjustTimezoneOffset(value) };
+    if (value) {
+      if (typeof value.getMonth === 'function') {
+        return { value: adjustTimezoneOffset(value) };
+      } else if (value.result && typeof value.result.getMonth === 'function') {
+        return { value: adjustTimezoneOffset(value.result) };
+      }
     }
     return { error: `${value} is not a date` };
   },
