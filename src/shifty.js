@@ -156,9 +156,11 @@ const loadNegs = (workbook, allStaff, errors, columnIndicies) => {
       const day = tryLoadValue('date', row.getCell(negsColumns.date.index), errors, allStaff, parsers.dateParser);
       const startTime = tryLoadValue('startTime', row.getCell(negsColumns.startTime.index), errors, allStaff, parsers.dateParser);
       const endTime = tryLoadValue('endTime', row.getCell(negsColumns.endTime.index), errors, allStaff, parsers.dateParser);
-      const start = addTime(day, startTime);
-      const end = addTime(day, endTime);
-      allStaff[name].negs.push({ start, end });
+      if (name && day && startTime && endTime) {
+        const start = addTime(day, startTime);
+        const end = addTime(day, endTime);
+        allStaff[name].negs.push({ start, end });
+      }
     }
   });
   logger.info(`loadNegs time taken: ${moment().diff(metricStart)}`);
