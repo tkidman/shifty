@@ -9,6 +9,7 @@ const columnIndiciesLegacy = {
     reference: { index: 25 },
     standard: { index: 26 },
     bEast: { index: 27 },
+    break: { index: 28 },
   },
   shiftColumns: {
     date: { index: 1, mandatory: true },

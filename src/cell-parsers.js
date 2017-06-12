@@ -2,6 +2,7 @@ const shiftTypesList = require('./domain/shift-type').shiftTypesList;
 const hewLevels = require('./domain/hew-level');
 const adjustTimezoneOffset = require('./common').adjustTimezoneOffset;
 const logger = require('./common').logger;
+const isNullOrWhitespace = require('./common').isNullOrWhitespace;
 
 const hewLevelsByNumber = {
   3: hewLevels.hewLevel3,
@@ -51,7 +52,7 @@ const parsers = {
   },
   numberParser: (cell) => {
     const value = cell.value;
-    if (value && !isNaN(value)) {
+    if (!isNullOrWhitespace(value) && !isNaN(value)) {
       return { value: Number(value) };
     }
     return { error: `${value} is not a number` };

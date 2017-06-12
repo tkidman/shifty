@@ -33,12 +33,32 @@ context('parsers', () => {
     expect(parsers.trueFalseParser({ value: null }).error).to.equal('No value provided');
   });
 
-  it('number parser return number for valid number', () => {
+  it('number parser return number for valid string number', () => {
     expect(parsers.numberParser({ value: '34' }).value).to.equal(34);
+  });
+
+  it('number parser return number for valid string number with whitespace', () => {
+    expect(parsers.numberParser({ value: ' 34  ' }).value).to.equal(34);
+  });
+
+  it('number parser return number for valid number', () => {
+    expect(parsers.numberParser({ value: 34 }).value).to.equal(34);
+  });
+
+  it('number parser return number for zero', () => {
+    expect(parsers.numberParser({ value: 0 }).value).to.equal(0);
   });
 
   it('number parser returns error for invalid string', () => {
     expect(parsers.numberParser({ value: 'abc' }).error).to.equal('abc is not a number');
+  });
+
+  it('number parser returns error for string with only whitespace', () => {
+    expect(parsers.numberParser({ value: ' ' }).error).to.equal('  is not a number');
+  });
+
+  it('number parser returns error for null value', () => {
+    expect(parsers.numberParser({ value: null }).error).to.equal('null is not a number');
   });
 
   it('date parser returns date for valid date', () => {

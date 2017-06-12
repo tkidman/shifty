@@ -34,7 +34,7 @@ const tryLoadParamValue = (params, paramName, cell, errors, allStaff, parseFunct
 const tryLoadValue = (paramName, cell, errors, allStaff, parseFunction) =>
   tryLoadParamValue({}, paramName, cell, errors, allStaff, parseFunction)[paramName];
 
-const tryLoadBoolean = (paramName, columnIndex, errors, allStaff, parseFunction, returnThisIfNull, row) => {
+const tryLoadNullableValue = (paramName, columnIndex, errors, allStaff, parseFunction, returnThisIfNull, row) => {
   if (!columnIndex.index) {
     return returnThisIfNull;
   }
@@ -82,20 +82,22 @@ const loadStaff = (workbook, errors, columnIndicies) => {
       tryLoadParamValue(
         staffParams, 'hewLevel', row.getCell(staffColumns.hew.index), errors, allStaff, parsers.hewLevelParser
       );
+      staffParams.breakTime =
+        tryLoadNullableValue('breakTime', staffColumns.break, errors, allStaff, parsers.numberParser, undefined, row);
 
-      if (tryLoadBoolean('aal', staffColumns.aal, errors, allStaff, parsers.trueFalseParser, false, row)) {
+      if (tryLoadNullableValue('aal', staffColumns.aal, errors, allStaff, parsers.trueFalseParser, false, row)) {
         staffParams.shiftTypes.push(shiftTypes.aal);
       }
-      if (tryLoadBoolean('slc', staffColumns.slc, errors, allStaff, parsers.trueFalseParser, false, row)) {
+      if (tryLoadNullableValue('slc', staffColumns.slc, errors, allStaff, parsers.trueFalseParser, false, row)) {
         staffParams.shiftTypes.push(shiftTypes.slc);
       }
-      if (tryLoadBoolean('reference', staffColumns.reference, errors, allStaff, parsers.trueFalseParser, false, row)) {
+      if (tryLoadNullableValue('reference', staffColumns.reference, errors, allStaff, parsers.trueFalseParser, false, row)) {
         staffParams.shiftTypes.push(shiftTypes.reference);
       }
-      if (tryLoadBoolean('bEast', staffColumns.bEast, errors, allStaff, parsers.trueFalseParser, false, row)) {
+      if (tryLoadNullableValue('bEast', staffColumns.bEast, errors, allStaff, parsers.trueFalseParser, false, row)) {
         staffParams.shiftTypes.push(shiftTypes.bEast);
       }
-      if (tryLoadBoolean('standard', staffColumns.standard, errors, allStaff, parsers.trueFalseParser, true, row)) {
+      if (tryLoadNullableValue('standard', staffColumns.standard, errors, allStaff, parsers.trueFalseParser, true, row)) {
         staffParams.shiftTypes.push(shiftTypes.standard);
       }
 

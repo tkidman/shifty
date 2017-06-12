@@ -9,7 +9,7 @@ const common = {
   dateString: (date) => moment(date).format('D/M/YYYY HH:mm'),
   timeString: (date) => moment(date).format('HH:mm'),
   sameDay: (date1, date2) => moment(date1).isSame(date2, 'day'),
-  isNullOrWhitespace: value => !value || !value.toString().trim(),
+  isNullOrWhitespace: value => (value === null || value === undefined) || !value.toString().trim(),
   formatNumber: (number) => numeral(number).format('0.[00]'),
 };
 

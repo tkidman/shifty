@@ -19,6 +19,7 @@ class Employee {
     this.shiftAllocations = [];
     this.negs = [];
     this.leave = [];
+    this.breakTime = params.breakTime === undefined ? 60 : params.breakTime;
   }
 
   setMinutesWorkedInRoster(shiftsByDays) {
@@ -50,10 +51,19 @@ class Employee {
             (allocatedMinutes, shiftAllocation) => moment(shiftAllocation.shift.end).diff(shiftAllocation.shift.start, 'minutes'), 0
           );
       } else if (!this.onLeaveDuringShift(shift)) {
-        minutes += moment(hoursForDay.end).diff(hoursForDay.start, 'minutes');
+        const lengthOfWorkingDayMinutes = moment(hoursForDay.end).diff(hoursForDay.start, 'minutes');
+        minutes += (lengthOfWorkingDayMinutes - this.calculateBreakTime(lengthOfWorkingDayMinutes));
       }
       return minutes;
     }, 0);
+  }
+
+  calculateBreakTime(lengthOfWorkingDayMinutes) {
+    // apply break time if shift is over 5 hours long.
+    if (lengthOfWorkingDayMinutes >= 300) {
+      return this.breakTime;
+    }
+    return 0;
   }
 
   worksDuringShift(shift) {

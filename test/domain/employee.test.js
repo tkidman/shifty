@@ -11,6 +11,7 @@ const moment = require('moment');
 
 describe('Employee', () => {
   let employee;
+  let employeeParams;
   let shift;
   let sameTimeShift;
   let nightShift;
@@ -43,7 +44,14 @@ describe('Employee', () => {
       end: adjustTimezoneOffset(new Date('2017-02-07T21:00:00')),
     });
     standardShiftTypes = [shiftTypes.aal, shiftTypes.standard, shiftTypes.backup];
-    employee = new Employee({ name: 'empy', hewLevel: hewLevels.hewLevel4, shiftTypes: standardShiftTypes, hoursByDayOfWeek });
+    employeeParams = {
+      name: 'empy',
+      hewLevel: hewLevels.hewLevel4,
+      shiftTypes: standardShiftTypes,
+      hoursByDayOfWeek,
+      breakTime: 0,
+    };
+    employee = new Employee(employeeParams);
     employee.markAsAvailableForShift(shift);
     employee.markAsAvailableForShift(sameTimeShift);
   });
@@ -237,6 +245,16 @@ describe('Employee', () => {
         end: moment(adjustTimezoneOffset(new Date('2017-02-06T12:00:00'))).endOf('day').toDate(),
       }];
       expect(employee._calculateMinutesWorkedInRoster(shiftsByDays)).to.eql(0);
+    });
+
+    it('subtracts breakTime', () => {
+      employeeParams.breakTime = 30;
+      expect(new Employee(employeeParams)._calculateMinutesWorkedInRoster(shiftsByDays)).to.eql((10 * 60) - 30);
+    });
+
+    it('subtracts default breakTime', () => {
+      delete employeeParams.breakTime;
+      expect(new Employee(employeeParams)._calculateMinutesWorkedInRoster(shiftsByDays)).to.eql((10 * 60) - 60);
     });
 
     it('includes manual shifts', () => {

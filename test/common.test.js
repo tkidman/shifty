@@ -29,7 +29,7 @@ describe('common', () => {
       });
     });
 
-    const nonNullOrWhiteSpaceValues = ['a', new Date(), 2];
+    const nonNullOrWhiteSpaceValues = ['a', new Date(), 2, 0, false, '0 '];
     nonNullOrWhiteSpaceValues.forEach(value => {
       it(`returns false for value '${value}'`, () => {
         expect(common.isNullOrWhitespace(value)).to.be.false;
