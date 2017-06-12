@@ -82,6 +82,7 @@ const loadStaff = (workbook, errors, columnIndicies) => {
       tryLoadParamValue(
         staffParams, 'hewLevel', row.getCell(staffColumns.hew.index), errors, allStaff, parsers.hewLevelParser
       );
+      tryLoadParamValue(staffParams, 'breakTime', row.getCell(staffColumns.break.index), errors, allStaff, parsers.numberParser);
 
       if (tryLoadBoolean('aal', staffColumns.aal, errors, allStaff, parsers.trueFalseParser, false, row)) {
         staffParams.shiftTypes.push(shiftTypes.aal);
