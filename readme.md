@@ -58,7 +58,7 @@ are to the ideal desk hour percentages defined by the hew level of the staff mem
 | --- | --- | --- | ---|
 | Name | Yes | Text | The name of the staff member | 
 | Hew | Yes | A number from 3 to 9 | The hew level determines if a staff member is a responsible officer, and what percentage of time they should spend on desk |
-| Break | No | A number | Shifty will reduce a person's working hours by this value for each shift longer than 5 hours that they work.  This represents  time for unpaid lunch breaks.  If blank, then shifty will use 60 minutes as the default. |
+| Break | No | A number | Shifty will reduce a person's working hours by this number of minutes for each shift longer than 5 hours that they work.  This represents time for unpaid lunch breaks.  If blank, shifty will use 60 minutes as the default.|
 | AAL | No | One of: Y or N (empty means N) | Should this staff member perform Ask A Librarian shifts? |
 | SLC | No | One of: Y or N (empty means N) | Should this staff member perform SLC shifts? |
 | Reference | No | One of: Y or N (empty means N) | Can this staff member perform Reference shifts? |
