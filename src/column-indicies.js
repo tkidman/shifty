@@ -1,59 +1,57 @@
 const _ = require('lodash');
 
-const columnIndiciesLegacy = {
+const columnIndiciesTemplate = {
   staffColumns: {
-    name: { index: 1, mandatory: true },
-    hew: { index: 2, mandatory: true },
-    aal: { index: 3 },
-    slc: { index: 24 },
-    reference: { index: 25 },
-    standard: { index: 26 },
-    bEast: { index: 27 },
-    break: { index: 28 },
+    name: { mandatory: true },
+    hew: { mandatory: true },
+    aal: {},
+    slc: {},
+    reference: {},
+    standard: {},
+    bEast: {},
+    break: {},
   },
   shiftColumns: {
-    date: { index: 1, mandatory: true },
-    startTime: { index: 2, mandatory: true },
-    endTime: { index: 3, mandatory: true },
-    shiftType: { index: 4, mandatory: true },
-    manualName: { index: 5 },
-    label: { index: 6 },
+    date: { mandatory: true },
+    startTime: { mandatory: true },
+    endTime: { mandatory: true },
+    shiftType: { mandatory: true },
+    manualName: {},
+    label: {},
   },
   negsColumns: {
-    name: { index: 1, mandatory: true },
-    date: { index: 2, mandatory: true },
-    startTime: { index: 3, mandatory: true },
-    endTime: { index: 4, mandatory: true },
+    name: { mandatory: true },
+    date: { mandatory: true },
+    startTime: { mandatory: true },
+    endTime: { mandatory: true },
   },
   leaveColumns: {
-    name: { index: 1, mandatory: true },
-    firstDay: { index: 2, mandatory: true },
-    lastDay: { index: 3, mandatory: true },
+    name: { mandatory: true },
+    firstDay: { mandatory: true },
+    lastDay: { mandatory: true },
   },
 };
 
 const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-const legacyDays = days.slice(0, 5);
+const hoursForDaysKeys = [];
 
-const generateLegacyHoursForDaysIndicies = () => {
+const generateHoursForDaysIndiciesTemplate = (weekPostfixChar) => {
   // MonStartP: 4, MonEndP: 5 etc
-  const startMondayPayweek = 4;
-  for (let i = 0; i < legacyDays.length * 2; i++) {
-    const payweekOrNonPayweek = (i < legacyDays.length ? 'P' : 'N');
-    const daysIndex = (i >= legacyDays.length ? i - legacyDays.length : i);
-    const startColumnIndex = startMondayPayweek + (i * 2);
-    columnIndiciesLegacy.staffColumns[`${legacyDays[daysIndex]}Start${payweekOrNonPayweek}`] = { index: startColumnIndex };
-    columnIndiciesLegacy.staffColumns[`${legacyDays[daysIndex]}End${payweekOrNonPayweek}`] = { index: startColumnIndex + 1 };
-  }
+  days.forEach(day => {
+    const startKey = `${day}Start${weekPostfixChar}`;
+    const endKey = `${day}End${weekPostfixChar}`;
+    columnIndiciesTemplate.staffColumns[startKey] = {};
+    columnIndiciesTemplate.staffColumns[endKey] = {};
+    hoursForDaysKeys.push({ start: startKey, end: endKey });
+  });
 };
 
-generateLegacyHoursForDaysIndicies();
+const generateHoursForDaysIndicies = () => {
+  generateHoursForDaysIndiciesTemplate('P');
+  generateHoursForDaysIndiciesTemplate('N');
+};
 
-const generateHoursForDaysKeys = (weekKey) => days.map(day => ({ start: `${day}Start${weekKey}`, end: `${day}End${weekKey}` }));
-
-const generateAllHoursForDaysKeys = () => generateHoursForDaysKeys('P').concat(generateHoursForDaysKeys('N'));
-
-const hoursForDaysKeys = generateAllHoursForDaysKeys();
+generateHoursForDaysIndicies();
 
 const loadColumnNamesToIndicies = (sheet, columns, errors) => {
   const columnsNamesToIndicies = {};
@@ -86,11 +84,8 @@ const loadIndicies = (sheet, columns, errors) => {
   });
 };
 
-const loadColumnIndicies = (workbook, legacyMode, errors) => {
-  if (legacyMode) {
-    return columnIndiciesLegacy;
-  }
-  const columnIndicies = _.cloneDeep(columnIndiciesLegacy);
+const loadColumnIndicies = (workbook, errors) => {
+  const columnIndicies = _.cloneDeep(columnIndiciesTemplate);
   loadIndicies(workbook.getWorksheet('Staff'), columnIndicies.staffColumns, errors);
   loadIndicies(workbook.getWorksheet('Shifts'), columnIndicies.shiftColumns, errors);
   loadIndicies(workbook.getWorksheet('Negs'), columnIndicies.negsColumns, errors);

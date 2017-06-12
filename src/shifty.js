@@ -191,10 +191,10 @@ const loadLeave = (workbook, allStaff, errors, columnIndicies) => {
   logger.info(`loadLeave time taken: ${moment().diff(metricStart)}`);
 };
 
-const doRun = (workbook, legacyMode) => {
+const doRun = (workbook) => {
   const metricStart = moment();
   const errors = [];
-  const columnIndicies = loadColumnIndicies(workbook, legacyMode, errors);
+  const columnIndicies = loadColumnIndicies(workbook, errors);
 
   if (errors.length > 0) {
     logger.info(`Errors found in spreadsheet: ${errors.join('\n')}`);
@@ -217,14 +217,14 @@ const doRun = (workbook, legacyMode) => {
   return { roster };
 };
 
-const run = (fullFilename, legacyMode) => {
+const run = (fullFilename) => {
   const metricStart = moment();
   const workbook = new Excel.Workbook();
   logger.info('about to load workbork');
   return workbook.xlsx.readFile(fullFilename)
     .then(() => {
       logger.info(`time taken to load workbook: ${moment().diff(metricStart)}`);
-      return doRun(workbook, legacyMode);
+      return doRun(workbook);
     })
     .catch((err) => {
       logger.error(err);

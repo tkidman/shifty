@@ -25,10 +25,6 @@ Feel free to add as many shifts and employees as you want, though.
 * See the tables below for a description of the input spreadsheet's columns.
 * Shifty uses column headers to get to the data it needs, so you can't change the names of the columns. 
 Feel free to order the columns in any order you want, and delete any non-mandatory columns you don't need.
-* An earlier version of Shifty used column numbers to get to the data instead of headers. 
-If you have an old spreadsheet that doesn't work with the new version, you can access legacy mode [here](http://shifty-desks.herokuapp.com/?legacyMode=true) (or just fix up the header names).
-Please note, legacy mode will be removed at some point in the future.
-
 
 ## How does it work?
 

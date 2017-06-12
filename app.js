@@ -24,7 +24,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/', (req, res) => {
-  res.render('index', { legacyMode: req.query.legacyMode });
+  res.render('index');
 });
 
 app.post('/run', (req, res) => {
@@ -35,8 +35,7 @@ app.post('/run', (req, res) => {
     fstream = fs.createWriteStream(fullFilename);
     file.pipe(fstream);
     fstream.on('close', () => {
-      shifty.run(fullFilename, req.query.legacyMode).then((runResult) => {
-        runResult.legacyMode = req.query.legacyMode;
+      shifty.run(fullFilename).then((runResult) => {
         res.render('index', runResult);
       });
     });

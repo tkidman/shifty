@@ -5,27 +5,15 @@ block content
     div.pic
       img(src="images/desk.jpg")
     div.blurb
-      if (legacyMode)
-        h1.legacy Shifty
-        h3.legacy (legacy mode - grape flavour)
-        p Looking for normal mode? Click
-          |
-          |
-          a(href="./") here!
-      else
-        h1 Shifty
-        p Looking for legacy mode? Click
-          |
-          |
-          a(href="./?legacyMode=true") here!
-        p Break Time!
-          |  People have noticed that the staff summary report is showing people working longer hours than they actually do.
-          |  For more accurate reporting Shifty will reduce a person's working hours by 60 minutes for lunch (by default)
-          |  when they've worked over a 5 hour day.
-          |  If you need to customise this value, then you can add the new 'Break' column to the staff sheet.  From there you
-          |  can specify how many minutes shifty will reduce a person's hours by when they've worked over a 5 hour day.  See the readme
-          |  for more detail on the 'Break' column.
-        b As promised, legacy mode is no more!
+      h1 Shifty
+      p Break Time!
+        |  People have noticed that the staff summary report is showing people working longer hours than they actually do.
+        |  For more accurate reporting Shifty will reduce a person's working hours by 60 minutes for lunch (by default)
+        |  when they've worked over a 5 hour day.
+        |  If you need to customise this value, then you can add the new 'Break' column to the staff sheet.  From there you
+        |  can specify how many minutes shifty will reduce a person's hours by when they've worked over a 5 hour day.  See the readme
+        |  for more detail on the 'Break' column.
+      b As promised, legacy mode is no more!
       p Contact
         |
         |
@@ -33,7 +21,7 @@ block content
         |  for support!
       a(href="https://github.com/tkidman/shifty" target="_blank") See here for more information
       div.divform
-        form(action=legacyMode ? "/run?legacyMode=true" : "/run", method="post", enctype="multipart/form-data")
+        form(action="/run", method="post", enctype="multipart/form-data")
           input(type="file", name="input")
           input(type="submit", name="submit")
   if roster
@@ -50,5 +38,5 @@ block content
       each error in errors
         li= error
   if exception
-    p.error Sorry, Shifty has encountered an error: #{exception.message}
-    | Please contact Mel for support!
+    p.error Sorry, Shifty has encountered an unexpected error: #{exception.message}
+    | This should never happen - please contact Mel for support!
