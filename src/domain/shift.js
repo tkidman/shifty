@@ -144,7 +144,6 @@ class Shift {
   isMorningShift() {
     // a morning shift begins before 9:00
     return moment(this.start).hours(8)
-    // night shifts first.
       .minutes(59)
       .isAfter(this.start);
   }
@@ -153,7 +152,14 @@ class Shift {
     return moment(this.start).add(1, 'days').isSame(shift.start, 'day');
   }
 
+  isSameDay(shift) {
+    return moment(this.start).isSame(shift.start, 'day');
+  }
+
   isAdjacent(otherShift) {
+    if ((this.isNightShift() && otherShift.isSameDay(this)) || (otherShift.isNightShift() && this.isSameDay(otherShift))) {
+      return true;
+    }
     if (this.isNightShift() && otherShift.isMorningShift() && this.isDayBefore(otherShift)) {
       return true;
     }

@@ -197,6 +197,7 @@ describe('Employee', () => {
   context('workingAdjacentShift', () => {
     let after;
     let before;
+    let nextDay;
 
     beforeEach(() => {
       after = new Shift({
@@ -209,6 +210,11 @@ describe('Employee', () => {
         start: adjustTimezoneOffset(new Date('2017-02-06T08:00:00')),
         end: adjustTimezoneOffset(new Date('2017-02-06T09:00:00')),
       });
+      nextDay = new Shift({
+        type: shiftTypes.standard,
+        start: adjustTimezoneOffset(new Date('2017-02-07T08:00:00')),
+        end: adjustTimezoneOffset(new Date('2017-02-07T09:00:00')),
+      });
 
       employee = new Employee({ name: 'empy', hewLevel: hewLevels.hewLevel4, hoursByDayOfWeek, shiftTypes: standardShiftTypes });
       shift.allocateShift(new ShiftAllocation(shift, employee));
@@ -217,7 +223,8 @@ describe('Employee', () => {
     it('returns correct value when employee working adjacent shift', () => {
       expect(employee.workingAdjacentShift(after)).to.be.true;
       expect(employee.workingAdjacentShift(before)).to.be.true;
-      expect(employee.workingAdjacentShift(nightShift)).to.be.false;
+      expect(employee.workingAdjacentShift(nightShift)).to.be.true;
+      expect(employee.workingAdjacentShift(nextDay)).to.be.false;
     });
   });
 

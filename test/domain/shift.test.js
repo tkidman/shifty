@@ -62,9 +62,14 @@ describe('Shift', () => {
     });
 
     it('returns the correct score when over minimum minutes and under ideal minutes', () => {
+      const nextDayShift = new Shift({
+        type: shiftTypes.standard,
+        start: adjustTimezoneOffset(new Date('2017-02-07T09:00:00')),
+        end: adjustTimezoneOffset(new Date('2017-02-07T10:00:00')),
+      });
       nightShift.allocateShift(new ShiftAllocation(nightShift, employee));
-      const score = standardShift.getPotentialShiftAllocation(employee);
-      const expectedScore = nightShift.getShiftLengthMinutes() + standardShift.getShiftLengthMinutes() - employee.idealMinMinutes;
+      const score = nextDayShift.getPotentialShiftAllocation(employee);
+      const expectedScore = nightShift.getShiftLengthMinutes() + nextDayShift.getShiftLengthMinutes() - employee.idealMinMinutes;
       expect(score.score).to.eql(expectedScore);
     });
 
@@ -249,6 +254,7 @@ describe('Shift', () => {
     let morning;
     let afterMorning;
     let notAdjacent;
+    let morningOfNight;
 
     beforeEach(() => {
       night = new Shift({
@@ -271,6 +277,11 @@ describe('Shift', () => {
         start: adjustTimezoneOffset(new Date('2017-02-07T12:00:00')),
         end: adjustTimezoneOffset(new Date('2017-02-07T13:00:00')),
       });
+      morningOfNight = new Shift({
+        type: shiftTypes.standard,
+        start: adjustTimezoneOffset(new Date('2017-02-06T09:00:00')),
+        end: adjustTimezoneOffset(new Date('2017-02-06T10:00:00')),
+      });
     });
 
     it('returns true when shift is adjacent', () => {
@@ -278,6 +289,8 @@ describe('Shift', () => {
       expect(morning.isAdjacent(night)).to.be.true;
       expect(morning.isAdjacent(afterMorning)).to.be.true;
       expect(afterMorning.isAdjacent(morning)).to.be.true;
+      expect(night.isAdjacent(morningOfNight)).to.be.true;
+      expect(morningOfNight.isAdjacent(night)).to.be.true;
     });
 
     it('returns false when shift is not adjacent', () => {

@@ -52,13 +52,13 @@ class Employee {
           );
       } else if (!this.onLeaveDuringShift(shift)) {
         const lengthOfWorkingDayMinutes = moment(hoursForDay.end).diff(hoursForDay.start, 'minutes');
-        minutes += (lengthOfWorkingDayMinutes - this.calculateBreakTime(lengthOfWorkingDayMinutes));
+        minutes += (lengthOfWorkingDayMinutes - this._calculateBreakTime(lengthOfWorkingDayMinutes));
       }
       return minutes;
     }, 0);
   }
 
-  calculateBreakTime(lengthOfWorkingDayMinutes) {
+  _calculateBreakTime(lengthOfWorkingDayMinutes) {
     // apply break time if shift is over 5 hours long.
     if (lengthOfWorkingDayMinutes >= 300) {
       return this.breakTime;
