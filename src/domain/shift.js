@@ -20,7 +20,7 @@ const scoreConstants = {
 
 class Shift {
   constructor(params) {
-    this.type = params.type;
+    this.types = params.types;
     this.availableEmployees = [];
     this.onLeaveEmployees = [];
     this.negEmployees = [];
@@ -97,13 +97,13 @@ class Shift {
       potentialAllocation.score += minutesWithShift - employee.idealMaxMinutes;
     }
 
-    if (!employee.shiftTypes.includes(this.type)) {
+    if (!this.hasAnyEmployeeShiftTypes(employee)) {
       potentialAllocation.score += scoreConstants.shouldNotPerformShiftTypeScoreChange;
       potentialAllocation.warningsList.push(warnings.shouldNotPerformShiftType(employee, this));
     }
 
-    if (this.type === shiftTypes.aal) {
-      const aalShifts = employee.shiftAllocations.filter(shiftAllocation => shiftAllocation.shift.type === shiftTypes.aal);
+    if (this.isAALShift()) {
+      const aalShifts = employee.shiftAllocations.filter(shiftAllocation => shiftAllocation.shift.isAALShift());
       potentialAllocation.score += scoreConstants.workingAALShiftScoreChange * aalShifts.length;
     }
 
@@ -115,8 +115,20 @@ class Shift {
     return potentialAllocation;
   }
 
+  hasAnyEmployeeShiftTypes(employee) {
+    return employee.shiftTypes.some(shiftType => this.types.includes(shiftType));
+  }
+
+  isAALShift() {
+    return this.isOnlyShiftType(shiftTypes.aal);
+  }
+
+  isOnlyShiftType(shiftType) {
+    return this.types.length === 1 && this.types[0] === shiftType;
+  }
+
   toString() {
-    return `${dateString(this.start)}-${timeString(this.end)} ${this.type}`;
+    return `${dateString(this.start)}-${timeString(this.end)} ${this.types}`;
   }
 
   timeSpanString() {
@@ -125,9 +137,9 @@ class Shift {
 
   getTypeAndLabel() {
     if (this.label) {
-      return `${this.type} - ${this.label}`;
+      return `${this.types.join()} - ${this.label}`;
     }
-    return this.type;
+    return this.types.join();
   }
 
   isShiftInPayweek() {

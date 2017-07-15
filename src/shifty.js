@@ -124,12 +124,12 @@ const loadShifts = (workbook, allStaff, errors, columnIndicies) => {
       const endTime = tryLoadValue('endTime', row.getCell(shiftColumns.endTime.index), errors, allStaff, parsers.dateParser);
       const start = addTime(day, startTime);
       const end = addTime(day, endTime);
-      const type = tryLoadValue('shiftType', row.getCell(shiftColumns.shiftType.index), errors, allStaff, parsers.shiftTypeParser);
+      const types = tryLoadValue('shiftType', row.getCell(shiftColumns.shiftType.index), errors, allStaff, parsers.shiftTypeParser);
       let label;
       if (shiftColumns.label.index) {
         label = row.getCell(shiftColumns.label.index).value;
       }
-      const shift = new Shift({ type, start, end, label });
+      const shift = new Shift({ types, start, end, label });
       let manualNameCell;
       if (shiftColumns.manualName.index) {
         manualNameCell = row.getCell(shiftColumns.manualName.index);

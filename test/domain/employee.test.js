@@ -23,23 +23,23 @@ describe('Employee', () => {
 
   beforeEach(() => {
     shift = new Shift({
-      type: shiftTypes.standard,
+      types: [shiftTypes.standard],
       // monday
       start: adjustTimezoneOffset(new Date('2017-02-06T09:00:00')),
       end: adjustTimezoneOffset(new Date('2017-02-06T10:00:00')),
     });
     sameTimeShift = new Shift({
-      type: shiftTypes.standard,
+      types: [shiftTypes.standard],
       start: adjustTimezoneOffset(new Date('2017-02-06T09:00:00')),
       end: adjustTimezoneOffset(new Date('2017-02-06T11:00:00')),
     });
     nightShift = new Shift({
-      type: shiftTypes.standard,
+      types: [shiftTypes.standard],
       start: adjustTimezoneOffset(new Date('2017-02-06T17:00:00')),
       end: adjustTimezoneOffset(new Date('2017-02-06T21:00:00')),
     });
     backupShift = new Shift({
-      type: shiftTypes.backup,
+      types: [shiftTypes.backup],
       start: adjustTimezoneOffset(new Date('2017-02-07T17:00:00')),
       end: adjustTimezoneOffset(new Date('2017-02-07T21:00:00')),
     });
@@ -114,7 +114,7 @@ describe('Employee', () => {
       expect(employee.getAALShiftCount()).to.eql(0);
       shift.allocateShift(new ShiftAllocation(shift, employee));
       const aalShift = new Shift({
-        type: shiftTypes.aal,
+        types: [shiftTypes.aal],
         start: adjustTimezoneOffset(new Date('2017-02-07T09:00:00')),
         end: adjustTimezoneOffset(new Date('2017-02-07T10:00:00')),
       });

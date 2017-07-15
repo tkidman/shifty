@@ -54,12 +54,12 @@ class Roster {
     // sort by number available employees first.
     let value = -1000000 + (shift.availableEmployees.length * 10000);
 
-    if (skilledShifts.includes(shift.type)) {
+    if (skilledShifts.some(shiftType => shift.types.includes(shiftType))) {
       value -= 100;
     }
 
     // backup gets filled last.
-    if (shift.type === shiftTypes.backup) {
+    if (shift.isOnlyShiftType(shiftTypes.backup)) {
       value += 10000000;
     }
 
