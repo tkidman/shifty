@@ -5,7 +5,7 @@ const shifty = require('../src/shifty');
 const parsers = shifty.parsers;
 const hewLevels = require('../src/domain/hew-level');
 const adjustTimezoneOffset = require('../src/common').adjustTimezoneOffset;
-const shiftTypesList = require('../src/domain/shift-type').shiftTypesList;
+const { shiftTypesList, shiftTypes } = require('../src/domain/shift-type');
 
 context('parsers', () => {
   it('hew level parser returns hew level for valid hew level', () => {
@@ -71,12 +71,22 @@ context('parsers', () => {
   });
 
   it('shiftType parser returns shiftType for valid shiftType', () => {
-    expect(parsers.shiftTypeParser({ value: ' AAL  ' }).value).to.eql('AAL');
+    expect(parsers.shiftTypeParser({ value: ' AAL  ' }).value).to.eql([shiftTypes.aal]);
+  });
+
+  it('shiftType parser returns shiftTypes for valid shiftTypes', () => {
+    expect(parsers.shiftTypeParser({ value: ' AAL,SLC  ' }).value).to.eql([shiftTypes.aal, shiftTypes.slc]);
   });
 
   it('shiftType parser returns error for invalid shiftType', () => {
     expect(parsers.shiftTypeParser({ value: 'abc' }).error).to.equal(
       `abc is not a valid shift type. Allowed values: ${shiftTypesList}`
+    );
+  });
+
+  it('shiftType parser returns error for invalid shiftTypes', () => {
+    expect(parsers.shiftTypeParser({ value: 'abc,AAL,def' }).error).to.equal(
+      `abc, def are not valid shift types. Allowed values: ${shiftTypesList}`
     );
   });
 });

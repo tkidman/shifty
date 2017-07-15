@@ -120,12 +120,12 @@ class Employee {
   }
 
   getCurrentMinutesAllocated() {
-    return this.getCurrentMinutesAllocatedExcludingTypes([]);
+    return this._getCurrentMinutesAllocatedExcludingType(null);
   }
 
-  getCurrentMinutesAllocatedExcludingTypes(excludedShiftTypes) {
+  _getCurrentMinutesAllocatedExcludingType(excludedShiftType) {
     return this.shiftAllocations.reduce((minutes, shiftAllocation) => {
-      if (!excludedShiftTypes.includes(shiftAllocation.shift.type)) {
+      if (!excludedShiftType || !shiftAllocation.shift.isOnlyShiftType(excludedShiftType)) {
         minutes += shiftAllocation.shift.getShiftLengthMinutes();
       }
       return minutes;
@@ -133,11 +133,11 @@ class Employee {
   }
 
   getCurrentMinutesAllocatedExcludingBackup() {
-    return this.getCurrentMinutesAllocatedExcludingTypes([shiftTypes.backup]);
+    return this._getCurrentMinutesAllocatedExcludingType(shiftTypes.backup);
   }
 
   getAALShiftCount() {
-    return this.shiftAllocations.filter(shiftAllocation => shiftAllocation.shift.type === shiftTypes.aal).length;
+    return this.shiftAllocations.filter(shiftAllocation => shiftAllocation.shift.isAALShift()).length;
   }
 
   workingAdjacentShift(shift) {

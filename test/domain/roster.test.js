@@ -21,19 +21,19 @@ describe('Roster', () => {
     const employee1 = new Employee({ name: 'empy', hewLevel: hewLevels.hewLevel4 });
     const employee2 = new Employee({ name: 'empy', hewLevel: hewLevels.hewLevel4 });
 
-    const backupShift = new Shift({ type: shiftTypes.backup, start: startDay1, end: endDay1 });
+    const backupShift = new Shift({ types: [shiftTypes.backup], start: startDay1, end: endDay1 });
 
-    const aal2AvailableShift = new Shift({ type: shiftTypes.aal, start: startDay1, end: endDay1 });
+    const aal2AvailableShift = new Shift({ types: [shiftTypes.aal], start: startDay1, end: endDay1 });
     aal2AvailableShift.addAvailableEmployee(employee1);
     aal2AvailableShift.addAvailableEmployee(employee2);
 
-    const standard1AvailableShift = new Shift({ type: shiftTypes.standard, start: startDay2, end: endDay2 });
+    const standard1AvailableShift = new Shift({ types: [shiftTypes.standard], start: startDay2, end: endDay2 });
     standard1AvailableShift.addAvailableEmployee(employee1);
 
-    const ro1AvailableShift = new Shift({ type: shiftTypes.responsibleOfficer, start: startDay2, end: endDay2 });
+    const ro1AvailableShift = new Shift({ types: [shiftTypes.responsibleOfficer], start: startDay2, end: endDay2 });
     ro1AvailableShift.addAvailableEmployee(employee1);
 
-    const aalNoneAvailableShift = new Shift({ type: shiftTypes.aal, start: startDay2, end: endDay2 });
+    const aalNoneAvailableShift = new Shift({ types: [shiftTypes.aal], start: startDay2, end: endDay2 });
 
     const shifts = [backupShift, aal2AvailableShift, standard1AvailableShift, ro1AvailableShift, aalNoneAvailableShift];
     expectedSortedShifts = Array.from(shifts).reverse();

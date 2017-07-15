@@ -26,23 +26,23 @@ describe('Shift', () => {
 
   beforeEach(() => {
     standardShift = new Shift({
-      type: shiftTypes.standard,
+      types: [shiftTypes.standard],
       start: adjustTimezoneOffset(new Date('2017-02-06T09:00:00')),
       end: adjustTimezoneOffset(new Date('2017-02-06T10:00:00')),
     });
     aalShift1 = new Shift({
-      type: shiftTypes.aal,
+      types: [shiftTypes.aal],
       start: adjustTimezoneOffset(new Date('2017-02-06T11:00:00')),
       end: adjustTimezoneOffset(new Date('2017-02-06T12:00:00')),
       label: 'Carlton swap',
     });
     aalShift2 = new Shift({
-      type: shiftTypes.aal,
+      types: [shiftTypes.aal],
       start: adjustTimezoneOffset(new Date('2017-02-06T13:00:00')),
       end: adjustTimezoneOffset(new Date('2017-02-06T15:00:00')),
     });
     nightShift = new Shift({
-      type: shiftTypes.standard,
+      types: [shiftTypes.standard],
       start: adjustTimezoneOffset(new Date('2017-02-06T17:00:00')),
       end: adjustTimezoneOffset(new Date('2017-02-06T21:00:00')),
     });
@@ -63,7 +63,7 @@ describe('Shift', () => {
 
     it('returns the correct score when over minimum minutes and under ideal minutes', () => {
       const nextDayShift = new Shift({
-        type: shiftTypes.standard,
+        types: [shiftTypes.standard],
         start: adjustTimezoneOffset(new Date('2017-02-07T09:00:00')),
         end: adjustTimezoneOffset(new Date('2017-02-07T10:00:00')),
       });
@@ -162,10 +162,11 @@ describe('Shift', () => {
         hoursByDayOfWeek,
         shiftTypes: standardShiftTypes.filter(shiftType => shiftType !== shiftTypes.aal),
       });
+      aalShift1.types.push(shiftTypes.bEast);
       employee.markAsAvailableForShift(aalShift1);
       aalShift1.fill();
       expect(aalShift1.shiftAllocation.warningsList.length).to.eql(1);
-      expect(aalShift1.shiftAllocation.warningsList[0]).to.equal('umpy should not perform AAL shifts');
+      expect(aalShift1.shiftAllocation.warningsList[0]).to.equal('umpy should not perform AAL or BEast shifts');
     });
   });
 
@@ -354,6 +355,34 @@ describe('Shift', () => {
     it('does not include actual allocation in the list', () => {
       standardShift.shiftAllocation.employee = employee;
       expect(standardShift.worseAllocationsDisplayList()).to.eql([employee2Message]);
+    });
+  });
+
+  context('isOnlyShiftType', () => {
+    it('returns true when shift only contains the shift type', () => {
+      expect(nightShift.isOnlyShiftType(shiftTypes.standard)).to.be.true;
+    });
+
+    it('returns false when shift has more than 1 shift type', () => {
+      nightShift.types.push(shiftTypes.aal);
+      expect(nightShift.isOnlyShiftType(shiftTypes.standard)).to.be.false;
+    });
+
+    it('returns false when shift has 1 shift type of the wrong type', () => {
+      expect(aalShift1.isOnlyShiftType(shiftTypes.standard)).to.be.false;
+    });
+  });
+
+  context('hasAnyEmployeeShiftTypes', () => {
+    it('returns true when the employee has one of the shift\'s shift types', () => {
+      expect(standardShift.hasAnyEmployeeShiftTypes(employee)).to.be.true;
+      standardShift.types.push(shiftTypes.bEast);
+      expect(standardShift.hasAnyEmployeeShiftTypes(employee)).to.be.true;
+    });
+
+    it('returns false when the employee has none of the shift\'s shift types', () => {
+      standardShift.types = [shiftTypes.bEast, shiftTypes.slc];
+      expect(standardShift.hasAnyEmployeeShiftTypes(employee)).to.be.false;
     });
   });
 });

@@ -70,10 +70,18 @@ const parsers = {
   },
   shiftTypeParser: (cell) => {
     const value = tryTrimValue(cell);
-    if (value && shiftTypesList.includes(value)) {
-      return { value };
+    if (value) {
+      const types = value.split(',');
+      const invalidTypes = types.filter(shiftType => !shiftTypesList.includes(shiftType));
+      if (invalidTypes.length === 0) {
+        return { value: types };
+      }
+      if (invalidTypes.length === 1) {
+        return { error: `${invalidTypes[0]} is not a valid shift type. Allowed values: ${shiftTypesList}` };
+      }
+      return { error: `${invalidTypes.join(', ')} are not valid shift types. Allowed values: ${shiftTypesList}` };
     }
-    return { error: `${value} is not a valid shift type. Allowed values: ${shiftTypesList}` };
+    return { error: `At least one shift type must be provided. Allowed values: ${shiftTypesList}` };
   },
 };
 

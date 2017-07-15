@@ -26,6 +26,7 @@ describe('Shifty', () => {
     expect(roster.shifts[0].label).to.eql('Carlton Swap');
     expect(roster.shifts[1].label).to.be.null;
     expect(roster.shifts[2].shiftAllocation.name).to.be.equal('None Found');
+    expect(roster.shifts[6].types).to.be.eql([shiftTypes.standard, shiftTypes.reference]);
     expect(edwina.breakTime).to.equal(0);
     expect(rowena.breakTime).to.equal(60);
     expect(roster.shiftsByDays[0].header).to.be.eql('Monday, 6th February 2017 - Pay Week');
