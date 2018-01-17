@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const sheetNames = require('./sheet-names');
 
 const columnIndiciesTemplate = {
   staffColumns: {
@@ -69,7 +70,11 @@ const loadColumnNamesToIndicies = (sheet, columns, errors) => {
   return columnsNamesToIndicies;
 };
 
-const loadIndicies = (sheet, columns, errors) => {
+const loadIndicies = (sheet, sheetName, columns, errors) => {
+  if (!sheet) {
+    errors.push(`Unable to find the sheet named '${sheetName}'. Sheet names are case sensitive.`);
+    return;
+  }
   const columnNamesToIndicies = loadColumnNamesToIndicies(sheet, columns, errors);
   Object.keys(columns).forEach(key => {
     const columnIndex = columnNamesToIndicies[key.toUpperCase()];
@@ -86,10 +91,10 @@ const loadIndicies = (sheet, columns, errors) => {
 
 const loadColumnIndicies = (workbook, errors) => {
   const columnIndicies = _.cloneDeep(columnIndiciesTemplate);
-  loadIndicies(workbook.getWorksheet('Staff'), columnIndicies.staffColumns, errors);
-  loadIndicies(workbook.getWorksheet('Shifts'), columnIndicies.shiftColumns, errors);
-  loadIndicies(workbook.getWorksheet('Negs'), columnIndicies.negsColumns, errors);
-  loadIndicies(workbook.getWorksheet('Leave'), columnIndicies.leaveColumns, errors);
+  loadIndicies(workbook.getWorksheet(sheetNames.staff), sheetNames.staff, columnIndicies.staffColumns, errors);
+  loadIndicies(workbook.getWorksheet(sheetNames.shifts), sheetNames.shifts, columnIndicies.shiftColumns, errors);
+  loadIndicies(workbook.getWorksheet(sheetNames.negs), sheetNames.negs, columnIndicies.negsColumns, errors);
+  loadIndicies(workbook.getWorksheet(sheetNames.leave), sheetNames.leave, columnIndicies.leaveColumns, errors);
   return columnIndicies;
 };
 

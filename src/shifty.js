@@ -10,8 +10,7 @@ const moment = require('moment');
 const isNullOrWhitespace = require('./common').isNullOrWhitespace;
 const loadColumnIndicies = require('./column-indicies').loadColumnIndicies;
 const hoursForDaysKeys = require('./column-indicies').hoursForDaysKeys;
-
-const worksheets = { shifts: 1, staff: 2, negs: 3, leave: 4 };
+const sheetNames = require('./sheet-names');
 
 const addTime = (day, time) => {
   const dateTime = new Date(day);
@@ -70,7 +69,7 @@ const loadStaffHoursByDayOfWeek = (row, errors, allStaff, staffColumns) => {
 
 const loadStaff = (workbook, errors, columnIndicies) => {
   const metricStart = moment();
-  const staffSheet = workbook.getWorksheet(worksheets.staff);
+  const staffSheet = workbook.getWorksheet(sheetNames.staff);
   const allStaff = {};
   const staffColumns = columnIndicies.staffColumns;
 
@@ -102,7 +101,9 @@ const loadStaff = (workbook, errors, columnIndicies) => {
       }
 
       staffParams.hoursByDayOfWeek = loadStaffHoursByDayOfWeek(row, errors, allStaff, staffColumns);
-      allStaff[staffParams.name] = new Employee(staffParams);
+      if (errors.length === 0) {
+        allStaff[staffParams.name] = new Employee(staffParams);
+      }
     }
   });
   logger.info(`loadStaff time taken: ${moment().diff(metricStart)}`);
@@ -111,7 +112,7 @@ const loadStaff = (workbook, errors, columnIndicies) => {
 
 const loadShifts = (workbook, allStaff, errors, columnIndicies) => {
   const metricStart = moment();
-  const shiftsSheet = workbook.getWorksheet(worksheets.shifts);
+  const shiftsSheet = workbook.getWorksheet(sheetNames.shifts);
   const shiftColumns = columnIndicies.shiftColumns;
   const shifts = [];
   let day;
@@ -149,7 +150,7 @@ const loadShifts = (workbook, allStaff, errors, columnIndicies) => {
 
 const loadNegs = (workbook, allStaff, errors, columnIndicies) => {
   const metricStart = moment();
-  const negsSheet = workbook.getWorksheet(worksheets.negs);
+  const negsSheet = workbook.getWorksheet(sheetNames.negs);
   const negsColumns = columnIndicies.negsColumns;
 
   negsSheet.eachRow((row, rowNumber) => {
@@ -170,7 +171,7 @@ const loadNegs = (workbook, allStaff, errors, columnIndicies) => {
 
 const loadLeave = (workbook, allStaff, errors, columnIndicies) => {
   const metricStart = moment();
-  const leaveSheet = workbook.getWorksheet(worksheets.leave);
+  const leaveSheet = workbook.getWorksheet(sheetNames.leave);
   const leaveColumns = columnIndicies.leaveColumns;
   leaveSheet.eachRow((row, rowNumber) => {
     if (rowNumber > 1) {
@@ -202,6 +203,12 @@ const doRun = (workbook) => {
   }
 
   const allStaff = loadStaff(workbook, errors, columnIndicies);
+
+  if (errors.length > 0) {
+    logger.info(`Errors found in spreadsheet: ${errors.join('\n')}`);
+    return { errors };
+  }
+
   loadNegs(workbook, allStaff, errors, columnIndicies);
   loadLeave(workbook, allStaff, errors, columnIndicies);
   const shifts = loadShifts(workbook, allStaff, errors, columnIndicies);

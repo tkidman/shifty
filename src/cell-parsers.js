@@ -41,9 +41,9 @@ const parsers = {
     const value = tryTrimValue(cell);
     if (value) {
       logger.debug(`trueFalse value: ${value}`);
-      if (['Y', 'YES', 'TRUE'].some(yes => yes === value.toUpperCase())) {
+      if (['Y', 'YES', 'TRUE'].some(yes => yes === value.toString().toUpperCase())) {
         return { value: true };
-      } else if (['N', 'NO', 'FALSE'].some(no => no === value.toUpperCase())) {
+      } else if (['N', 'NO', 'FALSE'].some(no => no === value.toString().toUpperCase())) {
         return { value: false };
       }
       return { error: `Unable to determine true or false from value: ${value}` };

@@ -23,7 +23,7 @@ This can reduce the size of your exported excel file from 3MB to 25KiBs.
 It will be much faster to upload, and will be much faster for shifty to process too. 
 Feel free to add as many shifts and employees as you want, though.
 * See the tables below for a description of the input spreadsheet's columns.
-* Shifty uses column headers to get to the data it needs, so you can't change the names of the columns. 
+* Shifty uses column headers and sheet names to get to the data it needs, so you can't change the names of the columns or the sheets. 
 Feel free to order the columns in any order you want, and delete any non-mandatory columns you don't need.
 
 ## How does it work?
