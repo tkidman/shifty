@@ -3,7 +3,7 @@ The desk shift allocator by Tom for Mel
 
 Shifty is open source software (MIT License)
 
-It's running on Heroku at [shifty-desks.herokuapp.com](http://shifty-desks.herokuapp.com)
+It's running on Heroku at [shifty-desks.herokuapp.com](https://shifty-desks.herokuapp.com)
  
 ## Instructions for use
  
