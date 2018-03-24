@@ -80,6 +80,7 @@ Columns for other days follow the same pattern (Tue, Wed, Thu, Fri, Sat, Sun)
 | Date | Yes | Excel Formatted Date | The date of the Neg |
 | Start Time | Yes | Excel Formatted Time | The start time of the Neg |
 | End Time | Yes | Excel Formatted Time | The end time of the Neg |
+| Reason | No | Text | The reason the staff member has the Neg |
 
 ### Leave
 
@@ -88,6 +89,7 @@ Columns for other days follow the same pattern (Tue, Wed, Thu, Fri, Sat, Sun)
 | Name | Yes | A name that matches the name of a Staff member on the staff sheet | Staff member name |
 | First Day | Yes | Excel Formatted Date | The first day of leave |
 | Last Day | No | Excel Formatted Date | The last day of leave.  If blank, then the leave is just for the first day |
+| Reason | No | Text | The reason the staff member has the Leave |
 
 
 ## TODO:

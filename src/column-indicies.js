@@ -25,11 +25,13 @@ const columnIndiciesTemplate = {
     date: { mandatory: true },
     startTime: { mandatory: true },
     endTime: { mandatory: true },
+    reason: {},
   },
   leaveColumns: {
     name: { mandatory: true },
     firstDay: { mandatory: true },
     lastDay: { mandatory: true },
+    reason: {},
   },
 };
 

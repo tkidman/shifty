@@ -87,11 +87,11 @@ class Employee {
   }
 
   negDuringShift(shift) {
-    return this.negs.some(neg => this._overlap(neg, shift));
+    return this.negs.find(neg => this._overlap(neg, shift));
   }
 
   onLeaveDuringShift(shift) {
-    return this.leave.some(leave => this._overlap(leave, shift));
+    return this.leave.find(leave => this._overlap(leave, shift));
   }
 
   workingShiftAtSameTime(shift) {

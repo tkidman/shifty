@@ -14,8 +14,14 @@ td.name
           each worseAllocationDisplay in worseAllocationsDisplayList
             li= worseAllocationDisplay
       if (shift.onLeaveEmployees.length > 0)
-        p These people work at this time but are on leave: #{shift.employeeNames(shift.onLeaveEmployees)}
+        p These people work at this time but are on leave:
+        ul
+          each leaveDisplay in shift.employeeLeaveDisplay(shift.onLeaveEmployees)
+            li= leaveDisplay
       if (shift.negEmployees.length > 0)
-        p These people work at this time but have a neg: #{shift.employeeNames(shift.negEmployees)}
+        p These people work at this time but have a neg:
+        ul
+          each negDisplay in shift.employeeNegsDisplay(shift.negEmployees)
+            li= negDisplay
       if (shift.workingShiftAtSameTimeEmployees.length > 0)
         p These people are working a shift at the same time: #{shift.employeeNames(shift.workingShiftAtSameTimeEmployees)}

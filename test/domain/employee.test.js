@@ -151,19 +151,19 @@ describe('Employee', () => {
           start: adjustTimezoneOffset(new Date('2017-02-06T09:30:00')),
           end: adjustTimezoneOffset(new Date('2017-02-06T10:30:00')),
         }];
-        expect(employee.negDuringShift(shift)).to.be.true;
+        expect(employee.negDuringShift(shift)).to.not.be.null;
 
         employee.negs = [{
           start: adjustTimezoneOffset(new Date('2017-02-06T08:30:00')),
           end: adjustTimezoneOffset(new Date('2017-02-06T09:30:00')),
         }];
-        expect(employee.negDuringShift(shift)).to.be.true;
+        expect(employee.negDuringShift(shift)).to.not.be.null;
 
         employee.negs = [{
           start: adjustTimezoneOffset(new Date('2017-02-06T08:30:00')),
           end: adjustTimezoneOffset(new Date('2017-02-06T10:30:00')),
         }];
-        expect(employee.negDuringShift(shift)).to.be.true;
+        expect(employee.negDuringShift(shift)).to.not.be.null;
       });
 
       it('returns false when employee does not have an overlapping neg', () => {
@@ -171,7 +171,7 @@ describe('Employee', () => {
           start: adjustTimezoneOffset(new Date('2017-02-07T08:30:00')),
           end: adjustTimezoneOffset(new Date('2017-02-07T09:30:00')),
         }];
-        expect(employee.negDuringShift(shift)).to.be.false;
+        expect(employee.negDuringShift(shift)).to.be.undefined;
       });
     });
 
@@ -181,7 +181,7 @@ describe('Employee', () => {
           start: moment(adjustTimezoneOffset(new Date('2017-02-06T12:00:00'))).startOf('day').toDate(),
           end: moment(adjustTimezoneOffset(new Date('2017-02-06T12:00:00'))).endOf('day').toDate(),
         }];
-        expect(employee.onLeaveDuringShift(shift)).to.be.true;
+        expect(employee.onLeaveDuringShift(shift)).to.not.be.null;
       });
 
       it('returns false when employee has overlapping leave', () => {
@@ -189,7 +189,7 @@ describe('Employee', () => {
           start: moment(adjustTimezoneOffset(new Date('2017-02-07T12:00:00'))).startOf('day').toDate(),
           end: moment(adjustTimezoneOffset(new Date('2017-02-07T12:00:00'))).endOf('day').toDate(),
         }];
-        expect(employee.onLeaveDuringShift(shift)).to.be.false;
+        expect(employee.onLeaveDuringShift(shift)).to.be.undefined;
       });
     });
   });

@@ -159,10 +159,11 @@ const loadNegs = (workbook, allStaff, errors, columnIndicies) => {
       const day = tryLoadValue('date', row.getCell(negsColumns.date.index), errors, allStaff, parsers.dateParser);
       const startTime = tryLoadValue('startTime', row.getCell(negsColumns.startTime.index), errors, allStaff, parsers.dateParser);
       const endTime = tryLoadValue('endTime', row.getCell(negsColumns.endTime.index), errors, allStaff, parsers.dateParser);
+      const reason = tryLoadNullableValue('reason', negsColumns.reason, errors, allStaff, parsers.stringParser, null, row);
       if (name && day && startTime && endTime) {
         const start = addTime(day, startTime);
         const end = addTime(day, endTime);
-        allStaff[name].negs.push({ start, end });
+        allStaff[name].negs.push({ start, end, reason });
       }
     }
   });
@@ -177,8 +178,9 @@ const loadLeave = (workbook, allStaff, errors, columnIndicies) => {
     if (rowNumber > 1) {
       const name = tryLoadValue('name', row.getCell(leaveColumns.name.index), errors, allStaff, parsers.nameParser);
       const firstDay = tryLoadValue('firstDay', row.getCell(leaveColumns.firstDay.index), errors, allStaff, parsers.dateParser);
+      const reason = tryLoadNullableValue('reason', leaveColumns.reason, errors, allStaff, parsers.stringParser, null, row);
       if (firstDay && name) {
-        const leave = { start: moment(firstDay).startOf('day').toDate() };
+        const leave = { start: moment(firstDay).startOf('day').toDate(), reason };
         if (!isNullOrWhitespace(row.getCell(leaveColumns.lastDay.index).value)) {
           const lastDay = tryLoadValue('lastDay', row.getCell(leaveColumns.lastDay.index), errors, allStaff, parsers.dateParser);
           leave.end = moment(lastDay).endOf('day').toDate();

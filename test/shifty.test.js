@@ -57,15 +57,18 @@ describe('Shifty', () => {
     const firstNegEnd = adjustTimezoneOffset(new Date('2017-02-07T09:00:00'));
     expect(edwina.negs[0].start).to.eql(firstNegStart);
     expect(edwina.negs[0].end).to.eql(firstNegEnd);
+    expect(edwina.negs[0].reason).to.eql('Do not want to work');
 
     const expectedEdwinaLeave = {
       start: adjustTimezoneOffset(new Date('2017-02-07T00:00:00')),
       end: adjustTimezoneOffset(new Date('2017-02-07T23:59:59.999')),
+      reason: 'Holiday',
     };
     expect(edwina.leave[0]).to.eql(expectedEdwinaLeave);
     const expectedRowenaLeave = {
       start: adjustTimezoneOffset(new Date('2017-02-10T00:00:00')),
       end: adjustTimezoneOffset(new Date('2017-02-15T23:59:59.999')),
+      reason: null,
     };
     expect(rowena.leave[0]).to.eql(expectedRowenaLeave);
   };

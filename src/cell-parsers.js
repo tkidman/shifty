@@ -83,6 +83,7 @@ const parsers = {
     }
     return { error: `At least one shift type must be provided. Allowed values: ${shiftTypesList}` };
   },
+  stringParser: (cell) => ({ value: tryTrimValue(cell) }),
 };
 
 module.exports = parsers;

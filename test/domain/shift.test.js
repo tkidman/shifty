@@ -306,8 +306,8 @@ describe('Shift', () => {
     const loadEmployeeStub = (func, returnVal) => {
       const employeeStub = {
         worksDuringShift: () => true,
-        onLeaveDuringShift: () => false,
-        negDuringShift: () => false,
+        onLeaveDuringShift: () => undefined,
+        negDuringShift: () => undefined,
         workingShiftAtSameTime: () => false,
       };
       employeeStub[func] = () => returnVal;
@@ -315,15 +315,16 @@ describe('Shift', () => {
     };
 
     it('initialises the employee lists correctly', () => {
-      const onLeaveEmployee = loadEmployeeStub('onLeaveDuringShift', true);
-      const negEmployee = loadEmployeeStub('negDuringShift', true);
+      const neg = { start: new Date(), end: new Date(), reason: 'I need it!' };
+      const onLeaveEmployee = loadEmployeeStub('onLeaveDuringShift', neg);
+      const negEmployee = loadEmployeeStub('negDuringShift', neg);
       const sameTimeEmployee = loadEmployeeStub('workingShiftAtSameTime', true);
       const notWorkingEmployee = loadEmployeeStub('worksDuringShift', false);
       const allEmployees = [onLeaveEmployee, negEmployee, sameTimeEmployee, notWorkingEmployee];
 
       aalShift1.initialise(allEmployees);
-      expect(aalShift1.onLeaveEmployees).to.eql([onLeaveEmployee]);
-      expect(aalShift1.negEmployees).to.eql([negEmployee]);
+      expect(aalShift1.onLeaveEmployees).to.eql([{ employee: onLeaveEmployee, leave: neg }]);
+      expect(aalShift1.negEmployees).to.eql([{ employee: negEmployee, neg }]);
       expect(aalShift1.workingShiftAtSameTimeEmployees).to.eql([sameTimeEmployee]);
     });
   });
@@ -383,6 +384,46 @@ describe('Shift', () => {
     it('returns false when the employee has none of the shift\'s shift types', () => {
       standardShift.types = [shiftTypes.bEast, shiftTypes.slc];
       expect(standardShift.hasAnyEmployeeShiftTypes(employee)).to.be.false;
+    });
+  });
+
+  context('employeeNegsDisplay', () => {
+    let negEmployee;
+    beforeEach(() => {
+      negEmployee = {
+        neg: {
+          start: adjustTimezoneOffset(new Date('2017-02-06T17:00:00')),
+          end: adjustTimezoneOffset(new Date('2017-02-06T19:00:00')),
+          reason: 'nup, not happening',
+        },
+        employee,
+      };
+    });
+    it('creates the correct output', () => {
+      expect(standardShift.employeeNegsDisplay([negEmployee])[0]).to.equal('empy : 17:00 - 19:00 : nup, not happening');
+      negEmployee.neg.reason = null;
+      expect(standardShift.employeeNegsDisplay([negEmployee])[0]).to.equal('empy : 17:00 - 19:00');
+    });
+  });
+
+  context('employeeLeaveDisplay', () => {
+    let leaveEmployee;
+    beforeEach(() => {
+      leaveEmployee = {
+        leave: {
+          start: adjustTimezoneOffset(new Date('2017-02-06T17:00:00')),
+          reason: 'holiday',
+        },
+        employee,
+      };
+    });
+
+    it('creates the correct output', () => {
+      expect(standardShift.employeeLeaveDisplay([leaveEmployee])[0]).to.equal('empy : 6/2/2017 : holiday');
+      leaveEmployee.leave.end = adjustTimezoneOffset(new Date('2017-02-10T17:00:00'));
+      expect(standardShift.employeeLeaveDisplay([leaveEmployee])[0]).to.equal('empy : 6/2/2017 - 10/2/2017 : holiday');
+      leaveEmployee.leave.reason = null;
+      expect(standardShift.employeeLeaveDisplay([leaveEmployee])[0]).to.equal('empy : 6/2/2017 - 10/2/2017');
     });
   });
 });
