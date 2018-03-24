@@ -7,7 +7,6 @@ const scoreConstants = require('../../src/domain/shift').scoreConstants;
 const shiftTypes = require('../../src/domain/shift-type').shiftTypes;
 const ShiftAllocation = require('../../src/domain/shift-allocation');
 const hewLevels = require('../../src/domain/hew-level');
-const adjustTimezoneOffset = require('../../src/common').adjustTimezoneOffset;
 
 describe('Shift', () => {
   let employee;
@@ -27,24 +26,24 @@ describe('Shift', () => {
   beforeEach(() => {
     standardShift = new Shift({
       types: [shiftTypes.standard],
-      start: adjustTimezoneOffset(new Date('2017-02-06T09:00:00')),
-      end: adjustTimezoneOffset(new Date('2017-02-06T10:00:00')),
+      start: new Date('2017-02-06T09:00:00'),
+      end: new Date('2017-02-06T10:00:00'),
     });
     aalShift1 = new Shift({
       types: [shiftTypes.aal],
-      start: adjustTimezoneOffset(new Date('2017-02-06T11:00:00')),
-      end: adjustTimezoneOffset(new Date('2017-02-06T12:00:00')),
+      start: new Date('2017-02-06T11:00:00'),
+      end: new Date('2017-02-06T12:00:00'),
       label: 'Carlton swap',
     });
     aalShift2 = new Shift({
       types: [shiftTypes.aal],
-      start: adjustTimezoneOffset(new Date('2017-02-06T13:00:00')),
-      end: adjustTimezoneOffset(new Date('2017-02-06T15:00:00')),
+      start: new Date('2017-02-06T13:00:00'),
+      end: new Date('2017-02-06T15:00:00'),
     });
     nightShift = new Shift({
       types: [shiftTypes.standard],
-      start: adjustTimezoneOffset(new Date('2017-02-06T17:00:00')),
-      end: adjustTimezoneOffset(new Date('2017-02-06T21:00:00')),
+      start: new Date('2017-02-06T17:00:00'),
+      end: new Date('2017-02-06T21:00:00'),
     });
     standardShiftTypes = [shiftTypes.aal, shiftTypes.standard, shiftTypes.backup];
     employee = new Employee({ name: 'empy', hewLevel: hewLevels.hewLevel5, hoursByDayOfWeek, shiftTypes: standardShiftTypes });
@@ -64,8 +63,8 @@ describe('Shift', () => {
     it('returns the correct score when over minimum minutes and under ideal minutes', () => {
       const nextDayShift = new Shift({
         types: [shiftTypes.standard],
-        start: adjustTimezoneOffset(new Date('2017-02-07T09:00:00')),
-        end: adjustTimezoneOffset(new Date('2017-02-07T10:00:00')),
+        start: new Date('2017-02-07T09:00:00'),
+        end: new Date('2017-02-07T10:00:00'),
       });
       nightShift.allocateShift(new ShiftAllocation(nightShift, employee));
       const score = nextDayShift.getPotentialShiftAllocation(employee);
@@ -130,8 +129,8 @@ describe('Shift', () => {
       });
       const standardShift2 = new Shift({
         type: shiftTypes.standard,
-        start: adjustTimezoneOffset(new Date('2017-02-06T17:00:00')),
-        end: adjustTimezoneOffset(new Date('2017-02-06T21:00:00')),
+        start: new Date('2017-02-06T17:00:00'),
+        end: new Date('2017-02-06T21:00:00'),
       });
       standardShift2.allocateShift(new ShiftAllocation(standardShift2, highEmployee));
       highEmployee.markAsAvailableForShift(nightShift);
@@ -175,8 +174,8 @@ describe('Shift', () => {
     beforeEach(() => {
       sameTimeShift = new Shift({
         type: shiftTypes.aal,
-        start: adjustTimezoneOffset(new Date('2017-02-06T09:00:00')),
-        end: adjustTimezoneOffset(new Date('2017-02-06T10:00:00')),
+        start: new Date('2017-02-06T09:00:00'),
+        end: new Date('2017-02-06T10:00:00'),
       });
       employee.markAsAvailableForShift(sameTimeShift);
       standardShift.allocateShift(new ShiftAllocation(standardShift, employee));
@@ -217,24 +216,24 @@ describe('Shift', () => {
 
   context('isNightShift', () => {
     it('is a night shift when it ends after 6:30pm', () => {
-      standardShift.end = adjustTimezoneOffset(new Date('2017-02-06T18:31:00'));
+      standardShift.end = new Date('2017-02-06T18:31:00');
       expect(standardShift.isNightShift()).to.be.true;
     });
 
     it('is not a night shift when it ends before 6:30pm', () => {
-      standardShift.end = adjustTimezoneOffset(new Date('2017-02-06T18:29:00'));
+      standardShift.end = new Date('2017-02-06T18:29:00');
       expect(standardShift.isNightShift()).to.be.false;
     });
   });
 
   context('isMorningShift', () => {
     it('is a morning shift when it starts before 9:00am', () => {
-      standardShift.start = adjustTimezoneOffset(new Date('2017-02-06T08:55:00'));
+      standardShift.start = new Date('2017-02-06T08:55:00');
       expect(standardShift.isMorningShift()).to.be.true;
     });
 
     it('is not a morning shift when it starts after 9:00am', () => {
-      standardShift.end = adjustTimezoneOffset(new Date('2017-02-06T09:00:00'));
+      standardShift.end = new Date('2017-02-06T09:00:00');
       expect(standardShift.isMorningShift()).to.be.false;
     });
   });
@@ -243,8 +242,8 @@ describe('Shift', () => {
     it('returns true when this shift is a day before', () => {
       const dayBeforeStandardShift = new Shift({
         type: shiftTypes.standard,
-        start: adjustTimezoneOffset(new Date('2017-02-05T09:00:00')),
-        end: adjustTimezoneOffset(new Date('2017-02-05T10:00:00')),
+        start: new Date('2017-02-05T09:00:00'),
+        end: new Date('2017-02-05T10:00:00'),
       });
       expect(dayBeforeStandardShift.isDayBefore(standardShift)).to.be.true;
     });
@@ -260,28 +259,28 @@ describe('Shift', () => {
     beforeEach(() => {
       night = new Shift({
         type: shiftTypes.standard,
-        start: adjustTimezoneOffset(new Date('2017-02-06T18:00:00')),
-        end: adjustTimezoneOffset(new Date('2017-02-06T20:00:00')),
+        start: new Date('2017-02-06T18:00:00'),
+        end: new Date('2017-02-06T20:00:00'),
       });
       morning = new Shift({
         type: shiftTypes.standard,
-        start: adjustTimezoneOffset(new Date('2017-02-07T08:00:00')),
-        end: adjustTimezoneOffset(new Date('2017-02-07T09:00:00')),
+        start: new Date('2017-02-07T08:00:00'),
+        end: new Date('2017-02-07T09:00:00'),
       });
       afterMorning = new Shift({
         type: shiftTypes.standard,
-        start: adjustTimezoneOffset(new Date('2017-02-07T09:00:00')),
-        end: adjustTimezoneOffset(new Date('2017-02-07T10:00:00')),
+        start: new Date('2017-02-07T09:00:00'),
+        end: new Date('2017-02-07T10:00:00'),
       });
       notAdjacent = new Shift({
         type: shiftTypes.standard,
-        start: adjustTimezoneOffset(new Date('2017-02-07T12:00:00')),
-        end: adjustTimezoneOffset(new Date('2017-02-07T13:00:00')),
+        start: new Date('2017-02-07T12:00:00'),
+        end: new Date('2017-02-07T13:00:00'),
       });
       morningOfNight = new Shift({
         type: shiftTypes.standard,
-        start: adjustTimezoneOffset(new Date('2017-02-06T09:00:00')),
-        end: adjustTimezoneOffset(new Date('2017-02-06T10:00:00')),
+        start: new Date('2017-02-06T09:00:00'),
+        end: new Date('2017-02-06T10:00:00'),
       });
     });
 
@@ -392,8 +391,8 @@ describe('Shift', () => {
     beforeEach(() => {
       negEmployee = {
         neg: {
-          start: adjustTimezoneOffset(new Date('2017-02-06T17:00:00')),
-          end: adjustTimezoneOffset(new Date('2017-02-06T19:00:00')),
+          start: new Date('2017-02-06T17:00:00'),
+          end: new Date('2017-02-06T19:00:00'),
           reason: 'nup, not happening',
         },
         employee,
@@ -411,7 +410,7 @@ describe('Shift', () => {
     beforeEach(() => {
       leaveEmployee = {
         leave: {
-          start: adjustTimezoneOffset(new Date('2017-02-06T17:00:00')),
+          start: new Date('2017-02-06T17:00:00'),
           reason: 'holiday',
         },
         employee,
@@ -420,7 +419,7 @@ describe('Shift', () => {
 
     it('creates the correct output', () => {
       expect(standardShift.employeeLeaveDisplay([leaveEmployee])[0]).to.equal('empy : 6/2/2017 : holiday');
-      leaveEmployee.leave.end = adjustTimezoneOffset(new Date('2017-02-10T17:00:00'));
+      leaveEmployee.leave.end = new Date('2017-02-10T17:00:00');
       expect(standardShift.employeeLeaveDisplay([leaveEmployee])[0]).to.equal('empy : 6/2/2017 - 10/2/2017 : holiday');
       leaveEmployee.leave.reason = null;
       expect(standardShift.employeeLeaveDisplay([leaveEmployee])[0]).to.equal('empy : 6/2/2017 - 10/2/2017');

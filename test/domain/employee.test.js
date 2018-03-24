@@ -6,7 +6,6 @@ const Shift = require('../../src/domain/shift').Shift;
 const ShiftAllocation = require('../../src/domain/shift-allocation');
 const shiftTypes = require('../../src/domain/shift-type').shiftTypes;
 const hewLevels = require('../../src/domain/hew-level');
-const adjustTimezoneOffset = require('../../src/common').adjustTimezoneOffset;
 const moment = require('moment');
 
 describe('Employee', () => {
@@ -25,23 +24,23 @@ describe('Employee', () => {
     shift = new Shift({
       types: [shiftTypes.standard],
       // monday
-      start: adjustTimezoneOffset(new Date('2017-02-06T09:00:00')),
-      end: adjustTimezoneOffset(new Date('2017-02-06T10:00:00')),
+      start: new Date('2017-02-06T09:00:00'),
+      end: new Date('2017-02-06T10:00:00'),
     });
     sameTimeShift = new Shift({
       types: [shiftTypes.standard],
-      start: adjustTimezoneOffset(new Date('2017-02-06T09:00:00')),
-      end: adjustTimezoneOffset(new Date('2017-02-06T11:00:00')),
+      start: new Date('2017-02-06T09:00:00'),
+      end: new Date('2017-02-06T11:00:00'),
     });
     nightShift = new Shift({
       types: [shiftTypes.standard],
-      start: adjustTimezoneOffset(new Date('2017-02-06T17:00:00')),
-      end: adjustTimezoneOffset(new Date('2017-02-06T21:00:00')),
+      start: new Date('2017-02-06T17:00:00'),
+      end: new Date('2017-02-06T21:00:00'),
     });
     backupShift = new Shift({
       types: [shiftTypes.backup],
-      start: adjustTimezoneOffset(new Date('2017-02-07T17:00:00')),
-      end: adjustTimezoneOffset(new Date('2017-02-07T21:00:00')),
+      start: new Date('2017-02-07T17:00:00'),
+      end: new Date('2017-02-07T21:00:00'),
     });
     standardShiftTypes = [shiftTypes.aal, shiftTypes.standard, shiftTypes.backup];
     employeeParams = {
@@ -115,8 +114,8 @@ describe('Employee', () => {
       shift.allocateShift(new ShiftAllocation(shift, employee));
       const aalShift = new Shift({
         types: [shiftTypes.aal],
-        start: adjustTimezoneOffset(new Date('2017-02-07T09:00:00')),
-        end: adjustTimezoneOffset(new Date('2017-02-07T10:00:00')),
+        start: new Date('2017-02-07T09:00:00'),
+        end: new Date('2017-02-07T10:00:00'),
       });
       aalShift.allocateShift(new ShiftAllocation(aalShift, employee));
       expect(employee.getAALShiftCount()).to.eql(1);
@@ -129,8 +128,8 @@ describe('Employee', () => {
     beforeEach(() => {
       shift2 = new Shift({
         type: shiftTypes.standard,
-        start: adjustTimezoneOffset(new Date('2017-02-07T09:00:00')),
-        end: adjustTimezoneOffset(new Date('2017-02-07T10:00:00')),
+        start: new Date('2017-02-07T09:00:00'),
+        end: new Date('2017-02-07T10:00:00'),
       });
       employee = new Employee({ name: 'empy', hewLevel: hewLevels.hewLevel4, hoursByDayOfWeek, shiftTypes: standardShiftTypes });
     });
@@ -148,28 +147,28 @@ describe('Employee', () => {
     context('negDuringShift', () => {
       it('returns true when employee has an overlapping neg', () => {
         employee.negs = [{
-          start: adjustTimezoneOffset(new Date('2017-02-06T09:30:00')),
-          end: adjustTimezoneOffset(new Date('2017-02-06T10:30:00')),
+          start: new Date('2017-02-06T09:30:00'),
+          end: new Date('2017-02-06T10:30:00'),
         }];
         expect(employee.negDuringShift(shift)).to.not.be.null;
 
         employee.negs = [{
-          start: adjustTimezoneOffset(new Date('2017-02-06T08:30:00')),
-          end: adjustTimezoneOffset(new Date('2017-02-06T09:30:00')),
+          start: new Date('2017-02-06T08:30:00'),
+          end: new Date('2017-02-06T09:30:00'),
         }];
         expect(employee.negDuringShift(shift)).to.not.be.null;
 
         employee.negs = [{
-          start: adjustTimezoneOffset(new Date('2017-02-06T08:30:00')),
-          end: adjustTimezoneOffset(new Date('2017-02-06T10:30:00')),
+          start: new Date('2017-02-06T08:30:00'),
+          end: new Date('2017-02-06T10:30:00'),
         }];
         expect(employee.negDuringShift(shift)).to.not.be.null;
       });
 
       it('returns false when employee does not have an overlapping neg', () => {
         employee.negs = [{
-          start: adjustTimezoneOffset(new Date('2017-02-07T08:30:00')),
-          end: adjustTimezoneOffset(new Date('2017-02-07T09:30:00')),
+          start: new Date('2017-02-07T08:30:00'),
+          end: new Date('2017-02-07T09:30:00'),
         }];
         expect(employee.negDuringShift(shift)).to.be.undefined;
       });
@@ -178,16 +177,16 @@ describe('Employee', () => {
     context('leaveDuringShift', () => {
       it('returns true when employee has overlapping leave', () => {
         employee.leave = [{
-          start: moment(adjustTimezoneOffset(new Date('2017-02-06T12:00:00'))).startOf('day').toDate(),
-          end: moment(adjustTimezoneOffset(new Date('2017-02-06T12:00:00'))).endOf('day').toDate(),
+          start: moment(new Date('2017-02-06T12:00:00')).startOf('day').toDate(),
+          end: moment(new Date('2017-02-06T12:00:00')).endOf('day').toDate(),
         }];
         expect(employee.onLeaveDuringShift(shift)).to.not.be.null;
       });
 
       it('returns false when employee has overlapping leave', () => {
         employee.leave = [{
-          start: moment(adjustTimezoneOffset(new Date('2017-02-07T12:00:00'))).startOf('day').toDate(),
-          end: moment(adjustTimezoneOffset(new Date('2017-02-07T12:00:00'))).endOf('day').toDate(),
+          start: moment(new Date('2017-02-07T12:00:00')).startOf('day').toDate(),
+          end: moment(new Date('2017-02-07T12:00:00')).endOf('day').toDate(),
         }];
         expect(employee.onLeaveDuringShift(shift)).to.be.undefined;
       });
@@ -202,18 +201,18 @@ describe('Employee', () => {
     beforeEach(() => {
       after = new Shift({
         type: shiftTypes.standard,
-        start: adjustTimezoneOffset(new Date('2017-02-06T10:00:00')),
-        end: adjustTimezoneOffset(new Date('2017-02-06T11:00:00')),
+        start: new Date('2017-02-06T10:00:00'),
+        end: new Date('2017-02-06T11:00:00'),
       });
       before = new Shift({
         type: shiftTypes.standard,
-        start: adjustTimezoneOffset(new Date('2017-02-06T08:00:00')),
-        end: adjustTimezoneOffset(new Date('2017-02-06T09:00:00')),
+        start: new Date('2017-02-06T08:00:00'),
+        end: new Date('2017-02-06T09:00:00'),
       });
       nextDay = new Shift({
         type: shiftTypes.standard,
-        start: adjustTimezoneOffset(new Date('2017-02-07T08:00:00')),
-        end: adjustTimezoneOffset(new Date('2017-02-07T09:00:00')),
+        start: new Date('2017-02-07T08:00:00'),
+        end: new Date('2017-02-07T09:00:00'),
       });
 
       employee = new Employee({ name: 'empy', hewLevel: hewLevels.hewLevel4, hoursByDayOfWeek, shiftTypes: standardShiftTypes });
@@ -236,8 +235,8 @@ describe('Employee', () => {
       anotherShift = new Shift({
         type: shiftTypes.standard,
         // tuesday
-        start: adjustTimezoneOffset(new Date('2017-02-07T09:00:00')),
-        end: adjustTimezoneOffset(new Date('2017-02-07T10:00:00')),
+        start: new Date('2017-02-07T09:00:00'),
+        end: new Date('2017-02-07T10:00:00'),
       });
       shiftsByDays = [{ date: shift.start, shifts: [shift] }, { date: anotherShift.start, shifts: [anotherShift] }];
     });
@@ -248,8 +247,8 @@ describe('Employee', () => {
 
     it('doesn\'t include annual leave', () => {
       employee.leave = [{
-        start: moment(adjustTimezoneOffset(new Date('2017-02-06T12:00:00'))).startOf('day').toDate(),
-        end: moment(adjustTimezoneOffset(new Date('2017-02-06T12:00:00'))).endOf('day').toDate(),
+        start: moment(new Date('2017-02-06T12:00:00')).startOf('day').toDate(),
+        end: moment(new Date('2017-02-06T12:00:00')).endOf('day').toDate(),
       }];
       expect(employee._calculateMinutesWorkedInRoster(shiftsByDays)).to.eql(0);
     });

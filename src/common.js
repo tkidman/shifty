@@ -14,7 +14,7 @@ const common = {
   formatNumber: (number) => numeral(number).format('0.[00]'),
 };
 
-const initialMondayPayweek = moment(common.adjustTimezoneOffset(new Date('2017-03-13T00:00:00')));
+const initialMondayPayweek = moment(new Date('2017-03-13T00:00:00'));
 common.isInPayweek = (date) => initialMondayPayweek.diff(date, 'week') % 2 === 0;
 
 module.exports = common;

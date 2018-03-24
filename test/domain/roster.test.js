@@ -6,17 +6,16 @@ const Shift = require('../../src/domain/shift').Shift;
 const Employee = require('../../src/domain/employee');
 const hewLevels = require('../../src/domain/hew-level');
 const shiftTypes = require('../../src/domain/shift-type').shiftTypes;
-const adjustTimezoneOffset = require('../../src/common').adjustTimezoneOffset;
 
 describe('Roster', () => {
   let roster;
   let expectedSortedShifts;
 
   beforeEach(() => {
-    const startDay1 = adjustTimezoneOffset(new Date('2017-02-06T08:00:00'));
-    const endDay1 = adjustTimezoneOffset(new Date('2017-02-06T09:00:00'));
-    const startDay2 = adjustTimezoneOffset(new Date('2017-02-07T08:00:00'));
-    const endDay2 = adjustTimezoneOffset(new Date('2017-02-07T09:00:00'));
+    const startDay1 = new Date('2017-02-06T08:00:00');
+    const endDay1 = new Date('2017-02-06T09:00:00');
+    const startDay2 = new Date('2017-02-07T08:00:00');
+    const endDay2 = new Date('2017-02-07T09:00:00');
 
     const employee1 = new Employee({ name: 'empy', hewLevel: hewLevels.hewLevel4 });
     const employee2 = new Employee({ name: 'empy', hewLevel: hewLevels.hewLevel4 });

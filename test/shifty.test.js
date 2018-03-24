@@ -3,7 +3,6 @@ const chai = require('chai');
 const expect = chai.expect;
 const shifty = require('../src/shifty');
 const hewLevels = require('../src/domain/hew-level');
-const adjustTimezoneOffset = require('../src/common').adjustTimezoneOffset;
 const shiftTypes = require('../src/domain/shift-type').shiftTypes;
 const shiftTypesList = require('../src/domain/shift-type').shiftTypesList;
 
@@ -18,8 +17,8 @@ describe('Shifty', () => {
     expect(edwina.shiftTypes.sort()).to.eql(shiftTypesList.sort());
     expect(rowena.shiftTypes.sort()).to.eql([shiftTypes.backup, shiftTypes.responsibleOfficer]);
 
-    const firstShiftStart = adjustTimezoneOffset(new Date('2017-02-06T08:00:00'));
-    const firstShiftEnd = adjustTimezoneOffset(new Date('2017-02-06T09:00:00'));
+    const firstShiftStart = new Date('2017-02-06T08:00:00');
+    const firstShiftEnd = new Date('2017-02-06T09:00:00');
     expect(roster.shifts[0].shiftAllocation.name).to.eql('Edwina');
     expect(roster.shifts[0].start).to.eql(firstShiftStart);
     expect(roster.shifts[0].end).to.eql(firstShiftEnd);
@@ -53,21 +52,21 @@ describe('Shifty', () => {
     expect(rowena.hoursByDayOfWeek.payweek.Fri.end.getHours()).to.eql(17);
     expect(rowena.hoursByDayOfWeek.payweek.Fri.end.getMinutes()).to.eql(0);
 
-    const firstNegStart = adjustTimezoneOffset(new Date('2017-02-07T08:00:00'));
-    const firstNegEnd = adjustTimezoneOffset(new Date('2017-02-07T09:00:00'));
+    const firstNegStart = new Date('2017-02-07T08:00:00');
+    const firstNegEnd = new Date('2017-02-07T09:00:00');
     expect(edwina.negs[0].start).to.eql(firstNegStart);
     expect(edwina.negs[0].end).to.eql(firstNegEnd);
     expect(edwina.negs[0].reason).to.eql('Do not want to work');
 
     const expectedEdwinaLeave = {
-      start: adjustTimezoneOffset(new Date('2017-02-07T00:00:00')),
-      end: adjustTimezoneOffset(new Date('2017-02-07T23:59:59.999')),
+      start: new Date('2017-02-07T00:00:00'),
+      end: new Date('2017-02-07T23:59:59.999'),
       reason: 'Holiday',
     };
     expect(edwina.leave[0]).to.eql(expectedEdwinaLeave);
     const expectedRowenaLeave = {
-      start: adjustTimezoneOffset(new Date('2017-02-10T00:00:00')),
-      end: adjustTimezoneOffset(new Date('2017-02-15T23:59:59.999')),
+      start: new Date('2017-02-10T00:00:00'),
+      end: new Date('2017-02-15T23:59:59.999'),
       reason: null,
     };
     expect(rowena.leave[0]).to.eql(expectedRowenaLeave);
