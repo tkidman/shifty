@@ -3,6 +3,8 @@ const chai = require('chai');
 const expect = chai.expect;
 const Employee = require('../../src/domain/employee');
 const Shift = require('../../src/domain/shift').Shift;
+const Unavailability = require('../../src/domain/unavailability').Unavailability;
+const unavailabilityTypes = require('../../src/domain/unavailability').unavailabilityTypes;
 const ShiftAllocation = require('../../src/domain/shift-allocation');
 const shiftTypes = require('../../src/domain/shift-type').shiftTypes;
 const hewLevels = require('../../src/domain/hew-level');
@@ -146,49 +148,31 @@ describe('Employee', () => {
 
     context('negDuringShift', () => {
       it('returns true when employee has an overlapping neg', () => {
-        employee.negs = [{
+        employee.unavailabilities = [new Unavailability({
           start: new Date('2017-02-06T09:30:00'),
           end: new Date('2017-02-06T10:30:00'),
-        }];
-        expect(employee.negDuringShift(shift)).to.not.be.null;
+        })];
+        expect(employee.findUnavailabilityDuringShift(shift)).to.not.be.null;
 
-        employee.negs = [{
+        employee.unavailabilities = [new Unavailability({
           start: new Date('2017-02-06T08:30:00'),
           end: new Date('2017-02-06T09:30:00'),
-        }];
-        expect(employee.negDuringShift(shift)).to.not.be.null;
+        })];
+        expect(employee.findUnavailabilityDuringShift(shift)).to.not.be.null;
 
-        employee.negs = [{
+        employee.unavailabilities = [{
           start: new Date('2017-02-06T08:30:00'),
           end: new Date('2017-02-06T10:30:00'),
         }];
-        expect(employee.negDuringShift(shift)).to.not.be.null;
+        expect(employee.findUnavailabilityDuringShift(shift)).to.not.be.null;
       });
 
       it('returns false when employee does not have an overlapping neg', () => {
-        employee.negs = [{
+        employee.unavailabilities = [new Unavailability({
           start: new Date('2017-02-07T08:30:00'),
           end: new Date('2017-02-07T09:30:00'),
-        }];
-        expect(employee.negDuringShift(shift)).to.be.undefined;
-      });
-    });
-
-    context('leaveDuringShift', () => {
-      it('returns true when employee has overlapping leave', () => {
-        employee.leave = [{
-          start: moment(new Date('2017-02-06T12:00:00')).startOf('day').toDate(),
-          end: moment(new Date('2017-02-06T12:00:00')).endOf('day').toDate(),
-        }];
-        expect(employee.onLeaveDuringShift(shift)).to.not.be.null;
-      });
-
-      it('returns false when employee has overlapping leave', () => {
-        employee.leave = [{
-          start: moment(new Date('2017-02-07T12:00:00')).startOf('day').toDate(),
-          end: moment(new Date('2017-02-07T12:00:00')).endOf('day').toDate(),
-        }];
-        expect(employee.onLeaveDuringShift(shift)).to.be.undefined;
+        })];
+        expect(employee.findUnavailabilityDuringShift(shift)).to.be.undefined;
       });
     });
   });
@@ -246,10 +230,11 @@ describe('Employee', () => {
     });
 
     it('doesn\'t include annual leave', () => {
-      employee.leave = [{
+      employee.unavailabilities = [new Unavailability({
         start: moment(new Date('2017-02-06T12:00:00')).startOf('day').toDate(),
         end: moment(new Date('2017-02-06T12:00:00')).endOf('day').toDate(),
-      }];
+        type: unavailabilityTypes.leave,
+      })];
       expect(employee._calculateMinutesWorkedInRoster(shiftsByDays)).to.eql(0);
     });
 

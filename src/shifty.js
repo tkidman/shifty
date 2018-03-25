@@ -11,6 +11,8 @@ const isNullOrWhitespace = require('./common').isNullOrWhitespace;
 const loadColumnIndicies = require('./column-indicies').loadColumnIndicies;
 const hoursForDaysKeys = require('./column-indicies').hoursForDaysKeys;
 const sheetNames = require('./sheet-names');
+const Unavailability = require('./domain/unavailability').Unavailability;
+const unavailabilityTypes = require('./domain/unavailability').unavailabilityTypes;
 
 const addTime = (day, time) => {
   const dateTime = new Date(day);
@@ -163,7 +165,7 @@ const loadNegs = (workbook, allStaff, errors, columnIndicies) => {
       if (name && day && startTime && endTime) {
         const start = addTime(day, startTime);
         const end = addTime(day, endTime);
-        allStaff[name].negs.push({ start, end, reason });
+        allStaff[name].unavailabilities.push(new Unavailability({ start, end, reason, type: unavailabilityTypes.neg }));
       }
     }
   });
@@ -180,14 +182,16 @@ const loadLeave = (workbook, allStaff, errors, columnIndicies) => {
       const firstDay = tryLoadValue('firstDay', row.getCell(leaveColumns.firstDay.index), errors, allStaff, parsers.dateParser);
       const reason = tryLoadNullableValue('reason', leaveColumns.reason, errors, allStaff, parsers.stringParser, null, row);
       if (firstDay && name) {
-        const leave = { start: moment(firstDay).startOf('day').toDate(), reason };
+        const leave = new Unavailability({
+          start: moment(firstDay).startOf('day').toDate(), reason, type: unavailabilityTypes.leave,
+        });
         if (!isNullOrWhitespace(row.getCell(leaveColumns.lastDay.index).value)) {
           const lastDay = tryLoadValue('lastDay', row.getCell(leaveColumns.lastDay.index), errors, allStaff, parsers.dateParser);
           leave.end = moment(lastDay).endOf('day').toDate();
         } else {
           leave.end = moment(firstDay).endOf('day').toDate();
         }
-        allStaff[name].leave.push(leave);
+        allStaff[name].unavailabilities.push(leave);
       }
     }
   });

@@ -1,5 +1,6 @@
 'use strict';
 const shiftTypes = require('./shift-type').shiftTypes;
+const unavailabilityTypes = require('./unavailability').unavailabilityTypes;
 const days = { 1: 'Mon', 2: 'Tue', 3: 'Wed', 4: 'Thu', 5: 'Fri' };
 const moment = require('moment');
 const common = require('../common');
@@ -17,8 +18,7 @@ class Employee {
     this.hoursByDayOfWeek = params.hoursByDayOfWeek;
     this.availableForShifts = [];
     this.shiftAllocations = [];
-    this.negs = [];
-    this.leave = [];
+    this.unavailabilities = [];
     this.breakTime = params.breakTime === undefined ? 60 : params.breakTime;
   }
 
@@ -86,12 +86,13 @@ class Employee {
     return hoursForDay;
   }
 
-  negDuringShift(shift) {
-    return this.negs.find(neg => this._overlap(neg, shift));
+  findUnavailabilityDuringShift(shift) {
+    return this.unavailabilities.find(unavailability => this._overlap(unavailability, shift));
   }
 
   onLeaveDuringShift(shift) {
-    return this.leave.find(leave => this._overlap(leave, shift));
+    const unavailability = this.findUnavailabilityDuringShift(shift);
+    return unavailability && unavailability.type === unavailabilityTypes.leave;
   }
 
   workingShiftAtSameTime(shift) {

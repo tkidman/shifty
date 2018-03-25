@@ -5,6 +5,8 @@ const shifty = require('../src/shifty');
 const hewLevels = require('../src/domain/hew-level');
 const shiftTypes = require('../src/domain/shift-type').shiftTypes;
 const shiftTypesList = require('../src/domain/shift-type').shiftTypesList;
+const unavailabilityTypes = require('../src/domain/unavailability').unavailabilityTypes;
+const Unavailability = require('../src/domain/unavailability').Unavailability;
 
 describe('Shifty', () => {
   let roster;
@@ -54,22 +56,26 @@ describe('Shifty', () => {
 
     const firstNegStart = new Date('2017-02-07T08:00:00');
     const firstNegEnd = new Date('2017-02-07T09:00:00');
-    expect(edwina.negs[0].start).to.eql(firstNegStart);
-    expect(edwina.negs[0].end).to.eql(firstNegEnd);
-    expect(edwina.negs[0].reason).to.eql('Do not want to work');
+    const edwinaNeg = edwina.unavailabilities.find(unavailability => unavailability.type === unavailabilityTypes.neg);
+    expect(edwinaNeg.start).to.eql(firstNegStart);
+    expect(edwinaNeg.end).to.eql(firstNegEnd);
+    expect(edwinaNeg.reason).to.eql('Do not want to work');
 
-    const expectedEdwinaLeave = {
+    const expectedEdwinaLeave = new Unavailability({
       start: new Date('2017-02-07T00:00:00'),
       end: new Date('2017-02-07T23:59:59.999'),
       reason: 'Holiday',
-    };
-    expect(edwina.leave[0]).to.eql(expectedEdwinaLeave);
-    const expectedRowenaLeave = {
+      type: unavailabilityTypes.leave,
+    });
+    const edwinaLeave = edwina.unavailabilities.find(unavailability => unavailability.type === unavailabilityTypes.leave);
+    expect(edwinaLeave).to.eql(expectedEdwinaLeave);
+    const expectedRowenaLeave = new Unavailability({
       start: new Date('2017-02-10T00:00:00'),
       end: new Date('2017-02-15T23:59:59.999'),
       reason: null,
-    };
-    expect(rowena.leave[0]).to.eql(expectedRowenaLeave);
+      type: unavailabilityTypes.leave,
+    });
+    expect(rowena.unavailabilities[0]).to.eql(expectedRowenaLeave);
   };
 
   const loadRoster = (path) =>

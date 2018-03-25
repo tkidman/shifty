@@ -1,5 +1,7 @@
 td.name
   - var worseAllocationsDisplayList = shift.worseAllocationsDisplayList()
+  - var leaveDisplay = shift.employeeLeaveDisplay()
+  - var negsDisplay = shift.employeeNegsDisplay()
   - var hasWarnings = shift.shiftAllocation.warningsList.length > 0
   div(class=hasWarnings ? 'tooltip tooltip-error' : 'tooltip') #{shift.shiftAllocation.name}
     span.tooltiptext
@@ -13,15 +15,15 @@ td.name
         ul
           each worseAllocationDisplay in worseAllocationsDisplayList
             li= worseAllocationDisplay
-      if (shift.onLeaveEmployees.length > 0)
+      if (leaveDisplay.length > 0)
         p These people work at this time but are on leave:
         ul
-          each leaveDisplay in shift.employeeLeaveDisplay(shift.onLeaveEmployees)
-            li= leaveDisplay
-      if (shift.negEmployees.length > 0)
+          each aLeaveDisplay in leaveDisplay
+            li= aLeaveDisplay
+      if (negsDisplay.length > 0)
         p These people work at this time but have a neg:
         ul
-          each negDisplay in shift.employeeNegsDisplay(shift.negEmployees)
+          each negDisplay in negsDisplay
             li= negDisplay
       if (shift.workingShiftAtSameTimeEmployees.length > 0)
         p These people are working a shift at the same time: #{shift.employeeNames(shift.workingShiftAtSameTimeEmployees)}

@@ -4,6 +4,8 @@ const expect = chai.expect;
 const Employee = require('../../src/domain/employee');
 const Shift = require('../../src/domain/shift').Shift;
 const scoreConstants = require('../../src/domain/shift').scoreConstants;
+const unavailabilityTypes = require('../../src/domain/unavailability').unavailabilityTypes;
+const Unavailability = require('../../src/domain/unavailability').Unavailability;
 const shiftTypes = require('../../src/domain/shift-type').shiftTypes;
 const ShiftAllocation = require('../../src/domain/shift-allocation');
 const hewLevels = require('../../src/domain/hew-level');
@@ -305,26 +307,46 @@ describe('Shift', () => {
     const loadEmployeeStub = (func, returnVal) => {
       const employeeStub = {
         worksDuringShift: () => true,
-        onLeaveDuringShift: () => undefined,
-        negDuringShift: () => undefined,
+        findUnavailabilityDuringShift: () => undefined,
         workingShiftAtSameTime: () => false,
+        name: 'empy',
       };
       employeeStub[func] = () => returnVal;
       return employeeStub;
     };
 
-    it('initialises the employee lists correctly', () => {
-      const neg = { start: new Date(), end: new Date(), reason: 'I need it!' };
-      const onLeaveEmployee = loadEmployeeStub('onLeaveDuringShift', neg);
-      const negEmployee = loadEmployeeStub('negDuringShift', neg);
-      const sameTimeEmployee = loadEmployeeStub('workingShiftAtSameTime', true);
-      const notWorkingEmployee = loadEmployeeStub('worksDuringShift', false);
-      const allEmployees = [onLeaveEmployee, negEmployee, sameTimeEmployee, notWorkingEmployee];
+    const neg = new Unavailability({
+      start: new Date('2017-02-07T12:00:00'),
+      end: new Date('2017-02-07T13:00:00'),
+      type: unavailabilityTypes.neg,
+      reason: 'I need it!',
+    });
+    const leave = new Unavailability({
+      start: new Date('2017-02-07T12:00:00'),
+      end: new Date('2017-02-07T13:00:00'),
+      type: unavailabilityTypes.leave,
+      reason: 'Holiday!',
+    });
+    const onLeaveEmployee = loadEmployeeStub('findUnavailabilityDuringShift', leave);
+    const negEmployee = loadEmployeeStub('findUnavailabilityDuringShift', neg);
+    const sameTimeEmployee = loadEmployeeStub('workingShiftAtSameTime', true);
+    const notWorkingEmployee = loadEmployeeStub('worksDuringShift', false);
+    const allEmployees = [onLeaveEmployee, negEmployee, sameTimeEmployee, notWorkingEmployee];
 
+    it('initialises the employee lists correctly', () => {
       aalShift1.initialise(allEmployees);
-      expect(aalShift1.onLeaveEmployees).to.eql([{ employee: onLeaveEmployee, leave: neg }]);
-      expect(aalShift1.negEmployees).to.eql([{ employee: negEmployee, neg }]);
+      expect(aalShift1.unavailableEmployees).to.eql([onLeaveEmployee, negEmployee]);
       expect(aalShift1.workingShiftAtSameTimeEmployees).to.eql([sameTimeEmployee]);
+    });
+
+    it('produces a nicely formatted list of employee leave', () => {
+      aalShift1.initialise(allEmployees);
+      expect(aalShift1.employeeLeaveDisplay()).to.eql(['empy : 7/2/2017 - 7/2/2017 : Holiday!']);
+    });
+
+    it('produces a nicely formatted list of employee negs', () => {
+      aalShift1.initialise(allEmployees);
+      expect(aalShift1.employeeNegsDisplay()).to.eql(['empy : 12:00 - 13:00 : I need it!']);
     });
   });
 
@@ -383,46 +405,6 @@ describe('Shift', () => {
     it('returns false when the employee has none of the shift\'s shift types', () => {
       standardShift.types = [shiftTypes.bEast, shiftTypes.slc];
       expect(standardShift.hasAnyEmployeeShiftTypes(employee)).to.be.false;
-    });
-  });
-
-  context('employeeNegsDisplay', () => {
-    let negEmployee;
-    beforeEach(() => {
-      negEmployee = {
-        neg: {
-          start: new Date('2017-02-06T17:00:00'),
-          end: new Date('2017-02-06T19:00:00'),
-          reason: 'nup, not happening',
-        },
-        employee,
-      };
-    });
-    it('creates the correct output', () => {
-      expect(standardShift.employeeNegsDisplay([negEmployee])[0]).to.equal('empy : 17:00 - 19:00 : nup, not happening');
-      negEmployee.neg.reason = null;
-      expect(standardShift.employeeNegsDisplay([negEmployee])[0]).to.equal('empy : 17:00 - 19:00');
-    });
-  });
-
-  context('employeeLeaveDisplay', () => {
-    let leaveEmployee;
-    beforeEach(() => {
-      leaveEmployee = {
-        leave: {
-          start: new Date('2017-02-06T17:00:00'),
-          reason: 'holiday',
-        },
-        employee,
-      };
-    });
-
-    it('creates the correct output', () => {
-      expect(standardShift.employeeLeaveDisplay([leaveEmployee])[0]).to.equal('empy : 6/2/2017 : holiday');
-      leaveEmployee.leave.end = new Date('2017-02-10T17:00:00');
-      expect(standardShift.employeeLeaveDisplay([leaveEmployee])[0]).to.equal('empy : 6/2/2017 - 10/2/2017 : holiday');
-      leaveEmployee.leave.reason = null;
-      expect(standardShift.employeeLeaveDisplay([leaveEmployee])[0]).to.equal('empy : 6/2/2017 - 10/2/2017');
     });
   });
 });

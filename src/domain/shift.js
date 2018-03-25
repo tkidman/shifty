@@ -2,12 +2,12 @@
 
 const dateString = require('../common').dateString;
 const timeString = require('../common').timeString;
-const dateOnlyString = require('../common').dateOnlyString;
 const logger = require('../common').logger;
 const isInPayweek = require('../common').isInPayweek;
 const _ = require('lodash');
 const shiftTypes = require('./shift-type').shiftTypes;
 const ShiftAllocation = require('./shift-allocation');
+const unavailabilityTypes = require('./unavailability').unavailabilityTypes;
 const warnings = require('./warnings');
 const moment = require('moment');
 
@@ -23,8 +23,7 @@ class Shift {
   constructor(params) {
     this.types = params.types;
     this.availableEmployees = [];
-    this.onLeaveEmployees = [];
-    this.negEmployees = [];
+    this.unavailableEmployees = [];
     this.workingShiftAtSameTimeEmployees = [];
     this.shiftAllocation = null;
     this.start = params.start;
@@ -187,34 +186,22 @@ class Shift {
     return employees.map(employee => employee.name).join(', ');
   }
 
-  employeeNegsDisplay(negEmployees) {
-    return negEmployees.map(negEmployee => `${negEmployee.employee.name} : ${this.negDisplay(negEmployee.neg)}`);
+  employeeUnavailabilityDisplay(unavailabilityType) {
+    return this.unavailableEmployees.reduce((accumulator, employee) => {
+      const unavailability = employee.findUnavailabilityDuringShift(this);
+      if (unavailability.type === unavailabilityType) {
+        accumulator.push(unavailability.display(employee));
+      }
+      return accumulator;
+    }, []);
   }
 
-  employeeLeaveDisplay(leaveEmployees) {
-    return leaveEmployees.map(leaveEmployee =>
-      `${leaveEmployee.employee.name} : ${this.leaveDisplay(leaveEmployee.leave)}`
-    );
+  employeeLeaveDisplay() {
+    return this.employeeUnavailabilityDisplay(unavailabilityTypes.leave);
   }
 
-  negDisplay(neg) {
-    let display = `${timeString(neg.start)} - ${timeString(neg.end)}`;
-    if (neg.reason) {
-      display += ` : ${neg.reason}`;
-    }
-    return display;
-  }
-
-  leaveDisplay(leave) {
-    let display = `${dateOnlyString(leave.start)}`;
-    if (leave.end) {
-      display += ` - ${dateOnlyString(leave.end)}`;
-    }
-    if (leave.reason) {
-      display += ` : ${leave.reason}`;
-    }
-
-    return display;
+  employeeNegsDisplay() {
+    return this.employeeUnavailabilityDisplay(unavailabilityTypes.neg);
   }
 
   worseAllocationsDisplayList() {
@@ -231,13 +218,9 @@ class Shift {
   initialise(allEmployees) {
     allEmployees.forEach(employee => {
       // remember manual assignments
-      const leave = employee.onLeaveDuringShift(this);
-      const neg = employee.negDuringShift(this);
       if (employee.worksDuringShift(this) && (!this.shiftAllocation || employee !== this.shiftAllocation.employee)) {
-        if (leave) {
-          this.onLeaveEmployees.push({ employee, leave });
-        } else if (neg) {
-          this.negEmployees.push({ employee, neg });
+        if (employee.findUnavailabilityDuringShift(this)) {
+          this.unavailableEmployees.push(employee);
         } else if (employee.workingShiftAtSameTime(this)) {
           this.workingShiftAtSameTimeEmployees.push(employee);
         } else {
