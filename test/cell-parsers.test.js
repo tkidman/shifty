@@ -89,4 +89,20 @@ context('parsers', () => {
       `abc, def are not valid shift types. Allowed values: ${shiftTypesList}`
     );
   });
+
+  context('multipleNameParser', () => {
+    let employees;
+    beforeEach(() => {
+      employees = { Bill: { name: 'Bill' }, Sandy: { name: 'Sandy' }, NoOne: {} };
+    });
+
+    it('returns array of employees for csv name string', () => {
+      expect(parsers.multipleNameParser({ value: 'Bill, Sandy' }, employees).value).to.eql([employees.Bill, employees.Sandy]);
+    });
+
+    it('returns an error if employees can not be found', () => {
+      expect(parsers.multipleNameParser({ value: 'bob, bony' }, employees).error)
+        .to.eql('Unable to find staff member with name(s): bob, bony');
+    });
+  });
 });

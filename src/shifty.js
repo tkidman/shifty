@@ -132,16 +132,19 @@ const loadShifts = (workbook, allStaff, errors, columnIndicies) => {
       if (shiftColumns.label.index) {
         label = row.getCell(shiftColumns.label.index).value;
       }
-      const shift = new Shift({ types, start, end, label });
-      let manualNameCell;
-      if (shiftColumns.manualName.index) {
-        manualNameCell = row.getCell(shiftColumns.manualName.index);
-      }
-      if (manualNameCell && !isNullOrWhitespace(manualNameCell.value)) {
-        const name = tryLoadValue('manualName', manualNameCell, errors, allStaff, parsers.nameParser);
-        if (name) {
-          shift.allocateShift(new ShiftAllocation(shift, allStaff[name]));
-        }
+
+      const excludedEmployees = tryLoadNullableValue(
+        'excludedEmployees', shiftColumns.excludedNames, errors, allStaff, parsers.multipleNameParser, [], row
+      );
+
+      const shift = new Shift({ types, start, end, label, excludedEmployees });
+
+      const manualEmployee = tryLoadNullableValue(
+        'manualEmployee', shiftColumns.manualName, errors, allStaff, parsers.multipleNameParser, [], row
+      );
+
+      if (manualEmployee.length === 1) {
+        shift.allocateShift(new ShiftAllocation(shift, manualEmployee[0]));
       }
       shifts.push(shift);
     }

@@ -37,6 +37,24 @@ const parsers = {
     }
     return { value: name };
   },
+  multipleNameParser: (cell, allStaff) => {
+    const names = tryTrimValue(cell);
+    const employees = [];
+    const errorNames = [];
+
+    names.split(',').forEach(name => {
+      const employee = allStaff[name.trim()];
+      if (!employee) {
+        errorNames.push(name.trim());
+      } else {
+        employees.push(employee);
+      }
+    });
+    if (errorNames.length > 0) {
+      return { error: `Unable to find staff member with name(s): ${errorNames.join(', ')}` };
+    }
+    return { value: employees };
+  },
   trueFalseParser: (cell) => {
     const value = tryTrimValue(cell);
     if (value) {

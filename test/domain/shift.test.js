@@ -55,6 +55,12 @@ describe('Shift', () => {
     employee2 = new Employee({ name: 'ompy', hewLevel: hewLevels.hewLevel5, hoursByDayOfWeek, shiftTypes: standardShiftTypes });
   });
 
+  context('constructor', () => {
+    it('sets excluded employees to empty array', () => {
+      expect(aalShift1.excludedEmployees).to.eql([]);
+    });
+  });
+
   context('scoreEmployee', () => {
     it('returns the correct score when under minimum minutes', () => {
       const empScore = standardShift.getPotentialShiftAllocation(employee);
@@ -305,51 +311,77 @@ describe('Shift', () => {
       return employeeStub;
     };
 
-    const neg = new Unavailability({
-      start: new Date('2017-02-07T12:00:00'),
-      end: new Date('2017-02-07T13:00:00'),
-      type: unavailabilityTypes.neg,
-      reason: 'I need it!',
+    let aalShift;
+    let allEmployees;
+    let onLeaveEmployee;
+    let negEmployee;
+    let sameTimeEmployee;
+    let missingShiftTypeEmployee;
+
+    beforeEach(() => {
+      const neg = new Unavailability({
+        start: new Date('2017-02-07T12:00:00'),
+        end: new Date('2017-02-07T13:00:00'),
+        type: unavailabilityTypes.neg,
+        reason: 'I need it!',
+      });
+      const leave = new Unavailability({
+        start: new Date('2017-02-07T12:00:00'),
+        end: new Date('2017-02-07T13:00:00'),
+        type: unavailabilityTypes.leave,
+        reason: 'Holiday!',
+      });
+      onLeaveEmployee = loadEmployeeStub('findUnavailabilityDuringShift', leave);
+      negEmployee = loadEmployeeStub('findUnavailabilityDuringShift', neg);
+      missingShiftTypeEmployee = loadEmployeeStub();
+      missingShiftTypeEmployee.shiftTypes = [shiftTypes.reference];
+      sameTimeEmployee = loadEmployeeStub('workingShiftAtSameTime', true);
+      const notWorkingEmployee = loadEmployeeStub('worksDuringShift', false);
+      const availableEmployee = loadEmployeeStub();
+      const excludedEmployee = loadEmployeeStub();
+
+      aalShift = new Shift({
+        types: [shiftTypes.aal],
+        start: new Date('2017-02-06T11:00:00'),
+        end: new Date('2017-02-06T12:00:00'),
+        label: 'Carlton swap',
+        excludedEmployees: [excludedEmployee],
+      });
+
+      allEmployees = [
+        onLeaveEmployee,
+        negEmployee,
+        sameTimeEmployee,
+        notWorkingEmployee,
+        missingShiftTypeEmployee,
+        availableEmployee,
+        excludedEmployee,
+      ];
     });
-    const leave = new Unavailability({
-      start: new Date('2017-02-07T12:00:00'),
-      end: new Date('2017-02-07T13:00:00'),
-      type: unavailabilityTypes.leave,
-      reason: 'Holiday!',
-    });
-    const onLeaveEmployee = loadEmployeeStub('findUnavailabilityDuringShift', leave);
-    const negEmployee = loadEmployeeStub('findUnavailabilityDuringShift', neg);
-    const missingShiftTypeEmployee = loadEmployeeStub();
-    missingShiftTypeEmployee.shiftTypes = [shiftTypes.reference];
-    const sameTimeEmployee = loadEmployeeStub('workingShiftAtSameTime', true);
-    const notWorkingEmployee = loadEmployeeStub('worksDuringShift', false);
-    const availableEmployee = loadEmployeeStub();
-    const allEmployees = [
-      onLeaveEmployee, negEmployee, sameTimeEmployee, notWorkingEmployee, missingShiftTypeEmployee, availableEmployee,
-    ];
 
     it('initialises the employee lists correctly', () => {
-      aalShift1.initialise(allEmployees);
-      expect(aalShift1.unavailableEmployees).to.eql([onLeaveEmployee, negEmployee]);
-      expect(aalShift1.workingShiftAtSameTimeEmployees).to.eql([sameTimeEmployee]);
-      expect(aalShift1.missingShiftTypeEmployees).to.eql([missingShiftTypeEmployee]);
-      expect(aalShift1.availableEmployees.length).to.eql(1);
+      aalShift.initialise(allEmployees);
+      expect(aalShift.unavailableEmployees).to.eql([onLeaveEmployee, negEmployee]);
+      expect(aalShift.workingShiftAtSameTimeEmployees).to.eql([sameTimeEmployee]);
+      expect(aalShift.missingShiftTypeEmployees).to.eql([missingShiftTypeEmployee]);
+      expect(aalShift.availableEmployees.length).to.eql(1);
     });
 
     it('produces a nicely formatted list of employee leave', () => {
-      aalShift1.initialise(allEmployees);
-      expect(aalShift1.employeeLeaveDisplay()).to.eql(['empy : 7/2/2017 - 7/2/2017 : Holiday!']);
+      aalShift.initialise(allEmployees);
+      expect(aalShift.employeeLeaveDisplay()).to.eql(['empy : 7/2/2017 - 7/2/2017 : Holiday!']);
     });
 
     it('produces a nicely formatted list of employee negs', () => {
-      aalShift1.initialise(allEmployees);
-      expect(aalShift1.employeeNegsDisplay()).to.eql(['empy : 12:00 - 13:00 : I need it!']);
+      aalShift.initialise(allEmployees);
+      expect(aalShift.employeeNegsDisplay()).to.eql(['empy : 12:00 - 13:00 : I need it!']);
     });
 
     it('produces a nicely formatted list of employees with missing shift types', () => {
-      aalShift1.initialise(allEmployees);
-      expect(aalShift1.employeeMissingShiftTypesDisplay()).to.eql(['empy']);
+      aalShift.initialise(allEmployees);
+      expect(aalShift.employeeMissingShiftTypesDisplay()).to.eql(['empy']);
     });
+
   });
 
   context('employeeNames', () => {

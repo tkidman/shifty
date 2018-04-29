@@ -26,13 +26,15 @@ describe('Shifty', () => {
     expect(roster.shifts[0].end).to.eql(firstShiftEnd);
     expect(roster.shifts[0].label).to.eql('Carlton Swap');
     expect(roster.shifts[1].label).to.be.null;
-    expect(roster.shifts[2].shiftAllocation.name).to.be.equal('None Found');
+    // excluded
+    expect(roster.shifts[1].shiftAllocation.name).to.be.equal('None Found');
+    expect(roster.shifts[2].shiftAllocation.name).to.be.equal('Edwina');
     expect(roster.shifts[6].types).to.be.eql([shiftTypes.standard, shiftTypes.reference]);
     expect(edwina.breakTime).to.equal(0);
     expect(rowena.breakTime).to.equal(60);
     expect(roster.shiftsByDays[0].header).to.be.eql('Monday, 6th February 2017 - Pay Week');
 
-    expect(edwina.hoursByDayOfWeek.payweek.Mon.start.getHours()).to.eql(8);
+    expect(edwina.hoursByDayOfWeek.payweek.Mon.start.getHours()).to.eql(9);
     expect(edwina.hoursByDayOfWeek.payweek.Mon.start.getMinutes()).to.eql(0);
     expect(edwina.hoursByDayOfWeek.payweek.Mon.end.getHours()).to.eql(17);
     expect(edwina.hoursByDayOfWeek.payweek.Mon.end.getMinutes()).to.eql(0);

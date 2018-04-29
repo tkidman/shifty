@@ -50,6 +50,7 @@ are to the ideal desk hour percentages defined by the hew level of the staff mem
 | End Time | Yes | Excel Formatted Time | The end time of the Shift |
 | Shift Type | Yes | One or more of these shift types, comma seperated: Standard, ResponsibleOfficer, AAL, SLC, Reference, Backup, BEast | The type(s) of the Shift |
 | Manual Name | No | A name that matches the name of a Staff member on the staff sheet | If a name is provided, Shifty will always assign this staff member to the Shift |
+| Excluded Names | No | A comma separated list of names that match names of Staff members on the staff sheet, eg: 'Edwina, Rowena' | These staff members will be excluded from working the Shift |
 | Label | No | Text | Shifty will append this label to the Shift in the output.  It doesn't affect rostering logic |
 
 ### Staff

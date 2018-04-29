@@ -18,6 +18,7 @@ const columnIndiciesTemplate = {
     endTime: { mandatory: true },
     shiftType: { mandatory: true },
     manualName: {},
+    excludedNames: {},
     label: {},
   },
   negsColumns: {

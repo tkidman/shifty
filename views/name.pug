@@ -33,3 +33,5 @@ td.name
             li= missingShiftTypeDisplay
       if (shift.workingShiftAtSameTimeEmployees.length > 0)
         p These people are working a shift at the same time: #{shift.employeeNames(shift.workingShiftAtSameTimeEmployees)}
+      if (shift.excludedEmployees.length > 0)
+        p These people are excluded from working the shift: #{shift.employeeNames(shift.excludedEmployees)}

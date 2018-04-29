@@ -25,6 +25,10 @@ class Shift {
     this.unavailableEmployees = [];
     this.missingShiftTypeEmployees = [];
     this.workingShiftAtSameTimeEmployees = [];
+    this.excludedEmployees = params.excludedEmployees;
+    if (!this.excludedEmployees) {
+      this.excludedEmployees = [];
+    }
     this.shiftAllocation = null;
     this.start = params.start;
     this.end = params.end;
@@ -224,7 +228,7 @@ class Shift {
           this.workingShiftAtSameTimeEmployees.push(employee);
         } else if (!this.hasAnyEmployeeShiftTypes(employee)) {
           this.missingShiftTypeEmployees.push(employee);
-        } else {
+        } else if (!this.excludedEmployees.includes(employee)) {
           employee.markAsAvailableForShift(this);
         }
       }
