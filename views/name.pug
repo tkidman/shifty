@@ -2,8 +2,9 @@ td.name
   - var worseAllocationsDisplayList = shift.worseAllocationsDisplayList()
   - var leaveDisplay = shift.employeeLeaveDisplay()
   - var negsDisplay = shift.employeeNegsDisplay()
+  - var missingShiftTypesDisplay = shift.employeeMissingShiftTypesDisplay()
   - var hasWarnings = shift.shiftAllocation.warningsList.length > 0
-  div(class=hasWarnings ? 'tooltip tooltip-error' : 'tooltip') #{shift.shiftAllocation.name}
+  div(class=hasWarnings ? 'tooltip tooltip-error': 'tooltip') #{shift.shiftAllocation.name}
     span.tooltiptext
       if (hasWarnings)
         p Warning - there are problems with this allocation
@@ -25,5 +26,10 @@ td.name
         ul
           each negDisplay in negsDisplay
             li= negDisplay
+      if (missingShiftTypesDisplay.length > 0)
+        p These people work at this time but can't work the shift type:
+        ul
+          each missingShiftTypeDisplay in missingShiftTypesDisplay
+            li= missingShiftTypeDisplay
       if (shift.workingShiftAtSameTimeEmployees.length > 0)
         p These people are working a shift at the same time: #{shift.employeeNames(shift.workingShiftAtSameTimeEmployees)}

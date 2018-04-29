@@ -34,10 +34,10 @@ For each shift in that order, shifty calculates a score for the staff members th
 the lowest score is allocated to the shift. Shifty calculates the score on this basis:
 * If the person has worked less than four hours of desk shifts, the person's score is reduced
 * If working an adjacent shift, the person's score is increased. A night shift followed by a morning shift is considered adjacent, as is any shift on the same day as a night shift.
-* If the staff member doesn't have the right skills based on shift type, the person's score is increased.
 * Shifty increases or decreases the staff member's score based on how close the staff member's hours 
 are to the ideal desk hour percentages defined by the hew level of the staff member.
 * Shifty tries to distribute AAL shifts evenly by increasing the score for each AAL shift worked.
+* If the staff member doesn't have the right skills based on shift type, they will not be assigned to the shift.
  
 ## Sheet column breakdown
 

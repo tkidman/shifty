@@ -14,7 +14,6 @@ const moment = require('moment');
 const scoreConstants = {
   employeeMinMinutes: 4 * 60,
   minMinutesScoreChange: -1000,
-  shouldNotPerformShiftTypeScoreChange: 1000000,
   workingAdjacentShiftScoreChange: 100000,
   workingAALShiftScoreChange: 1000,
 };
@@ -24,6 +23,7 @@ class Shift {
     this.types = params.types;
     this.availableEmployees = [];
     this.unavailableEmployees = [];
+    this.missingShiftTypeEmployees = [];
     this.workingShiftAtSameTimeEmployees = [];
     this.shiftAllocation = null;
     this.start = params.start;
@@ -95,11 +95,6 @@ class Shift {
       potentialAllocation.score += minutesWithShift - employee.idealMinMinutes;
     } else if (minutesWithShift > employee.idealMaxMinutes) {
       potentialAllocation.score += minutesWithShift - employee.idealMaxMinutes;
-    }
-
-    if (!this.hasAnyEmployeeShiftTypes(employee)) {
-      potentialAllocation.score += scoreConstants.shouldNotPerformShiftTypeScoreChange;
-      potentialAllocation.warningsList.push(warnings.shouldNotPerformShiftType(employee, this));
     }
 
     if (this.isAALShift()) {
@@ -204,6 +199,10 @@ class Shift {
     return this.employeeUnavailabilityDisplay(unavailabilityTypes.neg);
   }
 
+  employeeMissingShiftTypesDisplay() {
+    return this.missingShiftTypeEmployees.map(employee => employee.name);
+  }
+
   worseAllocationsDisplayList() {
     return this.getSortedPotentialShiftAllocations()
       .filter(worseShiftAllocation => worseShiftAllocation.employee !== this.shiftAllocation.employee)
@@ -223,6 +222,8 @@ class Shift {
           this.unavailableEmployees.push(employee);
         } else if (employee.workingShiftAtSameTime(this)) {
           this.workingShiftAtSameTimeEmployees.push(employee);
+        } else if (!this.hasAnyEmployeeShiftTypes(employee)) {
+          this.missingShiftTypeEmployees.push(employee);
         } else {
           employee.markAsAvailableForShift(this);
         }

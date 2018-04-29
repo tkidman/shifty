@@ -97,13 +97,6 @@ describe('Shift', () => {
       const standardScoreResult = standardShift.getPotentialShiftAllocation(employee);
       expect(aalScoreResult.score - standardScoreResult.score).to.eql(scoreConstants.workingAALShiftScoreChange);
     });
-
-    it('returns the correct score when employee does not have the shift type', () => {
-      const initialScore = standardShift.getPotentialShiftAllocation(employee);
-      employee.shiftTypes = [];
-      const noShiftTypeScore = standardShift.getPotentialShiftAllocation(employee);
-      expect(noShiftTypeScore.score - initialScore.score).to.eql(scoreConstants.shouldNotPerformShiftTypeScoreChange);
-    });
   });
 
   context('with low, mid and high scoring employees', () => {
@@ -157,17 +150,9 @@ describe('Shift', () => {
 
   context('fill', () => {
     it('generates warnings correctly', () => {
-      employee = new Employee({
-        name: 'umpy',
-        hewLevel: hewLevels.hewLevel5,
-        hoursByDayOfWeek,
-        shiftTypes: standardShiftTypes.filter(shiftType => shiftType !== shiftTypes.aal),
-      });
-      aalShift1.types.push(shiftTypes.bEast);
-      employee.markAsAvailableForShift(aalShift1);
       aalShift1.fill();
       expect(aalShift1.shiftAllocation.warningsList.length).to.eql(1);
-      expect(aalShift1.shiftAllocation.warningsList[0]).to.equal('umpy should not perform AAL or BEast shifts');
+      expect(aalShift1.shiftAllocation.warningsList[0]).to.equal('Nobody was found to work this shift');
     });
   });
 
@@ -306,10 +291,15 @@ describe('Shift', () => {
   context('initialise', () => {
     const loadEmployeeStub = (func, returnVal) => {
       const employeeStub = {
+        available: false,
         worksDuringShift: () => true,
         findUnavailabilityDuringShift: () => undefined,
         workingShiftAtSameTime: () => false,
         name: 'empy',
+        shiftTypes: [shiftTypes.aal],
+        markAsAvailableForShift: (shift) => {
+          shift.addAvailableEmployee(this);
+        },
       };
       employeeStub[func] = () => returnVal;
       return employeeStub;
@@ -329,14 +319,21 @@ describe('Shift', () => {
     });
     const onLeaveEmployee = loadEmployeeStub('findUnavailabilityDuringShift', leave);
     const negEmployee = loadEmployeeStub('findUnavailabilityDuringShift', neg);
+    const missingShiftTypeEmployee = loadEmployeeStub();
+    missingShiftTypeEmployee.shiftTypes = [shiftTypes.reference];
     const sameTimeEmployee = loadEmployeeStub('workingShiftAtSameTime', true);
     const notWorkingEmployee = loadEmployeeStub('worksDuringShift', false);
-    const allEmployees = [onLeaveEmployee, negEmployee, sameTimeEmployee, notWorkingEmployee];
+    const availableEmployee = loadEmployeeStub();
+    const allEmployees = [
+      onLeaveEmployee, negEmployee, sameTimeEmployee, notWorkingEmployee, missingShiftTypeEmployee, availableEmployee,
+    ];
 
     it('initialises the employee lists correctly', () => {
       aalShift1.initialise(allEmployees);
       expect(aalShift1.unavailableEmployees).to.eql([onLeaveEmployee, negEmployee]);
       expect(aalShift1.workingShiftAtSameTimeEmployees).to.eql([sameTimeEmployee]);
+      expect(aalShift1.missingShiftTypeEmployees).to.eql([missingShiftTypeEmployee]);
+      expect(aalShift1.availableEmployees.length).to.eql(1);
     });
 
     it('produces a nicely formatted list of employee leave', () => {
@@ -347,6 +344,11 @@ describe('Shift', () => {
     it('produces a nicely formatted list of employee negs', () => {
       aalShift1.initialise(allEmployees);
       expect(aalShift1.employeeNegsDisplay()).to.eql(['empy : 12:00 - 13:00 : I need it!']);
+    });
+
+    it('produces a nicely formatted list of employees with missing shift types', () => {
+      aalShift1.initialise(allEmployees);
+      expect(aalShift1.employeeMissingShiftTypesDisplay()).to.eql(['empy']);
     });
   });
 
