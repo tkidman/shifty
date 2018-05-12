@@ -441,4 +441,11 @@ describe('Shift', () => {
       expect(standardShift.hasAnyEmployeeShiftTypes(employee)).to.be.false;
     });
   });
+
+  context('summary', () => {
+    it('returns a summary of the shift assignment', () => {
+      standardShift.shiftAllocation = new ShiftAllocation(standardShift, employee);
+      expect(standardShift.summary()).to.eql('empy : Standard');
+    });
+  });
 });

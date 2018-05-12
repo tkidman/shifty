@@ -65,6 +65,19 @@ class Roster {
 
     return value;
   }
+
+  asICal() {
+    let iCal = 'BEGIN:VCALENDAR\nVERSION:2.0\n';
+    this.shifts.forEach(shift => {
+      iCal += 'BEGIN:VEVENT\n';
+      iCal += `DTSTART:${common.dateTimeDigitsUTC(shift.start)}\n`;
+      iCal += `DTEND:${common.dateTimeDigitsUTC(shift.end)}\n`;
+      iCal += `SUMMARY:${shift.summary()}\n`;
+      iCal += 'END:VEVENT\n';
+    });
+    iCal += 'END:VCALENDAR';
+    return iCal;
+  }
 }
 
 module.exports = Roster;

@@ -10,3 +10,12 @@ function openTab(evt, tabName) {
   document.getElementById(tabName).style.display = 'block';
   evt.currentTarget.className += ' active';
 }
+
+function download(name, type) {
+  const a = document.getElementById('downloadAnchor');
+  const ical = document.getElementById('ical').textContent;
+  const file = new Blob([ical], { type });
+  a.href = URL.createObjectURL(file);
+  a.download = name;
+  a.click();
+}

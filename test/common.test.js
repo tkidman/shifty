@@ -9,6 +9,11 @@ describe('common', () => {
     expect(common.dateString(date)).to.eql('6/2/2017 08:00');
   });
 
+  it('formats a date to digits in utc', () => {
+    const date = new Date('2017-02-06T08:00:00Z');
+    expect(common.dateTimeDigitsUTC(date)).to.eql('20170206T080000Z');
+  });
+
   it('returns true when dates are on the same day', () => {
     const date1 = new Date('2017-02-06T08:00:00');
     const date2 = new Date('2017-02-06T23:00:00');

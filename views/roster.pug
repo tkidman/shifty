@@ -1,4 +1,7 @@
 div#roster.tabcontent
+  a(href="", id="downloadAnchor", style="display:none")
+  p(id="ical", style="display:none") #{roster.asICal()}
+  button(onclick="download('roster.ical', 'text/plain')") Export Roster
   each shiftsByDay in roster.shiftsByDays
     table
       thead

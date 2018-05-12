@@ -53,4 +53,39 @@ describe('Roster', () => {
       expect(sortedShifts).to.be.eql(expectedSortedShifts);
     });
   });
+
+  context('asICal', () => {
+    it('creates correct iCal output', () => {
+      const expected = `BEGIN:VCALENDAR
+VERSION:2.0
+BEGIN:VEVENT
+DTSTART:20170205T210000Z
+DTEND:20170205T220000Z
+SUMMARY:None Found : Backup
+END:VEVENT
+BEGIN:VEVENT
+DTSTART:20170205T210000Z
+DTEND:20170205T220000Z
+SUMMARY:empy : AAL
+END:VEVENT
+BEGIN:VEVENT
+DTSTART:20170206T210000Z
+DTEND:20170206T220000Z
+SUMMARY:empy : Standard
+END:VEVENT
+BEGIN:VEVENT
+DTSTART:20170206T210000Z
+DTEND:20170206T220000Z
+SUMMARY:empy : ResponsibleOfficer
+END:VEVENT
+BEGIN:VEVENT
+DTSTART:20170206T210000Z
+DTEND:20170206T220000Z
+SUMMARY:None Found : AAL
+END:VEVENT
+END:VCALENDAR`;
+      roster.fillShifts();
+      expect(roster.asICal()).to.eql(expected);
+    });
+  });
 });

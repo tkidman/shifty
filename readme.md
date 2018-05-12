@@ -25,6 +25,8 @@ Feel free to add as many shifts and employees as you want, though.
 * See the tables below for a description of the input spreadsheet's columns.
 * Shifty uses column headers and sheet names to get to the data it needs, so you can't change the names of the columns or the sheets. 
 Feel free to order the columns in any order you want, and delete any non-mandatory columns you don't need.
+* You can export the roster that Shifty generates to iCalendar format. To export, click on the 'Export Roster' button at the top of the Roster tab and the export file will be downloaded. 
+You can then import this file into Google Calendar using its import feature found in its settings menu.
 
 ## How does it work?
 
@@ -98,4 +100,3 @@ Columns for other days follow the same pattern (Tue, Wed, Thu, Fri, Sat, Sun)
  * shifty UI - create a UI for managing staff/shifts/negs/leave
  * Test pug files
  * Show debug log?
- * Export to excel?

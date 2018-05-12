@@ -218,6 +218,10 @@ class Shift {
       });
   }
 
+  summary() {
+    return `${this.shiftAllocation.name} : ${this.getTypeAndLabel()}`;
+  }
+
   initialise(allEmployees) {
     allEmployees.forEach(employee => {
       // remember manual assignments
