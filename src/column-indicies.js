@@ -41,7 +41,7 @@ const hoursForDaysKeys = [];
 
 const generateHoursForDaysIndiciesTemplate = (weekPostfixChar) => {
   // MonStartP: 4, MonEndP: 5 etc
-  days.forEach(day => {
+  days.forEach((day) => {
     const startKey = `${day}Start${weekPostfixChar}`;
     const endKey = `${day}End${weekPostfixChar}`;
     columnIndiciesTemplate.staffColumns[startKey] = {};
@@ -79,7 +79,7 @@ const loadIndicies = (sheet, sheetName, columns, errors) => {
     return;
   }
   const columnNamesToIndicies = loadColumnNamesToIndicies(sheet, columns, errors);
-  Object.keys(columns).forEach(key => {
+  Object.keys(columns).forEach((key) => {
     const columnIndex = columnNamesToIndicies[key.toUpperCase()];
     if (!columnIndex) {
       columns[key].index = null;

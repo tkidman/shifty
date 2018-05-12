@@ -1,18 +1,15 @@
 const Excel = require('exceljs');
-const Shift = require('./domain/shift').Shift;
-const shiftTypes = require('./domain/shift-type').shiftTypes;
+const { Shift } = require('./domain/shift');
+const { shiftTypes } = require('./domain/shift-type');
 const Employee = require('./domain/employee');
 const Roster = require('./domain/roster');
 const ShiftAllocation = require('./domain/shift-allocation');
 const parsers = require('./cell-parsers');
-const logger = require('./common').logger;
+const { logger, isNullOrWhitespace } = require('./common');
 const moment = require('moment');
-const isNullOrWhitespace = require('./common').isNullOrWhitespace;
-const loadColumnIndicies = require('./column-indicies').loadColumnIndicies;
-const hoursForDaysKeys = require('./column-indicies').hoursForDaysKeys;
+const { loadColumnIndicies, hoursForDaysKeys } = require('./column-indicies');
 const sheetNames = require('./sheet-names');
-const Unavailability = require('./domain/unavailability').Unavailability;
-const unavailabilityTypes = require('./domain/unavailability').unavailabilityTypes;
+const { Unavailability, unavailabilityTypes } = require('./domain/unavailability');
 
 const addTime = (day, time) => {
   const dateTime = new Date(day);
@@ -52,7 +49,7 @@ const extractIndex = columnIndex => (columnIndex ? columnIndex.index : null);
 const loadStaffHoursByDayOfWeek = (row, errors, allStaff, staffColumns) => {
   const hoursByDayOfWeek = { payweek: {}, nonPayweek: {} };
 
-  hoursForDaysKeys.forEach(key => {
+  hoursForDaysKeys.forEach((key) => {
     const startIndex = extractIndex(staffColumns[key.start]);
     const endIndex = extractIndex(staffColumns[key.end]);
     const day = key.start.slice(0, 3);
@@ -73,16 +70,14 @@ const loadStaff = (workbook, errors, columnIndicies) => {
   const metricStart = moment();
   const staffSheet = workbook.getWorksheet(sheetNames.staff);
   const allStaff = {};
-  const staffColumns = columnIndicies.staffColumns;
+  const { staffColumns } = columnIndicies;
 
   staffSheet.eachRow((row, rowNumber) => {
     const staffParams = { shiftTypes: [shiftTypes.backup] };
     if (rowNumber > 1) {
       staffParams.name = row.getCell(staffColumns.name.index).value;
 
-      tryLoadParamValue(
-        staffParams, 'hewLevel', row.getCell(staffColumns.hew.index), errors, allStaff, parsers.hewLevelParser
-      );
+      tryLoadParamValue(staffParams, 'hewLevel', row.getCell(staffColumns.hew.index), errors, allStaff, parsers.hewLevelParser);
       staffParams.breakTime =
         tryLoadNullableValue('break', staffColumns.break, errors, allStaff, parsers.numberParser, undefined, row);
 
@@ -115,7 +110,7 @@ const loadStaff = (workbook, errors, columnIndicies) => {
 const loadShifts = (workbook, allStaff, errors, columnIndicies) => {
   const metricStart = moment();
   const shiftsSheet = workbook.getWorksheet(sheetNames.shifts);
-  const shiftColumns = columnIndicies.shiftColumns;
+  const { shiftColumns } = columnIndicies;
   const shifts = [];
   let day;
   shiftsSheet.eachRow((row, rowNumber) => {
@@ -134,14 +129,21 @@ const loadShifts = (workbook, allStaff, errors, columnIndicies) => {
       }
 
       const excludedEmployees = tryLoadNullableValue(
-        'excludedEmployees', shiftColumns.excludedNames, errors, allStaff, parsers.multipleNameParser, [], row
+        'excludedEmployees',
+        shiftColumns.excludedNames,
+        errors,
+        allStaff,
+        parsers.multipleNameParser,
+        [],
+        row,
       );
 
-      const shift = new Shift({ types, start, end, label, excludedEmployees });
+      const shift = new Shift({
+        types, start, end, label, excludedEmployees,
+      });
 
-      const manualEmployee = tryLoadNullableValue(
-        'manualEmployee', shiftColumns.manualName, errors, allStaff, parsers.multipleNameParser, [], row
-      );
+      const manualEmployee =
+        tryLoadNullableValue('manualEmployee', shiftColumns.manualName, errors, allStaff, parsers.multipleNameParser, [], row);
 
       if (manualEmployee.length === 1) {
         shift.allocateShift(new ShiftAllocation(shift, manualEmployee[0]));
@@ -156,7 +158,7 @@ const loadShifts = (workbook, allStaff, errors, columnIndicies) => {
 const loadNegs = (workbook, allStaff, errors, columnIndicies) => {
   const metricStart = moment();
   const negsSheet = workbook.getWorksheet(sheetNames.negs);
-  const negsColumns = columnIndicies.negsColumns;
+  const { negsColumns } = columnIndicies;
 
   negsSheet.eachRow((row, rowNumber) => {
     if (rowNumber > 1) {
@@ -168,7 +170,9 @@ const loadNegs = (workbook, allStaff, errors, columnIndicies) => {
       if (name && day && startTime && endTime) {
         const start = addTime(day, startTime);
         const end = addTime(day, endTime);
-        allStaff[name].unavailabilities.push(new Unavailability({ start, end, reason, type: unavailabilityTypes.neg }));
+        allStaff[name].unavailabilities.push(new Unavailability({
+          start, end, reason, type: unavailabilityTypes.neg,
+        }));
       }
     }
   });
@@ -178,7 +182,7 @@ const loadNegs = (workbook, allStaff, errors, columnIndicies) => {
 const loadLeave = (workbook, allStaff, errors, columnIndicies) => {
   const metricStart = moment();
   const leaveSheet = workbook.getWorksheet(sheetNames.leave);
-  const leaveColumns = columnIndicies.leaveColumns;
+  const { leaveColumns } = columnIndicies;
   leaveSheet.eachRow((row, rowNumber) => {
     if (rowNumber > 1) {
       const name = tryLoadValue('name', row.getCell(leaveColumns.name.index), errors, allStaff, parsers.nameParser);

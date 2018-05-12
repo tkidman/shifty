@@ -1,14 +1,14 @@
 'use strict';
+
 const chai = require('chai');
-const expect = chai.expect;
 const Employee = require('../../src/domain/employee');
-const Shift = require('../../src/domain/shift').Shift;
-const scoreConstants = require('../../src/domain/shift').scoreConstants;
-const unavailabilityTypes = require('../../src/domain/unavailability').unavailabilityTypes;
-const Unavailability = require('../../src/domain/unavailability').Unavailability;
-const shiftTypes = require('../../src/domain/shift-type').shiftTypes;
+const { Shift, scoreConstants } = require('../../src/domain/shift');
+const { unavailabilityTypes, Unavailability } = require('../../src/domain/unavailability');
+const { shiftTypes } = require('../../src/domain/shift-type');
 const ShiftAllocation = require('../../src/domain/shift-allocation');
 const hewLevels = require('../../src/domain/hew-level');
+
+const { expect } = chai;
 
 describe('Shift', () => {
   let employee;
@@ -48,11 +48,15 @@ describe('Shift', () => {
       end: new Date('2017-02-06T21:00:00'),
     });
     standardShiftTypes = [shiftTypes.aal, shiftTypes.standard, shiftTypes.backup];
-    employee = new Employee({ name: 'empy', hewLevel: hewLevels.hewLevel5, hoursByDayOfWeek, shiftTypes: standardShiftTypes });
+    employee = new Employee({
+      name: 'empy', hewLevel: hewLevels.hewLevel5, hoursByDayOfWeek, shiftTypes: standardShiftTypes,
+    });
     employee.idealMinMinutes = 300;
     employee.idealMaxMinutes = 600;
     employee.markAsAvailableForShift(standardShift);
-    employee2 = new Employee({ name: 'ompy', hewLevel: hewLevels.hewLevel5, hoursByDayOfWeek, shiftTypes: standardShiftTypes });
+    employee2 = new Employee({
+      name: 'ompy', hewLevel: hewLevels.hewLevel5, hoursByDayOfWeek, shiftTypes: standardShiftTypes,
+    });
   });
 
   context('constructor', () => {
@@ -64,7 +68,8 @@ describe('Shift', () => {
   context('scoreEmployee', () => {
     it('returns the correct score when under minimum minutes', () => {
       const empScore = standardShift.getPotentialShiftAllocation(employee);
-      const expectedScore = standardShift.getShiftLengthMinutes() - employee.idealMinMinutes + scoreConstants.minMinutesScoreChange;
+      const expectedScore = (standardShift.getShiftLengthMinutes() - employee.idealMinMinutes)
+        + scoreConstants.minMinutesScoreChange;
       expect(empScore.score).to.eql(expectedScore);
     });
 
@@ -76,13 +81,13 @@ describe('Shift', () => {
       });
       nightShift.allocateShift(new ShiftAllocation(nightShift, employee));
       const score = nextDayShift.getPotentialShiftAllocation(employee);
-      const expectedScore = nightShift.getShiftLengthMinutes() + nextDayShift.getShiftLengthMinutes() - employee.idealMinMinutes;
+      const expectedScore = (nightShift.getShiftLengthMinutes() + nextDayShift.getShiftLengthMinutes()) - employee.idealMinMinutes;
       expect(score.score).to.eql(expectedScore);
     });
 
     it('returns the correct score when over ideal min minutes and under ideal max minutes', () => {
       // between 5 and 10
-      for (let i = 0; i < 8; i++) {
+      for (let i = 0; i < 8; i += 1) {
         standardShift.allocateShift(new ShiftAllocation(standardShift, employee));
       }
       const score = standardShift.getPotentialShiftAllocation(employee);
@@ -90,7 +95,7 @@ describe('Shift', () => {
     });
 
     it('returns the correct score when over ideal max minutes', () => {
-      for (let i = 0; i < 10; i++) {
+      for (let i = 0; i < 10; i += 1) {
         standardShift.allocateShift(new ShiftAllocation(standardShift, employee));
       }
       const score = standardShift.getPotentialShiftAllocation(employee);
@@ -381,14 +386,13 @@ describe('Shift', () => {
       aalShift.initialise(allEmployees);
       expect(aalShift.employeeMissingShiftTypesDisplay()).to.eql(['empy']);
     });
-
   });
 
   context('employeeNames', () => {
     it('produces a nicely formatted string of employee names', () => {
-      expect(standardShift.employeeNames([employee, employee2])).to.eql('empy, ompy');
-      expect(standardShift.employeeNames([employee])).to.eql('empy');
-      expect(standardShift.employeeNames([])).to.eql('');
+      expect(Shift.employeeNames([employee, employee2])).to.eql('empy, ompy');
+      expect(Shift.employeeNames([employee])).to.eql('empy');
+      expect(Shift.employeeNames([])).to.eql('');
     });
   });
 

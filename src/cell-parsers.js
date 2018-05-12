@@ -1,8 +1,6 @@
-const shiftTypesList = require('./domain/shift-type').shiftTypesList;
+const { shiftTypesList } = require('./domain/shift-type');
 const hewLevels = require('./domain/hew-level');
-const adjustTimezoneOffset = require('./common').adjustTimezoneOffset;
-const logger = require('./common').logger;
-const isNullOrWhitespace = require('./common').isNullOrWhitespace;
+const { adjustTimezoneOffset, logger, isNullOrWhitespace } = require('./common');
 
 const hewLevelsByNumber = {
   3: hewLevels.hewLevel3,
@@ -15,7 +13,7 @@ const hewLevelsByNumber = {
 };
 
 const tryTrimValue = (cell) => {
-  const value = cell.value;
+  const { value } = cell;
   if (value && typeof value === 'string') {
     return value.trim();
   }
@@ -42,7 +40,7 @@ const parsers = {
     const employees = [];
     const errorNames = [];
 
-    names.split(',').forEach(name => {
+    names.split(',').forEach((name) => {
       const employee = allStaff[name.trim()];
       if (!employee) {
         errorNames.push(name.trim());
@@ -69,14 +67,14 @@ const parsers = {
     return { error: 'No value provided' };
   },
   numberParser: (cell) => {
-    const value = cell.value;
-    if (!isNullOrWhitespace(value) && !isNaN(value)) {
+    const { value } = cell;
+    if (!isNullOrWhitespace(value) && Number.isInteger(Number(value))) {
       return { value: Number(value) };
     }
     return { error: `${value} is not a number` };
   },
   dateParser: (cell) => {
-    const value = cell.value;
+    const { value } = cell;
     if (value) {
       if (typeof value.getMonth === 'function') {
         return { value: adjustTimezoneOffset(value) };
@@ -101,7 +99,7 @@ const parsers = {
     }
     return { error: `At least one shift type must be provided. Allowed values: ${shiftTypesList}` };
   },
-  stringParser: (cell) => ({ value: tryTrimValue(cell) }),
+  stringParser: cell => ({ value: tryTrimValue(cell) }),
 };
 
 module.exports = parsers;

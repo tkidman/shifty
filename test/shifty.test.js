@@ -1,18 +1,18 @@
 'use strict';
+
 const chai = require('chai');
-const expect = chai.expect;
 const shifty = require('../src/shifty');
 const hewLevels = require('../src/domain/hew-level');
-const shiftTypes = require('../src/domain/shift-type').shiftTypes;
-const shiftTypesList = require('../src/domain/shift-type').shiftTypesList;
-const unavailabilityTypes = require('../src/domain/unavailability').unavailabilityTypes;
-const Unavailability = require('../src/domain/unavailability').Unavailability;
+const { shiftTypes, shiftTypesList } = require('../src/domain/shift-type');
+const { unavailabilityTypes, Unavailability } = require('../src/domain/unavailability');
+
+const { expect } = chai;
 
 describe('Shifty', () => {
-  let roster;
-  let errors;
+  let runResult;
 
   const runTests = () => {
+    const { roster } = runResult;
     const edwina = roster.employees.Edwina;
     const rowena = roster.employees.Rowena;
     expect(edwina.hewLevel).to.eql(hewLevels.hewLevel5);
@@ -80,10 +80,9 @@ describe('Shifty', () => {
     expect(rowena.unavailabilities[0]).to.eql(expectedRowenaLeave);
   };
 
-  const loadRoster = (path) =>
-    shifty.run(path).then((runResult) => {
-      roster = runResult.roster;
-      errors = runResult.errors;
+  const loadRoster = path =>
+    shifty.run(path).then((theRunResult) => {
+      runResult = theRunResult;
     });
 
   context('runs normal', () => {
@@ -96,6 +95,7 @@ describe('Shifty', () => {
   context('runs broken', () => {
     beforeEach(() => loadRoster('./data/shifty_broken.xlsx'));
     it('generates errors when columns are invalid', () => {
+      const { errors } = runResult;
       expect(errors).to.eql([
         'Unexpected column named \'Wrong\' found in sheet \'Staff\'',
         'Mandatory column \'name\' not found in sheet \'Staff\'',

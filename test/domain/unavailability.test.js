@@ -1,10 +1,11 @@
 'use strict';
+
 const chai = require('chai');
-const expect = chai.expect;
-const unavailabilityTypes = require('../../src/domain/unavailability').unavailabilityTypes;
-const Unavailability = require('../../src/domain/unavailability').Unavailability;
+const { unavailabilityTypes, Unavailability } = require('../../src/domain/unavailability');
 const Employee = require('../../src/domain/employee');
 const hewLevels = require('../../src/domain/hew-level');
+
+const { expect } = chai;
 
 describe('Unavailability', () => {
   context('employeeNegsDisplay', () => {

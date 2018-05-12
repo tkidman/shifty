@@ -1,11 +1,14 @@
 'use strict';
-const shiftTypes = require('./shift-type').shiftTypes;
-const unavailabilityTypes = require('./unavailability').unavailabilityTypes;
-const days = { 1: 'Mon', 2: 'Tue', 3: 'Wed', 4: 'Thu', 5: 'Fri' };
+
+const { shiftTypes } = require('./shift-type');
+const { unavailabilityTypes } = require('./unavailability');
 const moment = require('moment');
 const common = require('../common');
-const isInPayweek = common.isInPayweek;
-const formatNumber = common.formatNumber;
+
+const days = {
+  1: 'Mon', 2: 'Tue', 3: 'Wed', 4: 'Thu', 5: 'Fri',
+};
+const { isInPayweek, formatNumber } = common;
 
 class Employee {
   constructor(params) {
@@ -28,11 +31,11 @@ class Employee {
     this.idealMaxMinutes = (this.hewLevel.maxDeskPercentage / 100) * this.minutesWorkedInRoster;
   }
 
-  _minutes(date) {
-    return date.getHours() * 60 + date.getMinutes();
+  static _minutes(date) {
+    return (date.getHours() * 60) + date.getMinutes();
   }
 
-  _overlap(neg, shift) {
+  static _overlap(neg, shift) {
     return (neg.start.getTime() > shift.start.getTime() && neg.start.getTime() < shift.end.getTime()) ||
       (neg.end.getTime() > shift.start.getTime() && neg.end.getTime() < shift.end.getTime()) ||
       (neg.start.getTime() <= shift.start.getTime() && neg.end.getTime() >= shift.end.getTime());
@@ -48,7 +51,8 @@ class Employee {
         minutes += this.shiftAllocations
           .filter(shiftAllocation => moment(shiftAllocation.shift.start).isSame(shift.start, 'day'))
           .reduce(
-            (allocatedMinutes, shiftAllocation) => moment(shiftAllocation.shift.end).diff(shiftAllocation.shift.start, 'minutes'), 0
+            (allocatedMinutes, shiftAllocation) => moment(shiftAllocation.shift.end).diff(shiftAllocation.shift.start, 'minutes'),
+            0,
           );
       } else if (!this.onLeaveDuringShift(shift)) {
         const lengthOfWorkingDayMinutes = moment(hoursForDay.end).diff(hoursForDay.start, 'minutes');
@@ -69,8 +73,8 @@ class Employee {
   worksDuringShift(shift) {
     const hoursForDay = this._getHoursForDayOfShift(shift);
     if (hoursForDay) {
-      return this._minutes(hoursForDay.start) <= this._minutes(shift.start) &&
-        this._minutes(hoursForDay.end) >= this._minutes(shift.end);
+      return Employee._minutes(hoursForDay.start) <= Employee._minutes(shift.start) &&
+        Employee._minutes(hoursForDay.end) >= Employee._minutes(shift.end);
     }
     return false;
   }
@@ -87,7 +91,7 @@ class Employee {
   }
 
   findUnavailabilityDuringShift(shift) {
-    return this.unavailabilities.find(unavailability => this._overlap(unavailability, shift));
+    return this.unavailabilities.find(unavailability => Employee._overlap(unavailability, shift));
   }
 
   onLeaveDuringShift(shift) {
@@ -96,7 +100,7 @@ class Employee {
   }
 
   workingShiftAtSameTime(shift) {
-    return this.shiftAllocations.some(shiftAllocation => this._overlap(shiftAllocation.shift, shift));
+    return this.shiftAllocations.some(shiftAllocation => Employee._overlap(shiftAllocation.shift, shift));
   }
 
   canWorkShift(shift) {
@@ -112,8 +116,8 @@ class Employee {
     this.shiftAllocations.push(shiftAllocation);
     this.availableForShifts.splice(this.availableForShifts.indexOf(shiftAllocation.shift), 1);
     // remove other available shifts at the same time
-    this.availableForShifts.filter(availableShift => this._overlap(shiftAllocation.shift, availableShift))
-      .forEach(sameTimeShift => {
+    this.availableForShifts.filter(availableShift => Employee._overlap(shiftAllocation.shift, availableShift))
+      .forEach((sameTimeShift) => {
         sameTimeShift.availableEmployees.splice(sameTimeShift.availableEmployees.indexOf(this), 1);
         sameTimeShift.workingShiftAtSameTimeEmployees.push(this);
         this.availableForShifts.splice(this.availableForShifts.indexOf(sameTimeShift), 1);

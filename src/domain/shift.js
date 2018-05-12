@@ -1,13 +1,15 @@
 'use strict';
 
-const dateString = require('../common').dateString;
-const timeString = require('../common').timeString;
-const logger = require('../common').logger;
-const isInPayweek = require('../common').isInPayweek;
+const {
+  dateString,
+  timeString,
+  logger,
+  isInPayweek,
+} = require('../common');
 const _ = require('lodash');
-const shiftTypes = require('./shift-type').shiftTypes;
+const { shiftTypes } = require('./shift-type');
 const ShiftAllocation = require('./shift-allocation');
-const unavailabilityTypes = require('./unavailability').unavailabilityTypes;
+const { unavailabilityTypes } = require('./unavailability');
 const warnings = require('./warnings');
 const moment = require('moment');
 
@@ -36,7 +38,7 @@ class Shift {
   }
 
   getShiftLengthMinutes() {
-    return (this.end.getHours() * 60 + this.end.getMinutes()) - (this.start.getHours() * 60 + this.start.getMinutes());
+    return ((this.end.getHours() * 60) + this.end.getMinutes()) - ((this.start.getHours() * 60) + this.start.getMinutes());
   }
 
   addAvailableEmployee(employee) {
@@ -54,17 +56,15 @@ class Shift {
   findBestShiftAllocation() {
     const potentialAllocations = this.getSortedPotentialShiftAllocations();
     let allocationDebugMessage = `Potential allocations for shift: ${this}`;
-    potentialAllocations.forEach(potentialAllocation => {
+    potentialAllocations.forEach((potentialAllocation) => {
       allocationDebugMessage += `\n\t ${JSON.stringify(_.omit(potentialAllocation, 'employee', 'shift'))}`;
     });
     logger.debug(allocationDebugMessage);
     const bestPotentialAllocation = potentialAllocations[0];
     if (bestPotentialAllocation) {
       if (Object.keys(bestPotentialAllocation.warningsList).length > 0) {
-        logger.info(
-          `warnings found for best allocation. shift: ${this}` +
-          `, result: ${JSON.stringify(_.omit(bestPotentialAllocation, 'employee', 'shift'))}`
-        );
+        logger.info(`warnings found for best allocation. shift: ${this}` +
+          `, result: ${JSON.stringify(_.omit(bestPotentialAllocation, 'employee', 'shift'))}`);
       }
       return bestPotentialAllocation;
     }
@@ -73,9 +73,8 @@ class Shift {
   }
 
   getSortedPotentialShiftAllocations() {
-    const potentialAllocations = this.availableEmployees.map(employee => this.getPotentialShiftAllocation(employee))
+    return this.availableEmployees.map(employee => this.getPotentialShiftAllocation(employee))
       .sort((firstAllocation, secondAllocation) => firstAllocation.score - secondAllocation.score);
-    return potentialAllocations;
   }
 
   allocateShift(bestAllocation) {
@@ -168,7 +167,7 @@ class Shift {
   }
 
   isAdjacent(otherShift) {
-    if ((this.isNightShift() && otherShift.isSameDay(this)) || (otherShift.isNightShift() && this.isSameDay(otherShift))) {
+    if (this._isNightShiftAndSameDay(otherShift)) {
       return true;
     }
     if (this.isNightShift() && otherShift.isMorningShift() && this.isDayBefore(otherShift)) {
@@ -181,7 +180,11 @@ class Shift {
       otherShift.end.getTime() === this.start.getTime();
   }
 
-  employeeNames(employees) {
+  _isNightShiftAndSameDay(otherShift) {
+    return (this.isNightShift() && otherShift.isSameDay(this)) || (otherShift.isNightShift() && this.isSameDay(otherShift));
+  }
+
+  static employeeNames(employees) {
     return employees.map(employee => employee.name).join(', ');
   }
 
@@ -207,10 +210,18 @@ class Shift {
     return this.missingShiftTypeEmployees.map(employee => employee.name);
   }
 
+  workingAtSameTimeEmployeeNames() {
+    return Shift.employeeNames(this.workingShiftAtSameTimeEmployees);
+  }
+
+  excludedEmployeeNames() {
+    return Shift.employeeNames(this.excludedEmployees);
+  }
+
   worseAllocationsDisplayList() {
     return this.getSortedPotentialShiftAllocations()
       .filter(worseShiftAllocation => worseShiftAllocation.employee !== this.shiftAllocation.employee)
-      .map(allocation => {
+      .map((allocation) => {
         if (allocation.warningsList.length > 0) {
           return `${allocation.employee.name} (${allocation.warningsList.join(', ')})`;
         }
@@ -223,7 +234,7 @@ class Shift {
   }
 
   initialise(allEmployees) {
-    allEmployees.forEach(employee => {
+    allEmployees.forEach((employee) => {
       // remember manual assignments
       if (employee.worksDuringShift(this) && (!this.shiftAllocation || employee !== this.shiftAllocation.employee)) {
         if (employee.findUnavailabilityDuringShift(this)) {

@@ -1,7 +1,6 @@
 'use strict';
 
-const timeString = require('../common').timeString;
-const dateOnlyString = require('../common').dateOnlyString;
+const { timeString, dateOnlyString } = require('../common');
 
 const unavailabilityTypes = {
   neg: 'neg',

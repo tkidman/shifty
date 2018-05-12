@@ -1,11 +1,13 @@
 'use strict';
+
 const chai = require('chai');
-const expect = chai.expect;
 const Roster = require('../../src/domain/roster');
-const Shift = require('../../src/domain/shift').Shift;
+const { Shift } = require('../../src/domain/shift');
 const Employee = require('../../src/domain/employee');
 const hewLevels = require('../../src/domain/hew-level');
-const shiftTypes = require('../../src/domain/shift-type').shiftTypes;
+const { shiftTypes } = require('../../src/domain/shift-type');
+
+const { expect } = chai;
 
 describe('Roster', () => {
   let roster;

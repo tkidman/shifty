@@ -1,14 +1,11 @@
 'use strict';
 
-const shiftTypes = require('./shift-type').shiftTypes;
-const shiftTypesList = require('./shift-type').shiftTypesList;
+const { shiftTypes, shiftTypesList } = require('./shift-type');
 const moment = require('moment');
 const common = require('../common');
-const sameDay = common.sameDay;
-const logger = common.logger;
 const _ = require('lodash');
 
-const skilledShifts = _.difference(shiftTypesList, [shiftTypes.backup, shiftTypes.standard]);
+const { sameDay, logger } = common;
 
 class Roster {
   constructor(params) {
@@ -19,6 +16,7 @@ class Roster {
     this.setShiftsByDays();
     this.shifts.forEach(shift => shift.initialise(this.employeesList));
     this.employeesList.forEach(employee => employee.setMinutesWorkedInRoster(this.shiftsByDays));
+    this.skilledShifts = _.difference(shiftTypesList, [shiftTypes.backup, shiftTypes.standard]);
     logger.info(`construct roster time taken: ${moment().diff(metricStart)}`);
   }
 
@@ -47,14 +45,14 @@ class Roster {
 
   sortShifts() {
     return (Array.from(this.shifts)).sort((firstShift, secondShift) =>
-    this.shiftScore(firstShift) - this.shiftScore(secondShift));
+      this.shiftScore(firstShift) - this.shiftScore(secondShift));
   }
 
   shiftScore(shift) {
     // sort by number available employees first.
     let value = -1000000 + (shift.availableEmployees.length * 10000);
 
-    if (skilledShifts.some(shiftType => shift.types.includes(shiftType))) {
+    if (this.skilledShifts.some(shiftType => shift.types.includes(shiftType))) {
       value -= 100;
     }
 
@@ -68,7 +66,7 @@ class Roster {
 
   asICal() {
     let iCal = 'BEGIN:VCALENDAR\nVERSION:2.0\n';
-    this.shifts.forEach(shift => {
+    this.shifts.forEach((shift) => {
       iCal += 'BEGIN:VEVENT\n';
       iCal += `DTSTART:${common.dateTimeDigitsUTC(shift.start)}\n`;
       iCal += `DTEND:${common.dateTimeDigitsUTC(shift.end)}\n`;

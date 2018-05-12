@@ -1,7 +1,9 @@
 'use strict';
+
 const chai = require('chai');
-const expect = chai.expect;
 const common = require('../src/common');
+
+const { expect } = chai;
 
 describe('common', () => {
   it('formats a date', () => {
@@ -28,14 +30,14 @@ describe('common', () => {
 
   context('isNullOrWhitespace', () => {
     const nullOrWhiteSpaceValues = ['', null, undefined, '  ', '\t', ' '];
-    nullOrWhiteSpaceValues.forEach(value => {
+    nullOrWhiteSpaceValues.forEach((value) => {
       it(`returns true for value '${value}'`, () => {
         expect(common.isNullOrWhitespace(value)).to.be.true;
       });
     });
 
     const nonNullOrWhiteSpaceValues = ['a', new Date(), 2, 0, false, '0 '];
-    nonNullOrWhiteSpaceValues.forEach(value => {
+    nonNullOrWhiteSpaceValues.forEach((value) => {
       it(`returns false for value '${value}'`, () => {
         expect(common.isNullOrWhitespace(value)).to.be.false;
       });
@@ -55,13 +57,13 @@ describe('common', () => {
       new Date('2017-04-04T09:00:00'),
       new Date('2017-04-19T09:00:00'),
     ];
-    payweekDates.forEach(payweekDate => {
+    payweekDates.forEach((payweekDate) => {
       it(`returns true when date is ${payweekDate}`, () => {
         expect(common.isInPayweek(payweekDate)).to.be.true;
       });
     });
 
-    nonPayweekDates.forEach(nonPayweekDate => {
+    nonPayweekDates.forEach((nonPayweekDate) => {
       it(`returns false when date is ${nonPayweekDate}`, () => {
         expect(common.isInPayweek(nonPayweekDate)).to.be.false;
       });

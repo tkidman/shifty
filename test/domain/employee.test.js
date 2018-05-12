@@ -1,14 +1,15 @@
 'use strict';
+
 const chai = require('chai');
-const expect = chai.expect;
 const Employee = require('../../src/domain/employee');
-const Shift = require('../../src/domain/shift').Shift;
-const Unavailability = require('../../src/domain/unavailability').Unavailability;
-const unavailabilityTypes = require('../../src/domain/unavailability').unavailabilityTypes;
+const { Shift } = require('../../src/domain/shift');
+const { Unavailability, unavailabilityTypes } = require('../../src/domain/unavailability');
 const ShiftAllocation = require('../../src/domain/shift-allocation');
-const shiftTypes = require('../../src/domain/shift-type').shiftTypes;
+const { shiftTypes } = require('../../src/domain/shift-type');
 const hewLevels = require('../../src/domain/hew-level');
 const moment = require('moment');
+
+const { expect } = chai;
 
 describe('Employee', () => {
   let employee;
@@ -133,7 +134,9 @@ describe('Employee', () => {
         start: new Date('2017-02-07T09:00:00'),
         end: new Date('2017-02-07T10:00:00'),
       });
-      employee = new Employee({ name: 'empy', hewLevel: hewLevels.hewLevel4, hoursByDayOfWeek, shiftTypes: standardShiftTypes });
+      employee = new Employee({
+        name: 'empy', hewLevel: hewLevels.hewLevel4, hoursByDayOfWeek, shiftTypes: standardShiftTypes,
+      });
     });
 
     context('worksDuringShift', () => {
@@ -199,7 +202,9 @@ describe('Employee', () => {
         end: new Date('2017-02-07T09:00:00'),
       });
 
-      employee = new Employee({ name: 'empy', hewLevel: hewLevels.hewLevel4, hoursByDayOfWeek, shiftTypes: standardShiftTypes });
+      employee = new Employee({
+        name: 'empy', hewLevel: hewLevels.hewLevel4, hoursByDayOfWeek, shiftTypes: standardShiftTypes,
+      });
       shift.allocateShift(new ShiftAllocation(shift, employee));
     });
 
@@ -250,7 +255,7 @@ describe('Employee', () => {
 
     it('includes manual shifts', () => {
       employee.shiftAllocations.push(new ShiftAllocation(anotherShift, employee));
-      expect(employee._calculateMinutesWorkedInRoster(shiftsByDays)).to.eql(10 * 60 + 60);
+      expect(employee._calculateMinutesWorkedInRoster(shiftsByDays)).to.eql((10 * 60) + 60);
     });
 
     it('sets ideal min minutes', () => {
