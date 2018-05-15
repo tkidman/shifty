@@ -68,8 +68,8 @@ class Roster {
     let iCal = 'BEGIN:VCALENDAR\nVERSION:2.0\n';
     this.shifts.forEach((shift) => {
       iCal += 'BEGIN:VEVENT\n';
-      iCal += `DTSTART:${common.dateTimeDigitsUTC(shift.start)}\n`;
-      iCal += `DTEND:${common.dateTimeDigitsUTC(shift.end)}\n`;
+      iCal += `DTSTART:${common.dateTimeDigitsLocal(shift.start)}\n`;
+      iCal += `DTEND:${common.dateTimeDigitsLocal(shift.end)}\n`;
       iCal += `SUMMARY:${shift.summary()}\n`;
       iCal += 'END:VEVENT\n';
     });
