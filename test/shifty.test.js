@@ -8,6 +8,16 @@ const { unavailabilityTypes, Unavailability } = require('../src/domain/unavailab
 
 const { expect } = chai;
 
+const sortByName = (a, b) => {
+  if (a.name < b.name) {
+    return -1;
+  }
+  if (a.name > b.name) {
+    return 1;
+  }
+  return 0;
+};
+
 describe('Shifty', () => {
   let runResult;
 
@@ -16,8 +26,8 @@ describe('Shifty', () => {
     const edwina = roster.employees.Edwina;
     const rowena = roster.employees.Rowena;
     expect(edwina.hewLevel).to.eql(hewLevels.hewLevel5);
-    expect(edwina.shiftTypes.sort()).to.eql(shiftTypesList.sort());
-    expect(rowena.shiftTypes.sort()).to.eql([shiftTypes.backup, shiftTypes.responsibleOfficer]);
+    expect(edwina.shiftTypes.sort(sortByName)).to.eql(shiftTypesList.sort(sortByName));
+    expect(rowena.shiftTypes.sort(sortByName)).to.eql([shiftTypes.backup, shiftTypes.responsibleOfficer]);
 
     const firstShiftStart = new Date('2017-02-06T08:00:00');
     const firstShiftEnd = new Date('2017-02-06T09:00:00');

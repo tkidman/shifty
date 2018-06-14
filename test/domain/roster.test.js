@@ -33,6 +33,7 @@ describe('Roster', () => {
 
     const ro1AvailableShift = new Shift({ types: [shiftTypes.responsibleOfficer], start: startDay2, end: endDay2 });
     ro1AvailableShift.addAvailableEmployee(employee1);
+    ro1AvailableShift.label = 'swap';
 
     const aalNoneAvailableShift = new Shift({ types: [shiftTypes.aal], start: startDay2, end: endDay2 });
 
@@ -63,27 +64,27 @@ VERSION:2.0
 BEGIN:VEVENT
 DTSTART:20170206T080000
 DTEND:20170206T090000
-SUMMARY:None Found : Backup
+SUMMARY:None Found: B
 END:VEVENT
 BEGIN:VEVENT
 DTSTART:20170206T080000
 DTEND:20170206T090000
-SUMMARY:empy : AAL
+SUMMARY:empy: AAL
 END:VEVENT
 BEGIN:VEVENT
 DTSTART:20170207T080000
 DTEND:20170207T090000
-SUMMARY:empy : Standard
+SUMMARY:empy
 END:VEVENT
 BEGIN:VEVENT
 DTSTART:20170207T080000
 DTEND:20170207T090000
-SUMMARY:empy : ResponsibleOfficer
+SUMMARY:empy: RO (swap)
 END:VEVENT
 BEGIN:VEVENT
 DTSTART:20170207T080000
 DTEND:20170207T090000
-SUMMARY:None Found : AAL
+SUMMARY:None Found: AAL
 END:VEVENT
 END:VCALENDAR`;
       roster.fillShifts();

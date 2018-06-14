@@ -449,7 +449,7 @@ describe('Shift', () => {
   context('summary', () => {
     it('returns a summary of the shift assignment', () => {
       standardShift.shiftAllocation = new ShiftAllocation(standardShift, employee);
-      expect(standardShift.summary()).to.eql('empy : Standard');
+      expect(standardShift.summary()).to.eql('empy');
     });
   });
 });

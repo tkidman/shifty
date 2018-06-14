@@ -1,12 +1,13 @@
 const shiftTypes = {
-  standard: 'Standard',
-  responsibleOfficer: 'ResponsibleOfficer',
-  aal: 'AAL',
-  backup: 'Backup',
-  slc: 'SLC',
-  bEast: 'BEast',
-  reference: 'Reference',
+  standard: { name: 'Standard', shortName: '' },
+  responsibleOfficer: { name: 'ResponsibleOfficer', shortName: 'RO' },
+  aal: { name: 'AAL', shortName: 'AAL' },
+  backup: { name: 'Backup', shortName: 'B' },
+  slc: { name: 'SLC', shortName: 'SLC' },
+  bEast: { name: 'BEast', shortName: 'BE' },
+  reference: { name: 'Reference', shortName: 'Ref' },
 };
 
 const shiftTypesList = Object.keys(shiftTypes).map(key => shiftTypes[key]);
-module.exports = { shiftTypes, shiftTypesList };
+const findShiftTypeByName = name => shiftTypesList.find(shiftType => shiftType.name === name);
+module.exports = { shiftTypes, shiftTypesList, findShiftTypeByName };

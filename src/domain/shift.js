@@ -126,7 +126,11 @@ class Shift {
   }
 
   toString() {
-    return `${dateString(this.start)}-${timeString(this.end)} ${this.types.join(', ')}`;
+    return `${dateString(this.start)}-${timeString(this.end)} ${this.getShiftTypeNames().join(', ')}`;
+  }
+
+  getShiftTypeNames() {
+    return this.types.map(type => type.name);
   }
 
   timeSpanString() {
@@ -134,10 +138,22 @@ class Shift {
   }
 
   getTypeAndLabel() {
+    let typeNames = `${this.types.map(type => type.name).join(', ')}`;
     if (this.label) {
-      return `${this.types.join(', ')} - ${this.label}`;
+      typeNames += ` - ${this.label}`;
     }
-    return this.types.join(', ');
+    return typeNames;
+  }
+
+  getSummaryTypeAndLabel() {
+    let shortTypeNames = `${this.types.map(type => type.shortName).join(', ')}`;
+    if (this.label) {
+      shortTypeNames += ` (${this.label})`;
+    }
+    if (shortTypeNames) {
+      shortTypeNames = `: ${shortTypeNames}`;
+    }
+    return shortTypeNames;
   }
 
   isShiftInPayweek() {
@@ -230,7 +246,7 @@ class Shift {
   }
 
   summary() {
-    return `${this.shiftAllocation.name} : ${this.getTypeAndLabel()}`;
+    return `${this.shiftAllocation.name}${this.getSummaryTypeAndLabel()}`;
   }
 
   initialise(allEmployees) {
