@@ -1,5 +1,5 @@
 const shiftTypes = {
-  standard: { name: 'Standard', shortName: '' },
+  standard: { name: 'Standard', shortName: 'S' },
   responsibleOfficer: { name: 'ResponsibleOfficer', shortName: 'RO' },
   aal: { name: 'AAL', shortName: 'AAL' },
   backup: { name: 'Backup', shortName: 'B' },

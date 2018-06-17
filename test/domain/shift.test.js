@@ -447,9 +447,26 @@ describe('Shift', () => {
   });
 
   context('summary', () => {
-    it('returns a summary of the shift assignment', () => {
+    it('returns a summary of the shift assignment for standard without label', () => {
       standardShift.shiftAllocation = new ShiftAllocation(standardShift, employee);
       expect(standardShift.summary()).to.eql('empy');
+    });
+
+    it('returns a summary of the shift assignment for non standard with label', () => {
+      aalShift1.shiftAllocation = new ShiftAllocation(aalShift1, employee);
+      expect(aalShift1.summary()).to.eql('empy: AAL (Carlton swap)');
+    });
+
+    it('returns a summary of the shift assignment for non standard without label', () => {
+      aalShift1.shiftAllocation = new ShiftAllocation(aalShift1, employee);
+      aalShift1.label = null;
+      expect(aalShift1.summary()).to.eql('empy: AAL');
+    });
+
+    it('returns a summary for shift assignment multiple shift types', () => {
+      aalShift1.shiftAllocation = new ShiftAllocation(aalShift1, null);
+      aalShift1.types.push(shiftTypes.standard);
+      expect(aalShift1.summary()).to.eql('None Found: AAL, S (Carlton swap)');
     });
   });
 });

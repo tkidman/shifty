@@ -20,7 +20,7 @@ describe('Roster', () => {
     const endDay2 = new Date('2017-02-07T09:00:00');
 
     const employee1 = new Employee({ name: 'empy', hewLevel: hewLevels.hewLevel4 });
-    const employee2 = new Employee({ name: 'empy', hewLevel: hewLevels.hewLevel4 });
+    const employee2 = new Employee({ name: 'empy2', hewLevel: hewLevels.hewLevel4 });
 
     const backupShift = new Shift({ types: [shiftTypes.backup], start: startDay1, end: endDay1 });
 

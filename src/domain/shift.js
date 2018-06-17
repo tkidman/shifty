@@ -146,14 +146,22 @@ class Shift {
   }
 
   getSummaryTypeAndLabel() {
-    let shortTypeNames = `${this.types.map(type => type.shortName).join(', ')}`;
+    let summaryLabel = '';
+    let summaryTypeName = '';
     if (this.label) {
-      shortTypeNames += ` (${this.label})`;
+      summaryLabel = ` (${this.label})`;
     }
-    if (shortTypeNames) {
-      shortTypeNames = `: ${shortTypeNames}`;
+
+    if (this.types.length === 1) {
+      // don't display shift type for standard shifts in summary
+      if (this.types[0] !== shiftTypes.standard) {
+        summaryTypeName = `: ${this.types[0].shortName}`;
+      }
+    } else {
+      // unless we have to join multiple together ...
+      summaryTypeName = `: ${this.types.map(type => type.shortName).join(', ')}`;
     }
-    return shortTypeNames;
+    return `${summaryTypeName}${summaryLabel}`;
   }
 
   isShiftInPayweek() {
