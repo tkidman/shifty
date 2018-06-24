@@ -153,8 +153,8 @@ class Shift {
     }
 
     if (this.types.length === 1) {
-      // don't display shift type for standard shifts in summary
-      if (this.types[0] !== shiftTypes.standard) {
+      // don't display shift type for standard shifts or responsible officer shifts in summary
+      if (this.types[0] !== shiftTypes.standard && this.types[0] !== shiftTypes.responsibleOfficer) {
         summaryTypeName = `: ${this.types[0].shortName}`;
       }
     } else {
