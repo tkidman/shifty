@@ -19,3 +19,17 @@ function download(name, type) {
   a.download = name;
   a.click();
 }
+
+function toggleDetail(evt) {
+  const shiftId = evt.currentTarget.id;
+  const detailsId = shiftId.replace('shift', 'details');
+  const details = document.getElementById(detailsId);
+  if (details.style.display === 'none') {
+    evt.currentTarget.text = '-';
+    details.style.display = 'table-row';
+  } else {
+    evt.currentTarget.text = '+';
+    details.style.display = 'none';
+  }
+}
+

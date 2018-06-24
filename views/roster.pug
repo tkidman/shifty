@@ -6,10 +6,15 @@ div#roster.tabcontent
     table
       thead
         tr
-          th(colspan="3") #{shiftsByDay.header}
+          th(colspan="4") #{shiftsByDay.header}
       tbody
         each shift in shiftsByDay.shifts
           tr
+            td.toggle
+              - var shiftId = 'shift_' + shift.id
+              a(href="#", id=shiftId, onclick="toggleDetail(event)") +
             td.time #{shift.timeSpanString()}
             include ./name.pug
             td.type #{shift.getTypeAndLabel()}
+          include ./details.pug
+

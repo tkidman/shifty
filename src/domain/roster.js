@@ -14,7 +14,10 @@ class Roster {
     this.employees = params.employees;
     this.employeesList = Object.keys(this.employees).map(key => this.employees[key]);
     this.setShiftsByDays();
-    this.shifts.forEach(shift => shift.initialise(this.employeesList));
+    this.shifts.forEach((shift, index) => {
+      shift.initialise(this.employeesList);
+      shift.id = index;
+    });
     this.employeesList.forEach(employee => employee.setMinutesWorkedInRoster(this.shiftsByDays));
     this.skilledShifts = _.difference(shiftTypesList, [shiftTypes.backup, shiftTypes.standard]);
     logger.info(`construct roster time taken: ${moment().diff(metricStart)}`);

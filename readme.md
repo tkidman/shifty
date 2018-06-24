@@ -100,3 +100,4 @@ Columns for other days follow the same pattern (Tue, Wed, Thu, Fri, Sat, Sun)
  * shifty UI - create a UI for managing staff/shifts/negs/leave
  * Test pug files
  * Show debug log?
+ * remove duplicated code in details.pug & name.pug

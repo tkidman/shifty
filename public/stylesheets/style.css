@@ -5,7 +5,8 @@ body {
 }
 
 a {
-  color: green;
+  color: blue;
+  text-decoration: none;
 }
 
 table {
@@ -82,8 +83,8 @@ div.tab button.active {
 .tooltip {
   position: relative;
   display: inline-block;
-  color: green;
-  border-bottom: 1px dotted green; /* If you want dots under the hoverable text */
+  color: black;
+  border-bottom: 1px dotted black; /* If you want dots under the hoverable text */
 }
 
 /* Tooltip text */
