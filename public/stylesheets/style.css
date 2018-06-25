@@ -96,6 +96,7 @@ div.tab button.active {
   text-align: left;
   padding: 5px 15px;
   border-radius: 6px;
+  font-weight: normal;
 
   /* Position the tooltip text - see examples below! */
   position: absolute;
@@ -114,5 +115,6 @@ div.tab button.active {
 
 .tooltip-error {
   color: darkred;
+  font-weight: bold;
   border-bottom: 1px dotted darkred;
 }

@@ -31,5 +31,6 @@ function toggleDetail(evt) {
     evt.currentTarget.text = '+';
     details.style.display = 'none';
   }
+  evt.preventDefault();
 }
 
