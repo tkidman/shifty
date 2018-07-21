@@ -8,7 +8,9 @@ div#staffSummary.tabcontent
         th Ideal min hours
         th Ideal max hours
         th Desk hours %
+        th Desk shifts
         th AAL shifts
+        th SLC shifts
     each employee in roster.employees
       tr
         td= employee.name
@@ -17,4 +19,6 @@ div#staffSummary.tabcontent
         td= employee.getStaffSummaryIdealMinHours()
         td= employee.getStaffSummaryIdealMaxHours()
         td= employee.getPercentageDeskHours()
+        td= employee.getDeskShiftCount()
         td= employee.getAALShiftCount()
+        td= employee.getSLCShiftCount()

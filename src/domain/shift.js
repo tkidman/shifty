@@ -121,6 +121,14 @@ class Shift {
     return this.isOnlyShiftType(shiftTypes.aal);
   }
 
+  isSLCShift() {
+    return this.isOnlyShiftType(shiftTypes.slc);
+  }
+
+  isDeskShift() {
+    return this.isOnlyShiftType(shiftTypes.responsibleOfficer) || this.isOnlyShiftType(shiftTypes.standard);
+  }
+
   isOnlyShiftType(shiftType) {
     return this.types.length === 1 && this.types[0] === shiftType;
   }

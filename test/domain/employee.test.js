@@ -110,18 +110,36 @@ describe('Employee', () => {
     });
   });
 
-  context('getAALShiftCount', () => {
-    it('counts the number of assigned aal shifts', () => {
-      shift.allocateShift(new ShiftAllocation(shift, employee));
-      expect(employee.getAALShiftCount()).to.eql(0);
-      shift.allocateShift(new ShiftAllocation(shift, employee));
-      const aalShift = new Shift({
-        types: [shiftTypes.aal],
+  context('ShiftCount', () => {
+    const createShift = shiftType =>
+      new Shift({
+        types: [shiftType],
         start: new Date('2017-02-07T09:00:00'),
         end: new Date('2017-02-07T10:00:00'),
       });
+
+    it('counts the number of assigned aal shifts', () => {
+      expect(employee.getAALShiftCount()).to.eql(0);
+      shift.allocateShift(new ShiftAllocation(shift, employee));
+      const aalShift = createShift(shiftTypes.aal);
       aalShift.allocateShift(new ShiftAllocation(aalShift, employee));
       expect(employee.getAALShiftCount()).to.eql(1);
+    });
+
+    it('counts the number of assigned slc shifts', () => {
+      expect(employee.getSLCShiftCount()).to.eql(0);
+      shift.allocateShift(new ShiftAllocation(shift, employee));
+      const slcShift = createShift(shiftTypes.slc);
+      slcShift.allocateShift(new ShiftAllocation(slcShift, employee));
+      expect(employee.getSLCShiftCount()).to.eql(1);
+    });
+
+    it('counts the number of assigned desk shifts', () => {
+      expect(employee.getDeskShiftCount()).to.eql(0);
+      shift.allocateShift(new ShiftAllocation(shift, employee));
+      const roShift = createShift(shiftTypes.responsibleOfficer);
+      roShift.allocateShift(new ShiftAllocation(roShift, employee));
+      expect(employee.getDeskShiftCount()).to.eql(2);
     });
   });
 

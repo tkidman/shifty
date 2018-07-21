@@ -142,6 +142,14 @@ class Employee {
     return this.shiftAllocations.filter(shiftAllocation => shiftAllocation.shift.isAALShift()).length;
   }
 
+  getDeskShiftCount() {
+    return this.shiftAllocations.filter(shiftAllocation => shiftAllocation.shift.isDeskShift()).length;
+  }
+
+  getSLCShiftCount() {
+    return this.shiftAllocations.filter(shiftAllocation => shiftAllocation.shift.isSLCShift()).length;
+  }
+
   workingAdjacentShift(shift) {
     return this.shiftAllocations.some(shiftAllocation => shiftAllocation.shift.isAdjacent(shift));
   }
