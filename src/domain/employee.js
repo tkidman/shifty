@@ -15,9 +15,6 @@ class Employee {
     this.name = params.name;
     this.hewLevel = params.hewLevel;
     this.shiftTypes = params.shiftTypes || [];
-    if (this.hewLevel.responsibleOfficer) {
-      this.shiftTypes.push(shiftTypes.responsibleOfficer);
-    }
     this.hoursByDayOfWeek = params.hoursByDayOfWeek;
     this.availableForShifts = [];
     this.shiftAllocations = [];

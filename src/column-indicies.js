@@ -10,6 +10,7 @@ const columnIndiciesTemplate = {
     reference: {},
     standard: {},
     bEast: {},
+    ro: {},
     break: {},
   },
   shiftColumns: {

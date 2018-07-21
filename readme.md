@@ -67,6 +67,7 @@ are to the ideal desk hour percentages defined by the hew level of the staff mem
 | Reference | No | One of: Y or N (empty means N) | Can this staff member perform Reference shifts? |
 | Standard | No | One of: Y or N (**empty means Y**) | Can this staff member perform Standard shifts? |
 | BEast | No | One of: Y or N (empty means N) | Can this staff member perform Bundoora East shifts? |
+| RO | No | One of: Y or N (empty means use hew level) | Shifty considers staff members with a hew level 5 and up to be responsible officers, but you can override that using this column. |
 | Mon Start P | No | Excel Formatted Time | The time the employee starts work on the Monday of a Payweek |
 | Mon End P | No | Excel Formatted Time | The time the employee ends work on the Monday of a Payweek |
 | ... | ... | ... | ... |

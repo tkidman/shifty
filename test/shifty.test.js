@@ -27,7 +27,7 @@ describe('Shifty', () => {
     const rowena = roster.employees.Rowena;
     expect(edwina.hewLevel).to.eql(hewLevels.hewLevel5);
     expect(edwina.shiftTypes.sort(sortByName)).to.eql(shiftTypesList.sort(sortByName));
-    expect(rowena.shiftTypes.sort(sortByName)).to.eql([shiftTypes.backup, shiftTypes.responsibleOfficer]);
+    expect(rowena.shiftTypes.sort(sortByName)).to.eql([shiftTypes.backup]);
 
     const firstShiftStart = new Date('2017-02-06T08:00:00');
     const firstShiftEnd = new Date('2017-02-06T09:00:00');

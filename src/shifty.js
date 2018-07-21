@@ -96,7 +96,10 @@ const loadStaff = (workbook, errors, columnIndicies) => {
       if (tryLoadNullableValue('standard', staffColumns.standard, errors, allStaff, parsers.trueFalseParser, true, row)) {
         staffParams.shiftTypes.push(shiftTypes.standard);
       }
-
+      const ro = tryLoadNullableValue('ro', staffColumns.ro, errors, allStaff, parsers.trueFalseParser, null, row);
+      if (ro || (ro === null && staffParams.hewLevel.responsibleOfficer)) {
+        staffParams.shiftTypes.push(shiftTypes.responsibleOfficer);
+      }
       staffParams.hoursByDayOfWeek = loadStaffHoursByDayOfWeek(row, errors, allStaff, staffColumns);
       if (errors.length === 0) {
         allStaff[staffParams.name] = new Employee(staffParams);
