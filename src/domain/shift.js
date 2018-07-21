@@ -17,7 +17,8 @@ const scoreConstants = {
   employeeMinMinutes: 4 * 60,
   minMinutesScoreChange: -1000,
   workingAdjacentShiftScoreChange: 100000,
-  workingAALShiftScoreChange: 1000,
+  workingShiftTypeScoreChange: 1000,
+  notWorkingShiftTypeScoreChange: -2000,
 };
 
 class Shift {
@@ -100,9 +101,20 @@ class Shift {
       potentialAllocation.score += minutesWithShift - employee.idealMaxMinutes;
     }
 
-    if (this.isAALShift()) {
+    if (this.isAALShift() && employee.hasShiftType(shiftTypes.aal)) {
       const aalShifts = employee.shiftAllocations.filter(shiftAllocation => shiftAllocation.shift.isAALShift());
-      potentialAllocation.score += scoreConstants.workingAALShiftScoreChange * aalShifts.length;
+      potentialAllocation.score += scoreConstants.workingShiftTypeScoreChange * aalShifts.length;
+      if (aalShifts.length === 0) {
+        potentialAllocation.score += scoreConstants.notWorkingShiftTypeScoreChange;
+      }
+    }
+
+    if (this.isSLCShift() && employee.hasShiftType(shiftTypes.slc)) {
+      const slcShifts = employee.shiftAllocations.filter(shiftAllocation => shiftAllocation.shift.isSLCShift());
+      potentialAllocation.score += scoreConstants.workingShiftTypeScoreChange * slcShifts.length;
+      if (slcShifts.length === 0) {
+        potentialAllocation.score += scoreConstants.notWorkingShiftTypeScoreChange;
+      }
     }
 
     if (employee.workingAdjacentShift(this)) {
@@ -126,7 +138,9 @@ class Shift {
   }
 
   isDeskShift() {
-    return this.isOnlyShiftType(shiftTypes.responsibleOfficer) || this.isOnlyShiftType(shiftTypes.standard);
+    return this.isOnlyShiftType(shiftTypes.responsibleOfficer) ||
+      this.isOnlyShiftType(shiftTypes.standard) ||
+      this.isOnlyShiftType(shiftTypes.reference);
   }
 
   isOnlyShiftType(shiftType) {

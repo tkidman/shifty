@@ -176,6 +176,14 @@ class Employee {
   getStaffSummaryIdealMaxHours() {
     return formatNumber(this.idealMaxMinutes / 60);
   }
+
+  getShiftTypesDisplay() {
+    return this.shiftTypes.map(type => type.shortName).join(',');
+  }
+
+  hasShiftType(shiftType) {
+    return this.shiftTypes.includes(shiftType);
+  }
 }
 
 module.exports = Employee;

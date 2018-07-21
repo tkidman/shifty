@@ -106,7 +106,7 @@ describe('Shift', () => {
       aalShift2.allocateShift(new ShiftAllocation(aalShift2, employee));
       const aalScoreResult = aalShift1.getPotentialShiftAllocation(employee);
       const standardScoreResult = standardShift.getPotentialShiftAllocation(employee);
-      expect(aalScoreResult.score - standardScoreResult.score).to.eql(scoreConstants.workingAALShiftScoreChange);
+      expect(aalScoreResult.score - standardScoreResult.score).to.eql(scoreConstants.workingShiftTypeScoreChange);
     });
   });
 

@@ -11,6 +11,7 @@ div#staffSummary.tabcontent
         th Desk shifts
         th AAL shifts
         th SLC shifts
+        th Shift types
     each employee in roster.employees
       tr
         td= employee.name
@@ -22,3 +23,4 @@ div#staffSummary.tabcontent
         td= employee.getDeskShiftCount()
         td= employee.getAALShiftCount()
         td= employee.getSLCShiftCount()
+        td= employee.getShiftTypesDisplay()
