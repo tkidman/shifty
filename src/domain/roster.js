@@ -42,17 +42,24 @@ class Roster {
 
   fillShifts() {
     const metricStart = moment();
-    this.sortShifts().forEach(shift => shift.fill());
+    this.doFillShifts(this.shifts);
     logger.info(`fillShifts time taken: ${moment().diff(metricStart)}`);
   }
 
-  sortShifts() {
-    return (Array.from(this.shifts)).sort((firstShift, secondShift) =>
+  doFillShifts(shifts) {
+    if (shifts.length > 0) {
+      const sortedShifts = this.sortShifts(shifts);
+      sortedShifts[0].fill();
+      this.doFillShifts(sortedShifts.splice(1));
+    }
+  }
+
+  sortShifts(shifts) {
+    return (Array.from(shifts)).sort((firstShift, secondShift) =>
       this.shiftScore(firstShift) - this.shiftScore(secondShift));
   }
 
   shiftScore(shift) {
-    // sort by number available employees first.
     let value = -1000000 + (shift.availableEmployees.length * 10000);
 
     if (this.skilledShifts.some(shiftType => shift.types.includes(shiftType))) {

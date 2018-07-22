@@ -52,7 +52,7 @@ describe('Roster', () => {
 
   context('sort', () => {
     it('sorts correctly based on type', () => {
-      const sortedShifts = roster.sortShifts();
+      const sortedShifts = roster.sortShifts(roster.shifts);
       expect(sortedShifts).to.be.eql(expectedSortedShifts);
     });
   });
