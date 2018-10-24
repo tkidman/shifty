@@ -148,7 +148,7 @@ const loadShifts = (workbook, allStaff, errors, columnIndicies) => {
       const manualEmployee =
         tryLoadNullableValue('manualEmployee', shiftColumns.manualName, errors, allStaff, parsers.multipleNameParser, [], row);
 
-      if (manualEmployee.length === 1) {
+      if (manualEmployee && manualEmployee.length === 1) {
         shift.allocateShift(new ShiftAllocation(shift, manualEmployee[0]));
       }
       shifts.push(shift);
