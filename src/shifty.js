@@ -66,6 +66,12 @@ const loadStaffHoursByDayOfWeek = (row, errors, allStaff, staffColumns) => {
   return hoursByDayOfWeek;
 };
 
+const applyResponsibleOfficer = (ro, staffParams) => {
+  if (ro || (ro === null && staffParams.hewLevel && staffParams.hewLevel.responsibleOfficer)) {
+    staffParams.shiftTypes.push(shiftTypes.responsibleOfficer);
+  }
+};
+
 const loadStaff = (workbook, errors, columnIndicies) => {
   const metricStart = moment();
   const staffSheet = workbook.getWorksheet(sheetNames.staff);
@@ -97,9 +103,7 @@ const loadStaff = (workbook, errors, columnIndicies) => {
         staffParams.shiftTypes.push(shiftTypes.standard);
       }
       const ro = tryLoadNullableValue('ro', staffColumns.ro, errors, allStaff, parsers.trueFalseParser, null, row);
-      if (ro || (ro === null && staffParams.hewLevel.responsibleOfficer)) {
-        staffParams.shiftTypes.push(shiftTypes.responsibleOfficer);
-      }
+      applyResponsibleOfficer(ro, staffParams);
       staffParams.hoursByDayOfWeek = loadStaffHoursByDayOfWeek(row, errors, allStaff, staffColumns);
       if (errors.length === 0) {
         allStaff[staffParams.name] = new Employee(staffParams);

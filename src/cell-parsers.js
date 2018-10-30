@@ -1,4 +1,4 @@
-const { shiftTypesList, findShiftTypeByName } = require('./domain/shift-type');
+const { findShiftTypeByName, shiftTypeNames } = require('./domain/shift-type');
 const hewLevels = require('./domain/hew-level');
 const { adjustTimezoneOffset, logger, isNullOrWhitespace } = require('./common');
 
@@ -93,11 +93,11 @@ const parsers = {
         return { value: types.map(type => findShiftTypeByName(type)) };
       }
       if (invalidTypes.length === 1) {
-        return { error: `${invalidTypes[0]} is not a valid shift type. Allowed values: ${shiftTypesList}` };
+        return { error: `${invalidTypes[0]} is not a valid shift type. Allowed values: ${shiftTypeNames}` };
       }
-      return { error: `${invalidTypes.join(', ')} are not valid shift types. Allowed values: ${shiftTypesList}` };
+      return { error: `${invalidTypes.join(', ')} are not valid shift types. Allowed values: ${shiftTypeNames}` };
     }
-    return { error: `At least one shift type must be provided. Allowed values: ${shiftTypesList}` };
+    return { error: `At least one shift type must be provided. Allowed values: ${shiftTypeNames}` };
   },
   stringParser: cell => ({ value: tryTrimValue(cell) }),
 };

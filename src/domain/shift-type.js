@@ -9,5 +9,8 @@ const shiftTypes = {
 };
 
 const shiftTypesList = Object.keys(shiftTypes).map(key => shiftTypes[key]);
+const shiftTypeNames = shiftTypesList.map(shiftType => shiftType.name).join(', ');
 const findShiftTypeByName = name => shiftTypesList.find(shiftType => shiftType.name === name);
-module.exports = { shiftTypes, shiftTypesList, findShiftTypeByName };
+module.exports = {
+  shiftTypes, shiftTypesList, findShiftTypeByName, shiftTypeNames,
+};

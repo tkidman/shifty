@@ -4,7 +4,7 @@ const chai = require('chai');
 const shifty = require('../src/shifty');
 const hewLevels = require('../src/domain/hew-level');
 const { adjustTimezoneOffset } = require('../src/common');
-const { shiftTypesList, shiftTypes } = require('../src/domain/shift-type');
+const { shiftTypes, shiftTypeNames } = require('../src/domain/shift-type');
 
 const { expect } = chai;
 const { parsers } = shifty;
@@ -82,12 +82,12 @@ context('parsers', () => {
 
   it('shiftType parser returns error for invalid shiftType', () => {
     expect(parsers.shiftTypeParser({ value: 'abc' }).error)
-      .to.equal(`abc is not a valid shift type. Allowed values: ${shiftTypesList}`);
+      .to.equal(`abc is not a valid shift type. Allowed values: ${shiftTypeNames}`);
   });
 
   it('shiftType parser returns error for invalid shiftTypes', () => {
     expect(parsers.shiftTypeParser({ value: 'abc,AAL,def' }).error)
-      .to.equal(`abc, def are not valid shift types. Allowed values: ${shiftTypesList}`);
+      .to.equal(`abc, def are not valid shift types. Allowed values: ${shiftTypeNames}`);
   });
 
   context('multipleNameParser', () => {
